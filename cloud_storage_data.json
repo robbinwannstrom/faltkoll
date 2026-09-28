@@ -1,0 +1,196 @@
+{
+  "users": [
+    {
+      "id": "usr_admin_1",
+      "email": "admin@faltkoll.se",
+      "displayName": "Administratör",
+      "role": "ADMIN",
+      "schoolOrCompany": "Anläggningsutbildning",
+      "createdAt": "2026-01-01 08:00",
+      "lastLogin": "2026-09-28 00:17",
+      "password": "admin123"
+    },
+    {
+      "id": "usr_larare_1",
+      "email": "larare@skola.se",
+      "displayName": "Johan Lindqvist (Lärare)",
+      "role": "TEACHER",
+      "schoolOrCompany": "Yrkesakademin / Byggprogrammet",
+      "createdAt": "2026-01-10 08:00",
+      "lastLogin": "2026-09-24 14:00",
+      "password": "larare123"
+    },
+    {
+      "id": "usr_elev_1",
+      "email": "elev@skola.se",
+      "displayName": "Elev / Lärling",
+      "role": "STUDENT",
+      "schoolOrCompany": "Yrkesakademin / Byggprogrammet",
+      "createdAt": "2026-02-01 09:30",
+      "lastLogin": "2026-09-24 15:10",
+      "password": "elev123"
+    },
+    {
+      "id": "usr_admin_1",
+      "email": "admin@bygg.se",
+      "displayName": "Arbetsledare / Skolledare",
+      "role": "ADMIN",
+      "schoolOrCompany": "Anläggningssektionen",
+      "createdAt": "2026-01-01 08:00",
+      "lastLogin": "2026-09-24 12:00"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif_welcome",
+      "authorName": "Johan Lindqvist",
+      "authorRole": "TEACHER",
+      "title": "Viktigt: Glöm inte kryssmått & toleranskontroll",
+      "message": "Hej alla elever! Kom ihåg att kontrollera kryssmått (max ±5 mm toleransdiff) och fota laseravvägningen på makadambädden innan gjutning eller formsättning påbörjas i veckans moment.",
+      "priority": "URGENT",
+      "createdAt": "2026-09-24 08:30",
+      "readBy": [
+        "usr_elev_1"
+      ]
+    },
+    {
+      "id": "notif_ama_info",
+      "authorName": "Johan Lindqvist",
+      "authorRole": "TEACHER",
+      "title": "AMA Anläggning 20 uppdaterad referens",
+      "message": "Vid kontroll av schaktbotten ska ni använda AMA tabell 13.5 för bärighet. Se till att anteckna lasermått direkt i fältblocket.",
+      "priority": "NORMAL",
+      "createdAt": "2026-09-23 10:15",
+      "readBy": []
+    }
+  ],
+  "projects": {
+    "proj_1790363886439_hg9sm": {
+      "id": "proj_1790363886439_hg9sm",
+      "name": "Husgrund 1",
+      "projectType": "HUSGRUND",
+      "propertyDesignation": "Ej angiven fastighet",
+      "clientName": "Beställare / Byggherre",
+      "contractorName": "Entreprenad AB",
+      "projectNumber": "3313200-7673",
+      "applicableDocs": "Bygghandling M30-1-01, M-10.1-01, AMA Anläggning 20",
+      "createdAt": "2026-09-25 21:18",
+      "updatedAt": "2026-09-25 19:18",
+      "notes": "",
+      "moments": {
+        "1.1": {
+          "momentId": "1.1",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.2": {
+          "momentId": "1.2",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.3": {
+          "momentId": "1.3",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.4": {
+          "momentId": "1.4",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.5": {
+          "momentId": "1.5",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.6": {
+          "momentId": "1.6",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.7": {
+          "momentId": "1.7",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.8": {
+          "momentId": "1.8",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.9": {
+          "momentId": "1.9",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.10": {
+          "momentId": "1.10",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.11": {
+          "momentId": "1.11",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.12": {
+          "momentId": "1.12",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.13": {
+          "momentId": "1.13",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.14": {
+          "momentId": "1.14",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        }
+      },
+      "preInspectionCompleted": false,
+      "preInspectionPhotos": [],
+      "isGroupProject": true,
+      "syncEnabled": true,
+      "groupCode": "BYGG-73",
+      "lastSyncedAt": "2026-09-25 19:18"
+    }
+  },
+  "settings": {
+    "requireLoginOnStartup": false
+  },
+  "adminSettings": {
+    "allowTeacherCreateTeacherAccounts": false,
+    "schoolName": "Bygg- & Anläggningsutbildning"
+  },
+  "exercises": []
+}
