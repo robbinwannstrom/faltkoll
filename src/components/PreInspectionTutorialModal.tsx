@@ -82,7 +82,7 @@ export const PreInspectionTutorialModal: React.FC<PreInspectionTutorialModalProp
   // Initialize existing photos from project so nothing is ever lost
   const [capturedPhotos, setCapturedPhotos] = useState<Record<number, MomentPhoto>>(() => {
     const initial: Record<number, MomentPhoto> = {};
-    if (project.preInspectionPhotos && project.preInspectionPhotos.length > 0) {
+    if (project?.preInspectionPhotos && project.preInspectionPhotos.length > 0) {
       project.preInspectionPhotos.forEach((photo, idx) => {
         const stepIdx = TUTORIAL_STEPS.findIndex(
           (s) => s.title === photo.caption || photo.id.includes(`_${s.stepNumber}`)
@@ -124,7 +124,7 @@ export const PreInspectionTutorialModal: React.FC<PreInspectionTutorialModalProp
       const base64 = await fileToBase64Optimized(file, {
         momentId: `Försyn_${currentStep.stepNumber}`,
         momentTitle: currentStep.title,
-        property: project.propertyDesignation,
+        property: project?.propertyDesignation || 'Försyn & Skadeguide',
       });
 
       const photo: MomentPhoto = {
@@ -135,15 +135,16 @@ export const PreInspectionTutorialModal: React.FC<PreInspectionTutorialModalProp
         caption: currentStep.title,
       };
 
-      setCapturedPhotos((prev) => {
-        const updated = {
-          ...prev,
-          [currentStepIdx]: photo,
-        };
-        // Save immediately to project so even if modal is closed suddenly, photos are saved
+      const updated = {
+        ...capturedPhotos,
+        [currentStepIdx]: photo,
+      };
+      setCapturedPhotos(updated);
+
+      // Notify parent safely outside of state updater
+      if (onCompleteTutorial) {
         onCompleteTutorial(Object.values(updated));
-        return updated;
-      });
+      }
 
       // Auto advance to next step if not on last step
       if (currentStepIdx < totalSteps - 1) {
@@ -171,7 +172,7 @@ export const PreInspectionTutorialModal: React.FC<PreInspectionTutorialModalProp
   // Safe exit: NEVER loses photos taken so far!
   const handleSaveAndClose = () => {
     const photos = Object.values(capturedPhotos);
-    if (photos.length > 0) {
+    if (photos.length > 0 && onCompleteTutorial) {
       onCompleteTutorial(photos);
     }
     onClose();

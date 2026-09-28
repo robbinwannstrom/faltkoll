@@ -31,7 +31,7 @@
       "password": "elev123"
     },
     {
-      "id": "usr_admin_1",
+      "id": "usr_admin_2",
       "email": "admin@bygg.se",
       "displayName": "Arbetsledare / Skolledare",
       "role": "ADMIN",

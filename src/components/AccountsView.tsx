@@ -155,7 +155,19 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
       const res = await fetch('/api/users');
       if (res.ok) {
         const data = await res.json();
-        setAllUsers(data.users || []);
+        const rawUsers: UserAccount[] = data.users || [];
+        // Ensure strictly unique user ids
+        const seen = new Set<string>();
+        const uniqueUsers: UserAccount[] = [];
+        rawUsers.forEach((u, i) => {
+          let id = u.id || `usr_${i}`;
+          if (seen.has(id)) {
+            id = `${id}_${i}`;
+          }
+          seen.add(id);
+          uniqueUsers.push({ ...u, id });
+        });
+        setAllUsers(uniqueUsers);
       }
     } catch {
       // Local fallback users if server endpoint is offline
@@ -856,13 +868,13 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
               Inga konton matchade din sökning.
             </div>
           ) : (
-            filteredUsers.map((user) => {
+            filteredUsers.map((user, idx) => {
               const isCurrent = currentUser?.id === user.id;
               const isRootAdmin = user.role === 'ADMIN' && allUsers.filter(u => u.role === 'ADMIN').length <= 1;
 
               return (
                 <div
-                  key={user.id}
+                  key={`${user.id || 'usr'}_${idx}`}
                   className={`p-4 sm:p-5 rounded-2xl border transition-all ${
                     isCurrent
                       ? 'bg-[#181e18] border-emerald-500/80 ring-1 ring-emerald-500/30'

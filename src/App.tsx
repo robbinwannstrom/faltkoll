@@ -284,7 +284,6 @@ export default function App() {
     setIsFieldHelperOpen(false);
     setIsQuickNotesOpen(false);
     setIsRevisionsOpen(false);
-    setShowLoginModal(false);
     try {
       localStorage.removeItem('falthjalp_current_user');
       const raw = localStorage.getItem('falthjalp_license');
@@ -292,7 +291,6 @@ export default function App() {
       parsed.requireLoginOnStartup = true;
       localStorage.setItem('falthjalp_license', JSON.stringify(parsed));
     } catch {}
-    setRequireLoginOnStartup(true);
     setView('DASHBOARD');
   };
 
