@@ -267,9 +267,9 @@ export const CreateProjectView: React.FC<CreateProjectViewProps> = ({
   const types = Object.keys(PROJECT_TYPE_LABELS) as ProjectType[];
 
   return (
-    <div className="max-w-3xl mx-auto px-3 sm:px-6 py-6 pb-24 space-y-6 w-full max-w-full overflow-x-hidden">
+    <div className="max-w-3xl mx-auto px-2.5 sm:px-6 py-4 sm:py-6 pb-24 space-y-5 sm:space-y-6 w-full max-w-full overflow-x-clip min-w-0">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <button
             onClick={onCancel}
             className="min-h-[44px] px-3.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold border border-slate-750 rounded-xl flex items-center gap-2 text-sm cursor-pointer transition-all active:scale-95"
@@ -465,7 +465,7 @@ export const CreateProjectView: React.FC<CreateProjectViewProps> = ({
                   </button>
                 )}
 
-                <div className="relative min-w-[200px]">
+                <div className="relative w-full sm:w-auto min-w-0 sm:min-w-[200px] flex-1">
                   <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"

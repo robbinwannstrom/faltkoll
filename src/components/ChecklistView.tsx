@@ -1175,7 +1175,7 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-3 sm:px-6 py-5 sm:py-6 pb-32 space-y-5 sm:space-y-6 font-sans w-full max-w-full overflow-x-hidden">
+    <div className="max-w-4xl mx-auto px-2.5 sm:px-6 py-4 sm:py-6 pb-32 space-y-4 sm:space-y-6 font-sans w-full max-w-full overflow-x-clip min-w-0">
       {/* Hidden file input for mobile direct camera capture */}
       <input
         type="file"
@@ -1187,20 +1187,20 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
       />
 
       {/* REN TOPPRAD — Inga utspridda filter eller stora rutor i toppen */}
-      <div className="bg-[#161616] border border-[#262626] rounded-2xl p-4 sm:p-5 space-y-3">
+      <div className="bg-[#161616] border border-[#262626] rounded-2xl p-3.5 sm:p-5 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <button
               type="button"
               onClick={onBackToDashboard}
-              className="w-10 h-10 rounded-xl bg-[#121212] hover:bg-[#222222] text-white flex items-center justify-center border border-[#2e2e2e] cursor-pointer transition-colors shrink-0"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#121212] hover:bg-[#222222] text-white flex items-center justify-center border border-[#2e2e2e] cursor-pointer transition-colors shrink-0"
               title="Tillbaka till översikten"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-black text-white tracking-tight truncate">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <h1 className="text-base sm:text-xl font-black text-white tracking-tight truncate">
                   {project.name}
                 </h1>
                 <span className="text-[11px] font-bold text-slate-300 bg-[#202020] border border-[#333] px-2 py-0.5 rounded-md">
@@ -1212,9 +1212,9 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                   </span>
                 )}
               </div>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-slate-400 mt-0.5">
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-slate-400 mt-0.5">
                 <span>
-                  <strong className="text-white font-mono">{completedCount}/{totalCount}</strong> moment godkända ({progressPercent}%)
+                  <strong className="text-white font-mono">{completedCount}/{totalCount}</strong> moment klara ({progressPercent}%)
                 </span>
                 {project.propertyDesignation && (
                   <span>• {project.propertyDesignation}</span>
@@ -1229,15 +1229,15 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
           </div>
 
           {/* Knappar i toppen: Filter & Vy | Verktyg | Snabbfota */}
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            {/* 1. FILTER & VY KNAPP (Faser, Status & Layout ligger samlade här under!) */}
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            {/* 1. FILTER & VY KNAPP */}
             <button
               type="button"
               onClick={() => {
                 setIsFilterPanelOpen(!isFilterPanelOpen);
                 setIsToolsPanelOpen(false);
               }}
-              className={`min-h-[40px] px-3.5 rounded-xl font-bold text-xs flex items-center gap-1.5 border cursor-pointer transition-colors ${
+              className={`min-h-[38px] px-3 rounded-xl font-bold text-xs flex items-center gap-1.5 border cursor-pointer transition-colors ${
                 isFilterPanelOpen || selectedPhase !== 'ALL' || statusFilter !== 'ALL'
                   ? 'bg-orange-500/15 border-orange-500/60 text-orange-300'
                   : 'bg-[#121212] hover:bg-[#222222] text-slate-200 border-[#2e2e2e]'
@@ -1255,14 +1255,14 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
               />
             </button>
 
-            {/* 2. FÄLTVERKTYG KNAPP (Försyn, Kryssmått, Fotopärm, Fältbok) */}
+            {/* 2. FÄLTVERKTYG KNAPP */}
             <button
               type="button"
               onClick={() => {
                 setIsToolsPanelOpen(!isToolsPanelOpen);
                 setIsFilterPanelOpen(false);
               }}
-              className={`min-h-[40px] px-3.5 rounded-xl font-bold text-xs flex items-center gap-1.5 border cursor-pointer transition-colors ${
+              className={`min-h-[38px] px-3 rounded-xl font-bold text-xs flex items-center gap-1.5 border cursor-pointer transition-colors ${
                 isToolsPanelOpen
                   ? 'bg-orange-500/15 border-orange-500/60 text-orange-300'
                   : 'bg-[#121212] hover:bg-[#222222] text-slate-200 border-[#2e2e2e]'
@@ -1277,28 +1277,28 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
               />
             </button>
 
-            {/* 3. GRUPPKOD & SAMARBETE KNAPP */}
+            {/* 3. GRUPPKOD KNAPP */}
             {onOpenCollaboration && (
               <button
                 type="button"
                 onClick={onOpenCollaboration}
-                className={`min-h-[40px] px-3.5 rounded-xl font-bold text-xs flex items-center gap-1.5 border cursor-pointer transition-all ${
+                className={`min-h-[38px] px-3 rounded-xl font-bold text-xs flex items-center gap-1.5 border cursor-pointer transition-all ${
                   project.groupCode
                     ? 'bg-amber-500/15 border-amber-500/60 text-amber-300 hover:bg-amber-500/25'
                     : 'bg-[#121212] hover:bg-[#222222] text-slate-200 border-[#2e2e2e]'
                 }`}
-                title="Hantera gruppkod och molnsynkning för detta projekt"
+                title="Hantera gruppkod och synkning"
               >
                 <Users className="w-3.5 h-3.5 text-amber-400" />
                 <span>{project.groupCode ? `Kod: ${project.groupCode}` : 'Gruppkod'}</span>
               </button>
             )}
 
-            {/* 3. SNABBFOTA */}
+            {/* 4. SNABBFOTA */}
             <button
               type="button"
               onClick={() => setIsPhotoMenuOpen(true)}
-              className="min-h-[40px] px-3.5 bg-orange-500 hover:bg-orange-400 active:scale-95 text-black font-black text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-all"
+              className="min-h-[38px] px-3.5 bg-orange-500 hover:bg-orange-400 active:scale-95 text-black font-black text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-all"
               title="Snabbfota till valfritt moment"
             >
               <Camera className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -1307,14 +1307,50 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
           </div>
         </div>
 
-        {/* Enkel, tunn framstegslinje */}
-        <div className="w-full h-1.5 bg-[#111111] rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all duration-300 ${
-              progressPercent === 100 ? 'bg-emerald-500' : 'bg-orange-500'
-            }`}
-            style={{ width: `${progressPercent}%` }}
-          />
+        {/* Tydlig framstegsindikator */}
+        <div className="space-y-1.5 pt-1">
+          <div className="flex items-center justify-between text-xs text-slate-300 font-bold">
+            <span className="flex items-center gap-1.5">
+              <span>{progressPercent === 100 ? '🎉 Allt är klart!' : 'Framsteg:'}</span>
+              <strong className={progressPercent === 100 ? 'text-emerald-400' : 'text-orange-400'}>
+                {completedCount} av {totalCount} moment ({progressPercent}%)
+              </strong>
+            </span>
+            <span className="text-[11px] text-slate-400 font-normal">
+              {progressPercent === 100 ? 'Godkänt' : `${totalCount - completedCount} kvar`}
+            </span>
+          </div>
+
+          <div className="w-full h-2 bg-[#111111] rounded-full overflow-hidden border border-[#2a2a2a]">
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${
+                progressPercent === 100 ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50' : 'bg-orange-500'
+              }`}
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+
+          {progressPercent === 100 ? (
+            <div className="p-2.5 bg-emerald-950/70 border border-emerald-500/50 rounded-xl text-xs text-emerald-200 font-bold flex items-center justify-between gap-2 mt-1">
+              <span className="flex items-center gap-1.5">
+                <span>🎉</span>
+                <span>Hurra! Alla moment är godkända och klara!</span>
+              </span>
+              {onOpenReport && (
+                <button
+                  type="button"
+                  onClick={onOpenReport}
+                  className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-lg cursor-pointer"
+                >
+                  Visa rapport
+                </button>
+              )}
+            </div>
+          ) : (
+            <p className="text-[11px] text-slate-400 pt-0.5">
+              💡 <strong>Enkel guide:</strong> Klicka på cirkeln: ⚪ Ej klar ➡️ 🟡 Pågår ➡️ 🟢 Klart! Fota med kameran 📸
+            </p>
+          )}
         </div>
 
         {cloudSyncMsg && (
@@ -2335,55 +2371,64 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                                 : 'hover:bg-[#1b1b1b]'
                             }`}
                           >
-                            {/* Momentrad: Ren och distraktionsfri */}
+                            {/* Momentrad: Ren, visuell och distraktionsfri */}
                             <div
                               onClick={() => toggleMomentExpand(moment.id)}
-                              className="px-4 py-3.5 flex items-center justify-between gap-3 cursor-pointer select-none touch-manipulation"
+                              className="px-3.5 sm:px-4 py-3 sm:py-3.5 flex items-center justify-between gap-2.5 sm:gap-3 cursor-pointer select-none touch-manipulation min-w-0"
                             >
-                              <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                                 <button
                                   type="button"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleSetStatus(moment, status === 'GREEN' ? 'YELLOW' : 'GREEN');
+                                    handleSetStatus(
+                                      moment,
+                                      status === 'RED' ? 'YELLOW' : status === 'YELLOW' ? 'GREEN' : 'RED'
+                                    );
                                   }}
-                                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border font-bold transition-all cursor-pointer active:scale-90 ${
+                                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 border font-bold transition-all cursor-pointer active:scale-90 shadow-sm ${
                                     status === 'GREEN'
-                                      ? 'bg-emerald-500 border-emerald-400 text-black shadow-xs'
+                                      ? 'bg-emerald-500 border-emerald-400 text-black shadow-emerald-500/20'
                                       : status === 'YELLOW'
-                                      ? 'bg-orange-500/20 border-orange-400 text-orange-300'
-                                      : 'bg-[#111111] border-[#363636] hover:border-emerald-500/60 text-slate-600 hover:text-emerald-400'
+                                      ? 'bg-amber-500 border-amber-400 text-black shadow-amber-500/20'
+                                      : 'bg-[#181818] border-[#383838] hover:border-emerald-500/60 text-slate-500 hover:text-emerald-400'
                                   }`}
-                                  title="Klicka för att godkänna"
+                                  title={
+                                    status === 'GREEN'
+                                      ? 'Moment är godkänt! Klicka för att nollställa'
+                                      : status === 'YELLOW'
+                                      ? 'Moment pågår! Klicka för att godkänna'
+                                      : 'Klicka för att påbörja eller godkänna'
+                                  }
                                 >
                                   {status === 'GREEN' ? (
-                                    <Check className="w-4 h-4 stroke-[3.5]" />
+                                    <Check className="w-5 h-5 stroke-[3.5]" />
                                   ) : status === 'YELLOW' ? (
-                                    <span className="w-2 h-2 rounded-full bg-orange-400" />
+                                    <span className="w-3 h-3 rounded-full bg-black" />
                                   ) : (
-                                    <Check className="w-3.5 h-3.5 opacity-30" />
+                                    <span className="w-2.5 h-2.5 rounded-full bg-slate-600" />
                                   )}
                                 </button>
 
                                 <div className="min-w-0 flex-1">
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <span className="text-xs font-mono text-slate-400 shrink-0">
-                                      {moment.id}
+                                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                    <span className="text-[11px] font-mono text-slate-400 shrink-0">
+                                      #{moment.id}
                                     </span>
                                     <h3
-                                      className={`text-sm sm:text-base font-bold truncate ${
+                                      className={`text-xs sm:text-sm md:text-base font-bold truncate ${
                                         status === 'GREEN' ? 'text-emerald-200' : 'text-white'
                                       }`}
                                     >
                                       {moment.title}
                                     </h3>
                                     {status === 'GREEN' && (
-                                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.2 rounded">
-                                        ✓ Godkänt
+                                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.2 rounded shrink-0">
+                                        ✓ Klart
                                       </span>
                                     )}
                                     {status === 'YELLOW' && (
-                                      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.2 rounded">
+                                      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.2 rounded shrink-0">
                                         Pågår
                                       </span>
                                     )}
@@ -2391,13 +2436,27 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-2 shrink-0">
-                                {photos.length > 0 && (
-                                  <span className="text-[11px] font-mono font-bold text-emerald-300 bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded-md flex items-center gap-1 shrink-0">
-                                    <Camera className="w-3 h-3 shrink-0" />
-                                    <span>{photos.length}</span>
+                              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                                {/* Snabbknapp för kamera */}
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleTriggerCameraForMoment(moment.id, moment.phaseName);
+                                  }}
+                                  className="min-h-[34px] px-2 sm:px-2.5 py-1 rounded-xl bg-[#202020] hover:bg-[#282828] text-white border border-[#383838] font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                                  title="Ta foto för detta moment"
+                                >
+                                  <Camera className="w-3.5 h-3.5 text-orange-400 stroke-[2.2]" />
+                                  <span className="hidden xs:inline">
+                                    {photos.length > 0 ? `${photos.length} bild${photos.length > 1 ? 'er' : ''}` : 'Fota'}
                                   </span>
-                                )}
+                                  {photos.length > 0 && (
+                                    <span className="xs:hidden text-[10px] text-emerald-400 font-bold">
+                                      {photos.length}
+                                    </span>
+                                  )}
+                                </button>
 
                                 {project.exerciseSettings?.allowAiHelper !== false && (
                                   <button
@@ -2406,18 +2465,14 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                                       e.stopPropagation();
                                       handleOpenMomentAiHelper(moment);
                                     }}
-                                    className="p-1.5 rounded-lg bg-[#1e1e1e] hover:bg-[#2a2a2a] border border-[#333] text-sky-400 hover:text-sky-300 cursor-pointer shrink-0"
-                                    title={`Förklara moment ${moment.id} (AMA)`}
+                                    className="p-1.5 rounded-xl bg-[#1e1e1e] hover:bg-[#2a2a2a] border border-[#333] text-sky-400 hover:text-sky-300 cursor-pointer shrink-0"
+                                    title={`Förklara moment ${moment.id}`}
                                   >
                                     <HelpCircle className="w-3.5 h-3.5 shrink-0" />
                                   </button>
                                 )}
 
-                                <span className="text-[11px] font-mono text-slate-400 bg-[#121212] border border-[#2a2a2a] px-2 py-0.5 rounded-md hidden sm:inline-block shrink-0">
-                                  {moment.amaCode}
-                                </span>
-
-                                <div className="text-slate-400 pl-1 shrink-0">
+                                <div className="text-slate-400 pl-0.5 shrink-0">
                                   {isExpanded ? (
                                     <ChevronUp className="w-4 h-4 text-orange-400 shrink-0" />
                                   ) : (

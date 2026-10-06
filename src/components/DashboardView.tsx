@@ -80,6 +80,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [deletedCount, setDeletedCount] = useState<number>(0);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [hideReminder, setHideReminder] = useState<boolean>(false);
+  const [showQuickGuide, setShowQuickGuide] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('faltkoll_show_quick_guide') !== 'false';
+    } catch {
+      return true;
+    }
+  });
+
+  const getProjectTypeEmoji = (type: ProjectType) => {
+    switch (type) {
+      case 'HUSGRUND':
+        return '🏠';
+      case 'ALTAN_TRADACK':
+        return '🪵';
+      case 'PLATTSATTNING':
+        return '🧱';
+      case 'ENSKILT_AVLOPP':
+        return '🚰';
+      default:
+        return '🏗️';
+    }
+  };
 
   // Filter & Layout popover state
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState<boolean>(false);
@@ -175,6 +197,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     (typeFilter !== 'ALL' ? 1 : 0) +
     (searchQuery.trim() ? 1 : 0);
 
+  const completedProjectsCount = projects.filter((p) => getProjectStats(p).percent === 100).length;
+  const inProgressProjectsCount = projects.filter((p) => {
+    const s = getProjectStats(p);
+    return s.percent < 100 && (s.completedMoments > 0 || s.inProgressMoments > 0);
+  }).length;
+
   // Active exercises running in field by any student or user
   const runningExercises = (fieldProjects && fieldProjects.length > 0 ? fieldProjects : projects).filter(
     (p) =>
@@ -187,7 +215,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   );
 
   return (
-    <div className="max-w-4xl mx-auto px-3 sm:px-6 py-5 pb-28 space-y-4 font-sans w-full max-w-full overflow-x-hidden">
+    <div className="max-w-4xl mx-auto px-2.5 sm:px-6 py-4 sm:py-5 pb-28 space-y-4 sm:space-y-5 font-sans w-full max-w-full overflow-x-clip min-w-0">
       {/* Toast Notification */}
       {toastMsg && (
         <div className="bg-[#1c1914] border border-orange-500/60 rounded-xl p-3.5 flex items-center justify-between text-xs sm:text-sm text-orange-200">
@@ -206,11 +234,94 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       )}
 
-      {/* REN TOPPRAD: Titel till vänster, samlade knappar till höger */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#242424] pb-4">
+      {/* SUPER-ENKEL 3-STEGSGUIDE (Lätt som en plätt för alla) */}
+      {showQuickGuide && (
+        <div className="bg-gradient-to-r from-[#1a1a1a] via-[#1b1916] to-[#181818] border border-orange-500/40 rounded-2xl p-3.5 sm:p-5 relative overflow-hidden shadow-lg animate-in fade-in">
+          <div className="flex items-center justify-between pb-2.5 border-b border-[#2a2a2a]">
+            <div className="flex items-center gap-2">
+              <span className="text-base sm:text-lg">🎈</span>
+              <h2 className="text-xs sm:text-sm md:text-base font-black text-white">
+                Så här enkelt fungerar det:
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowQuickGuide(false);
+                try {
+                  localStorage.setItem('faltkoll_show_quick_guide', 'false');
+                } catch {}
+              }}
+              className="text-[11px] sm:text-xs text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+              title="Dölj guiden"
+            >
+              ✕ Dölj
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 pt-3">
+            <div className="bg-[#121212]/95 border border-[#262626] rounded-xl p-3 flex items-start gap-2.5">
+              <span className="text-xl sm:text-2xl shrink-0 leading-none">1️⃣</span>
+              <div className="min-w-0">
+                <h3 className="text-xs sm:text-sm font-black text-white">Välj eller Skapa</h3>
+                <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 leading-relaxed">
+                  Tryck på <strong className="text-orange-400">"➕ Nytt Projekt"</strong> eller öppna ett bygge i listan.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-[#121212]/95 border border-[#262626] rounded-xl p-3 flex items-start gap-2.5">
+              <span className="text-xl sm:text-2xl shrink-0 leading-none">2️⃣</span>
+              <div className="min-w-0">
+                <h3 className="text-xs sm:text-sm font-black text-white">Bocka av & Fota</h3>
+                <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 leading-relaxed">
+                  Tryck på cirkeln vid momentet: <strong className="text-emerald-400">Grön bock = Klart!</strong> Fota med kameran.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-[#121212]/95 border border-[#262626] rounded-xl p-3 flex items-start gap-2.5">
+              <span className="text-xl sm:text-2xl shrink-0 leading-none">3️⃣</span>
+              <div className="min-w-0">
+                <h3 className="text-xs sm:text-sm font-black text-white">Klart! 🎉</h3>
+                <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 leading-relaxed">
+                  Allt sparas automatiskt i din enhet. Tryck på <strong className="text-orange-400">Rapport</strong> när du vill se resultatet.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* STOR TYDLIG HUVUDKNAPP FÖR ATT SKAPA PROJEKT */}
+      <div className="bg-[#161616] border-2 border-orange-500/30 hover:border-orange-500/60 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5 transition-all shadow-xl">
+        <div className="space-y-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🏗️</span>
+            <h2 className="text-base sm:text-lg font-black text-white truncate">
+              Starta en ny egenkontroll eller bygge
+            </h2>
+          </div>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Välj husgrund, altan, plattsättning eller avloppskontroll med några klick.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={onCreateNew}
+          className="min-h-[48px] sm:min-h-[52px] px-5 sm:px-6 bg-orange-500 hover:bg-orange-400 active:scale-95 text-black font-black text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all shadow-lg shadow-orange-500/25 shrink-0"
+        >
+          <Plus className="w-5 h-5 stroke-[3]" />
+          <span>➕ Skapa Nytt Projekt</span>
+        </button>
+      </div>
+
+      {/* REN TOPPRAD: Titel och verktyg */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#242424] pb-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">
               {vocab.projectsHeading}
             </h1>
             <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#1c1c1c] text-slate-400 border border-[#2c2c2c]">
@@ -221,12 +332,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <p className="text-xs text-slate-400 mt-0.5">{vocab.projectsSubtitle}</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          {/* FILTER & LAYOUT-KNAPP (håller toppen helt ren från utspridda filter!) */}
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          {/* FILTER & LAYOUT-KNAPP */}
           <button
             type="button"
             onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-            className={`min-h-[40px] px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border cursor-pointer transition-colors ${
+            className={`min-h-[38px] px-3 rounded-xl text-xs font-bold flex items-center gap-1.5 border cursor-pointer transition-colors ${
               isFilterPanelOpen || activeFilterCount > 0
                 ? 'bg-orange-500/15 border-orange-500/60 text-orange-300'
                 : 'bg-[#181818] hover:bg-[#222222] text-slate-300 border-[#2e2e2e]'
@@ -251,7 +362,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={onOpenAccounts}
-              className="min-h-[40px] px-3.5 bg-[#181818] hover:bg-[#222222] text-slate-200 border border-[#2e2e2e] font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="min-h-[38px] px-3 bg-[#181818] hover:bg-[#222222] text-slate-200 border border-[#2e2e2e] font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <Users className="w-3.5 h-3.5 text-orange-400" />
               <span>
@@ -262,24 +373,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </button>
           )}
 
-          {/* Mallbyggare / Kreatörspanel */}
-          {currentUser?.role !== 'STUDENT' && onOpenExerciseCreator && (
-            <button
-              type="button"
-              onClick={onOpenExerciseCreator}
-              className="min-h-[40px] px-3.5 bg-[#181818] hover:bg-[#222222] text-slate-200 border border-[#2e2e2e] font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-orange-400" />
-              <span>{vocab.creatorButtonShort}</span>
-            </button>
-          )}
-
-          {/* Anslut med kod / Grupparbete */}
+          {/* Anslut med kod */}
           {onOpenCollaboration && (
             <button
               type="button"
               onClick={onOpenCollaboration}
-              className="min-h-[40px] px-3.5 bg-[#181818] hover:bg-[#222222] text-amber-300 hover:text-amber-200 border border-amber-500/40 font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="min-h-[38px] px-3 bg-[#181818] hover:bg-[#222222] text-amber-300 hover:text-amber-200 border border-amber-500/40 font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
               title="Anslut till projekt eller grupparbete med kod"
             >
               <Users className="w-3.5 h-3.5 text-amber-400" />
@@ -287,17 +386,64 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </button>
           )}
 
-          {/* Nytt projekt / Ny övning */}
-          <button
-            type="button"
-            onClick={onCreateNew}
-            className="min-h-[40px] px-4 bg-orange-500 hover:bg-orange-400 active:scale-95 text-black font-black text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-          >
-            <Plus className="w-4 h-4 stroke-[2.8]" />
-            <span>{vocab.createProjectButton}</span>
-          </button>
+          {!showQuickGuide && (
+            <button
+              type="button"
+              onClick={() => {
+                setShowQuickGuide(true);
+                try { localStorage.setItem('faltkoll_show_quick_guide', 'true'); } catch {}
+              }}
+              className="min-h-[38px] px-3 bg-[#181818] hover:bg-[#222] text-orange-400 border border-[#2e2e2e] font-bold text-xs rounded-xl flex items-center gap-1 cursor-pointer transition-colors"
+              title="Visa 3-stegs guiden"
+            >
+              <span>💡 Snabbguide</span>
+            </button>
+          )}
         </div>
       </div>
+
+      {/* SNABBFLIKAR FÖR ENKEL FILTRERING: Alla, Pågående, Klara */}
+      {projects.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <button
+              type="button"
+              onClick={() => setStatusFilter('ALL')}
+              className={`min-h-[36px] px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                statusFilter === 'ALL'
+                  ? 'bg-white text-black border-white font-black shadow-sm'
+                  : 'bg-[#181818] hover:bg-[#222] text-slate-300 border-[#2e2e2e]'
+              }`}
+            >
+              <span>Alla projekt ({projects.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setStatusFilter('IN_PROGRESS')}
+              className={`min-h-[36px] px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                statusFilter === 'IN_PROGRESS'
+                  ? 'bg-amber-400 text-black border-amber-400 font-black shadow-sm'
+                  : 'bg-[#181818] hover:bg-[#222] text-amber-300 border-[#2e2e2e]'
+              }`}
+            >
+              <span>🟡 Pågående ({inProgressProjectsCount})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setStatusFilter('COMPLETED')}
+              className={`min-h-[36px] px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                statusFilter === 'COMPLETED'
+                  ? 'bg-emerald-400 text-black border-emerald-400 font-black shadow-sm'
+                  : 'bg-[#181818] hover:bg-[#222] text-emerald-300 border-[#2e2e2e]'
+              }`}
+            >
+              <span>🟢 Helt klara ({completedProjectsCount})</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* LÄRARE / ADMIN: VÄLJ VY MELLAN ALLA AKTIVA FÄLTARBETEN & EGNA PROJEKT */}
       {currentUser?.role !== 'STUDENT' && onFilterScopeChange && (
@@ -860,10 +1006,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       ) : (
         /* =====================================================================
-           LAYOUT 1 (STANDARD): ENKEL LISTA — INGEN BLING
-           Ren, avskalad och lättläst listvy utan tunga kort eller brus
+           LAYOUT 1 (STANDARD): SUPER-ENKEL LISTA
+           Tydlig, visuell och begriplig för alla med stora knappar och framsteg
            ===================================================================== */
-        <div className="bg-[#161616] border border-[#262626] rounded-2xl divide-y divide-[#242424] overflow-hidden">
+        <div className="bg-[#161616] border border-[#262626] rounded-2xl divide-y divide-[#242424] overflow-hidden shadow-xl">
           {filteredProjects.map((project) => {
             const stats = getProjectStats(project);
             const typeInfo = PROJECT_TYPE_LABELS[project.projectType];
@@ -873,95 +1019,101 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div
                 key={project.id}
                 onClick={() => onOpenProject(project.id)}
-                className="p-4 sm:px-5 sm:py-4 hover:bg-[#1c1c1c] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer"
+                className="p-3.5 sm:p-5 hover:bg-[#1a1a1a] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 cursor-pointer"
               >
-                {/* Vänster: Statusprick + Namn + Enkel textrad undertill */}
-                <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                {/* Vänster: Stor visuell ikon + Namn + Framstegsrad */}
+                <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border text-xs font-bold mt-0.5 sm:mt-0 ${
+                    className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shrink-0 border text-xl sm:text-2xl shadow-inner ${
                       isCompleted
                         ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-400'
                         : stats.completedMoments > 0
                         ? 'bg-orange-500/15 border-orange-500/40 text-orange-400'
-                        : 'bg-[#121212] border-[#2e2e2e] text-slate-500'
+                        : 'bg-[#121212] border-[#2e2e2e] text-slate-400'
                     }`}
                   >
-                    {isCompleted ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    ) : (
-                      <span className="font-mono text-[11px]">{stats.percent}%</span>
-                    )}
+                    {isCompleted ? '🎉' : getProjectTypeEmoji(project.projectType)}
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-base font-bold text-white truncate">
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-base sm:text-lg font-black text-white truncate">
                         {project.name}
                       </h2>
-                      {isCompleted && (
-                        <span className="text-[10px] font-bold uppercase px-2 py-0.2 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 shrink-0">
-                          Klar
+                      {isCompleted ? (
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-500 text-black border border-emerald-400 shrink-0">
+                          ✓ Helt klart!
+                        </span>
+                      ) : stats.completedMoments > 0 ? (
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">
+                          🟡 Pågår ({stats.percent}%)
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-[#202020] text-slate-400 border border-[#333] shrink-0">
+                          ⚪ Inte påbörjad
                         </span>
                       )}
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-slate-400 mt-0.5">
-                      <span>{typeInfo.title}</span>
+
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-300">
+                      <span className="font-bold text-orange-400">{typeInfo.title}</span>
                       <span>•</span>
-                      <span>
-                        {stats.completedMoments} av {stats.totalMoments} moment godkända
+                      <span className="text-slate-300">
+                        <strong>{stats.completedMoments}</strong> av {stats.totalMoments} moment klara
                       </span>
                       {project.propertyDesignation && (
                         <>
-                          <span>•</span>
-                          <span className="inline-flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-slate-500" />
+                          <span className="hidden xs:inline">•</span>
+                          <span className="text-slate-400 truncate max-w-[140px] hidden xs:inline">
                             {project.propertyDesignation}
                           </span>
                         </>
                       )}
-                      {project.isGroupProject && project.groupCode && (
-                        <>
-                          <span>•</span>
-                          <span className="text-sky-400 font-mono">
-                            {project.groupCode}
-                          </span>
-                        </>
-                      )}
+                    </div>
+
+                    {/* Liten tydlig framstegsbar */}
+                    <div className="w-full max-w-xs h-1.5 bg-[#101010] rounded-full overflow-hidden border border-[#242424] mt-1">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          isCompleted ? 'bg-emerald-500' : 'bg-orange-500'
+                        }`}
+                        style={{ width: `${stats.percent}%` }}
+                      />
                     </div>
                   </div>
                 </div>
 
-                {/* Höger: Rena knappar */}
+                {/* Höger: Stora och tydliga åtgärdsknappar */}
                 <div
-                  className="flex items-center gap-2 shrink-0"
+                  className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 self-end sm:self-center"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
                     type="button"
                     onClick={() => onOpenProject(project.id)}
-                    className="min-h-[38px] px-4 bg-orange-500 hover:bg-orange-400 text-black font-bold text-xs rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
+                    className="min-h-[42px] px-4.5 bg-orange-500 hover:bg-orange-400 active:scale-95 text-black font-black text-xs sm:text-sm rounded-xl flex items-center gap-1.5 cursor-pointer transition-all shadow-md"
                   >
                     <span>Öppna</span>
-                    <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <ArrowRight className="w-4 h-4 stroke-[2.8]" />
                   </button>
 
                   <button
                     type="button"
                     onClick={() => onOpenReportDirect(project)}
-                    className="min-h-[38px] px-3 bg-[#121212] hover:bg-[#222222] text-slate-200 border border-[#2e2e2e] font-medium text-xs rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
+                    className="min-h-[42px] px-3 bg-[#181818] hover:bg-[#242424] text-slate-200 border border-[#2e2e2e] font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
                     title="Visa rapport"
                   >
-                    <FileText className="w-3.5 h-3.5 text-slate-400" />
+                    <FileText className="w-3.5 h-3.5 text-orange-400" />
                     <span>Rapport</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleSoftDelete(project)}
-                    className="min-h-[38px] w-9 bg-[#121212] hover:bg-rose-950 text-slate-500 hover:text-rose-400 border border-[#2e2e2e] rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                    className="min-h-[42px] w-9 bg-[#181818] hover:bg-rose-950 text-slate-500 hover:text-rose-400 border border-[#2e2e2e] rounded-xl flex items-center justify-center cursor-pointer transition-colors"
                     title="Flytta till papperskorgen"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>

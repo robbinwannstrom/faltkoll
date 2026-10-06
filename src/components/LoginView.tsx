@@ -622,8 +622,8 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }
   };
 
   return (
-    <div className="min-h-screen bg-[#0e0e0e] text-white flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen bg-[#0e0e0e] text-white flex flex-col justify-center items-center p-3 sm:p-6 font-sans w-full max-w-full overflow-x-clip min-w-0">
+      <div className="w-full max-w-md space-y-5 sm:space-y-6 min-w-0">
         {/* App Logo & Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-orange-500/20 border-2 border-orange-500/50 text-orange-400 shadow-xl shadow-orange-500/10 mb-1">

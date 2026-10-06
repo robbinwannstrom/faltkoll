@@ -608,7 +608,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#121212] text-slate-100 flex flex-col font-sans selection:bg-orange-500 selection:text-black w-full max-w-full overflow-x-hidden">
+    <div className="min-h-screen bg-[#121212] text-slate-100 flex flex-col font-sans selection:bg-orange-500 selection:text-black w-full max-w-full overflow-x-clip min-w-0">
       {/* Top Header Navigation with ☰ Hamburger Menu */}
       <Header
         currentView={view}
@@ -640,7 +640,7 @@ export default function App() {
       />
 
       {/* Main View Area */}
-      <main className="flex-1 w-full max-w-full overflow-x-hidden">
+      <main className="flex-1 w-full max-w-full overflow-x-clip min-w-0">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
             <div className="w-12 h-12 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
