@@ -1,0 +1,1889 @@
+{
+  "users": [
+    {
+      "id": "usr_1790725123408_pqio",
+      "email": "erik.bygg@skola.se",
+      "displayName": "Erik Svensson",
+      "role": "STUDENT",
+      "password": "hemligt123",
+      "schoolOrCompany": "Bygg & Anläggning",
+      "createdAt": "2026-09-29 23:38",
+      "lastLogin": "2026-09-29 23:38",
+      "schoolClass": "BA24 (Bygg Åk 2)",
+      "studentGroup": "Byggprogrammet (BA)"
+    },
+    {
+      "id": "usr_angfar_teacher",
+      "email": "angfar@skola.se",
+      "displayName": "Angfar",
+      "role": "TEACHER",
+      "password": "1234",
+      "schoolOrCompany": "Bygg- & Anläggningsutbildning",
+      "createdAt": "2026-09-29 08:00",
+      "lastLogin": "2026-09-29 23:38"
+    },
+    {
+      "id": "usr_admin_skola",
+      "email": "admin@faltkoll.se",
+      "displayName": "Administratör",
+      "role": "ADMIN",
+      "password": "admin123",
+      "schoolOrCompany": "Bygg- & Anläggningsutbildning",
+      "createdAt": "2026-09-29 08:00",
+      "lastLogin": "2026-10-05 15:57"
+    },
+    {
+      "id": "usr_1790594250865_0wxq",
+      "email": "johan.elev@skola.se",
+      "displayName": "Johan Elev",
+      "role": "STUDENT",
+      "password": "mittlosenord123",
+      "schoolOrCompany": "Bygg- & Anläggningsutbildning",
+      "createdAt": "2026-09-28 11:17",
+      "lastLogin": "2026-09-28 11:17",
+      "schoolClass": "BA24 (Bygg Åk 2)",
+      "studentGroup": "Byggprogrammet (BA)"
+    },
+    {
+      "id": "usr_1790594214948_pig3",
+      "email": "ny_elev@skola.se",
+      "displayName": "Ny Elev",
+      "role": "STUDENT",
+      "password": "hemligt123",
+      "schoolOrCompany": "Byggprogrammet",
+      "createdAt": "2026-09-28 11:16",
+      "lastLogin": "2026-09-28 11:16",
+      "schoolClass": "ANL23 (Anläggare)",
+      "studentGroup": "Anläggare (Mark & Anläggning)"
+    },
+    {
+      "id": "usr_1790593988229_yrbz",
+      "email": "test@skola.se",
+      "displayName": "Test Person",
+      "role": "STUDENT",
+      "password": "1234",
+      "schoolOrCompany": "Bygg & Anläggningsutbildning",
+      "createdAt": "2026-09-28 11:13",
+      "lastLogin": "Aldrig inloggad",
+      "schoolClass": "BA25 (Bygg Åk 1)",
+      "studentGroup": "Byggprogrammet (BA)"
+    },
+    {
+      "id": "usr_admin_1",
+      "email": "admin@faltkoll.se",
+      "displayName": "Administratör",
+      "role": "ADMIN",
+      "schoolOrCompany": "Anläggningsutbildning",
+      "createdAt": "2026-01-01 08:00",
+      "lastLogin": "2026-09-28 00:17",
+      "password": "admin123"
+    },
+    {
+      "id": "usr_larare_1",
+      "email": "larare@skola.se",
+      "displayName": "Johan Lindqvist (Lärare)",
+      "role": "TEACHER",
+      "schoolOrCompany": "Yrkesakademin / Byggprogrammet",
+      "createdAt": "2026-01-10 08:00",
+      "lastLogin": "2026-09-24 14:00",
+      "password": "larare123"
+    },
+    {
+      "id": "usr_elev_1",
+      "email": "elev@skola.se",
+      "displayName": "Elev / Lärling",
+      "role": "STUDENT",
+      "schoolOrCompany": "Yrkesakademin / Byggprogrammet",
+      "createdAt": "2026-02-01 09:30",
+      "lastLogin": "2026-09-24 15:10",
+      "password": "elev123",
+      "schoolClass": "BA25 (Bygg Åk 1)",
+      "studentGroup": "Byggprogrammet (BA)"
+    },
+    {
+      "id": "usr_admin_2",
+      "email": "admin@bygg.se",
+      "displayName": "Arbetsledare / Skolledare",
+      "role": "ADMIN",
+      "schoolOrCompany": "Anläggningssektionen",
+      "createdAt": "2026-01-01 08:00",
+      "lastLogin": "2026-09-24 12:00"
+    },
+    {
+      "id": "usr_admin_skola",
+      "email": "admin@skola.se",
+      "displayName": "Administratör (Skola)",
+      "role": "ADMIN",
+      "password": "admin123",
+      "schoolOrCompany": "Bygg- & Anläggningsutbildning",
+      "createdAt": "2026-01-01 08:00",
+      "lastLogin": "2026-09-29 08:00"
+    }
+  ],
+  "notifications": [],
+  "projects": {
+    "proj_1790363886439_hg9sm": {
+      "id": "proj_1790363886439_hg9sm",
+      "name": "Husgrund 1",
+      "projectType": "HUSGRUND",
+      "propertyDesignation": "Ej angiven fastighet",
+      "clientName": "Beställare / Byggherre",
+      "contractorName": "Entreprenad AB",
+      "projectNumber": "3313200-7673",
+      "applicableDocs": "Bygghandling M30-1-01, M-10.1-01, AMA Anläggning 20",
+      "createdAt": "2026-09-25 21:18",
+      "updatedAt": "2026-09-25 19:18",
+      "notes": "",
+      "moments": {
+        "1.1": {
+          "momentId": "1.1",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.2": {
+          "momentId": "1.2",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.3": {
+          "momentId": "1.3",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.4": {
+          "momentId": "1.4",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.5": {
+          "momentId": "1.5",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.6": {
+          "momentId": "1.6",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.7": {
+          "momentId": "1.7",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.8": {
+          "momentId": "1.8",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.9": {
+          "momentId": "1.9",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.10": {
+          "momentId": "1.10",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.11": {
+          "momentId": "1.11",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.12": {
+          "momentId": "1.12",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.13": {
+          "momentId": "1.13",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.14": {
+          "momentId": "1.14",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        }
+      },
+      "preInspectionCompleted": false,
+      "preInspectionPhotos": [],
+      "isGroupProject": true,
+      "syncEnabled": true,
+      "groupCode": "BYGG-73",
+      "lastSyncedAt": "2026-09-25 19:18"
+    },
+    "proj_erik_grund_1": {
+      "id": "proj_erik_grund_1",
+      "name": "Övning: Platta på mark - Schakt & Makadam",
+      "projectType": "HUSGRUND",
+      "propertyDesignation": "Bygghall 2, Skoltomten 1:1",
+      "clientName": "Yrkeslärare Mark & Betong",
+      "contractorName": "Erik Svensson",
+      "studentId": "usr_1790725123408_pqio",
+      "studentName": "Erik Svensson",
+      "studentEmail": "erik.bygg@skola.se",
+      "schoolClass": "BA24 (Bygg Åk 2)",
+      "studentGroup": "Byggprogrammet (BA)",
+      "projectNumber": "GRUND-1",
+      "exerciseCode": "GRUND-1",
+      "isTeacherExercise": true,
+      "createdAt": "2026-10-02 08:30",
+      "updatedAt": "2026-10-03 17:02",
+      "lastSyncedAt": "2026-10-03 10:45",
+      "syncEnabled": true,
+      "notes": "Arbetar med schaktning och kapillärbrytande makadambädd. Alla mått kontrolleras med rotationslaser.",
+      "fieldMeasurements": {
+        "sideA": 10,
+        "sideB": 8,
+        "diagonal": 12.81,
+        "fallCmPerM": 1
+      },
+      "preInspectionCompleted": true,
+      "moments": {
+        "1.1": {
+          "momentId": "1.1",
+          "status": "GREEN",
+          "comment": "Utsättning med profilställningar och linor. Kryssmått 12.81 m stämmer exakt på millimetern.",
+          "signature": "Erik Svensson",
+          "completedAt": "2026-10-03 09:10",
+          "weather": "SOL",
+          "measuredValue": "12.81 m (±1 mm)",
+          "structuredChecks": [
+            "Profilställningar stabilt förankrade",
+            "Snören i våg och 90 graders vinkel",
+            "Diagonalmått kontrollerat"
+          ],
+          "photos": [
+            {
+              "id": "ph_erik_1",
+              "capturedAt": "2026-10-03 09:12",
+              "category": "Kontrollbevis",
+              "caption": "Profilsnören uppspända och kryssmått verifierat",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_38bdf8%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_38bdf8)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%2338bdf8%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%2338bdf8%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.1%3A%20Uts%C3%A4ttning%20%26%20Kryssm%C3%A5tt%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3EKryssm%C3%A5tt%2012.81%20m%20verifierat%20med%20st%C3%A5lbandm%C3%A5tt%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-03%2009%3A12%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        },
+        "1.2": {
+          "momentId": "1.2",
+          "status": "GREEN",
+          "comment": "Schaktat bort matjord och lera ner till fast moränbotten. Djup -420 mm.",
+          "signature": "Erik Svensson",
+          "completedAt": "2026-10-03 09:50",
+          "weather": "SOL",
+          "measuredValue": "-420 mm",
+          "photos": [
+            {
+              "id": "ph_erik_2",
+              "capturedAt": "2026-10-03 09:52",
+              "category": "Schakt",
+              "caption": "Schaktbotten avjämnad till fast morän",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_f97316%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_f97316)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%23f97316%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%23f97316%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.2%3A%20Schaktning%20till%20fast%20botten%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3ELaseravv%C3%A4gning%20botten%3A%20-420%20mm%20(Tolerans%20%C2%B110%20mm%20OK)%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-03%2009%3A52%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        },
+        "1.3": {
+          "momentId": "1.3",
+          "status": "GREEN",
+          "comment": "Fiberduk Geotextil Klass N2 utlagd över hela botten och uppdragen mot schaktkant med 50 cm överlapp.",
+          "signature": "Erik Svensson",
+          "completedAt": "2026-10-03 10:15",
+          "weather": "SOL",
+          "photos": [
+            {
+              "id": "ph_erik_3",
+              "capturedAt": "2026-10-03 10:17",
+              "category": "Schakt",
+              "caption": "Fiberduk med 50 cm överlapp enligt AMA Anläggning",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_10b981%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_10b981)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2310b981%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%2310b981%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%2310b981%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.3%3A%20Geotextil%20%2F%20Fiberduk%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3EDuk%20N2%20utlagd%20med%2050%20cm%20%C3%B6verlapp%20i%20skarvar%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-03%2010%3A17%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        },
+        "1.4": {
+          "momentId": "1.4",
+          "status": "GREEN",
+          "comment": "Makadambädd 8/16 mm utlagd i 20 cm lager och paddad. Laserhöjd mätt till -220 mm över 8 kontrollpunkter. STOPPUNKT: Väntar på lärarens godkännande på plats innan kantelement ställs upp!",
+          "signature": "Erik Svensson",
+          "completedAt": "2026-10-03 10:40",
+          "weather": "SOL",
+          "measuredValue": "-220 mm (±3 mm)",
+          "photos": [
+            {
+              "id": "ph_erik_4",
+              "capturedAt": "2026-10-03 10:42",
+              "category": "Kontrollbevis",
+              "caption": "Laseravvägning makadambädd 8 punkter",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_eab308%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_eab308)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%23eab308%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%23eab308%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%23eab308%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.4%3A%20Makadamb%C3%A4dd%208%2F16%20mm%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3ESTOPPUNKT%20%E2%80%A2%20Laseravv%C3%A4gning%3A%20-220%20mm%20(Tolerans%20%C2%B13%20mm)%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-03%2010%3A42%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ],
+          "teacherApproved": true
+        },
+        "1.5": {
+          "momentId": "1.5",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        },
+        "1.6": {
+          "momentId": "1.6",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        }
+      },
+      "teacherFeedback": {
+        "overallComment": "Grymt bra schaktning och laseravvägning! Godkänd för formgjutning.",
+        "evaluatedAt": "2026-10-03 17:02",
+        "evaluatedBy": "Angfar",
+        "grade": "GODKÄND",
+        "momentNotes": {
+          "1.4": "Laserhöjden -220 mm är godkänd i fält."
+        },
+        "approvedMoments": {
+          "1.4": true
+        }
+      }
+    },
+    "proj_johan_husgrund": {
+      "id": "proj_johan_husgrund",
+      "name": "Husgrund Villa Lindholmen",
+      "projectType": "HUSGRUND",
+      "propertyDesignation": "Lindholmen 4:12",
+      "clientName": "Lindholmen Fastigheter AB",
+      "contractorName": "Johan Elev",
+      "studentId": "usr_1790594250865_0wxq",
+      "studentName": "Johan Elev",
+      "studentEmail": "johan.elev@skola.se",
+      "schoolClass": "BA24 (Bygg Åk 2)",
+      "studentGroup": "Byggprogrammet (BA)",
+      "createdAt": "2026-10-01 09:00",
+      "updatedAt": "2026-10-03 09:30",
+      "lastSyncedAt": "2026-10-03 09:30",
+      "syncEnabled": true,
+      "notes": "Praktikprojekt fältkontroll. Rördragning och dränering.",
+      "preInspectionCompleted": true,
+      "moments": {
+        "1.1": {
+          "momentId": "1.1",
+          "status": "GREEN",
+          "comment": "Utsättning kontrollerad med GPS och laser. Mått stämmer mot ritning A40-1.",
+          "signature": "Johan Elev",
+          "completedAt": "2026-10-02 11:00",
+          "weather": "MOLN",
+          "photos": [
+            {
+              "id": "ph_johan_1",
+              "capturedAt": "2026-10-02 11:05",
+              "category": "Kontrollbevis",
+              "caption": "GPS-inmätning av hörnprofiler",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_38bdf8%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_38bdf8)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%2338bdf8%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%2338bdf8%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.1%3A%20Inm%C3%A4tning%20h%C3%B6rn%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3EH%C3%B6rnkoordinater%20verifierade%20mot%20relationsritning%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-02%2011%3A05%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        },
+        "1.2": {
+          "momentId": "1.2",
+          "status": "GREEN",
+          "comment": "Schakt utförd. Schaktbotten stabil utan organiskt material.",
+          "signature": "Johan Elev",
+          "completedAt": "2026-10-02 14:30",
+          "weather": "MOLN",
+          "photos": [
+            {
+              "id": "ph_johan_2",
+              "capturedAt": "2026-10-02 14:35",
+              "category": "Schakt",
+              "caption": "Schaktbotten avsynad",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_f97316%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_f97316)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%23f97316%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%23f97316%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.2%3A%20Schaktbotten%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3EAvsynad%20fast%20botten%20utan%20tj%C3%A4le%20eller%20vattenfickor%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-02%2014%3A35%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        },
+        "1.5": {
+          "momentId": "1.5",
+          "status": "GREEN",
+          "comment": "Spillvattenrör 110 mm förlagda med fall 20 promille (1:50). Fall mätt med digitalt vattenpass.",
+          "signature": "Johan Elev",
+          "completedAt": "2026-10-03 09:20",
+          "weather": "SOL",
+          "measuredValue": "2.0 cm/m",
+          "photos": [
+            {
+              "id": "ph_johan_3",
+              "capturedAt": "2026-10-03 09:25",
+              "category": "VA",
+              "caption": "VA-rör med 20 promille fall kontrollerat",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_06b6d4%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_06b6d4)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2306b6d4%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%2306b6d4%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%2306b6d4%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.5%3A%20VA%20%26%20Spillvatten%20110%20mm%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3EFallkontroll%3A%2020%20promille%20(1%3A50)%20verifierat%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-03%2009%3A25%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        },
+        "1.6": {
+          "momentId": "1.6",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        }
+      }
+    },
+    "proj_ny_sten": {
+      "id": "proj_ny_sten",
+      "name": "Marksten & Plattsättning Garageuppfart",
+      "projectType": "PLATTSATTNING",
+      "propertyDesignation": "Övningsbås 4, Anläggarytan",
+      "clientName": "Yrkeslärare Mark & Betong",
+      "contractorName": "Ny Elev",
+      "studentId": "usr_1790594214948_pig3",
+      "studentName": "Ny Elev",
+      "studentEmail": "ny_elev@skola.se",
+      "schoolClass": "ANL23 (Anläggare)",
+      "studentGroup": "Anläggare (Mark & Anläggning)",
+      "projectNumber": "PLATTA-2",
+      "exerciseCode": "PLATTA-2",
+      "isTeacherExercise": true,
+      "createdAt": "2026-10-02 08:00",
+      "updatedAt": "2026-10-03 11:15",
+      "lastSyncedAt": "2026-10-03 11:15",
+      "syncEnabled": true,
+      "notes": "Övning i fall och sättsand för marksten.",
+      "fieldMeasurements": {
+        "sideA": 6,
+        "sideB": 4,
+        "diagonal": 7.21,
+        "fallCmPerM": 2
+      },
+      "preInspectionCompleted": true,
+      "moments": {
+        "1.1": {
+          "momentId": "1.1",
+          "status": "GREEN",
+          "comment": "Bärlager 0/32 mm utlagt i 15 cm tjocklek och paddat med 400 kg markvibrator 6 överfarter.",
+          "signature": "Ny Elev",
+          "completedAt": "2026-10-02 13:00",
+          "weather": "SOL",
+          "photos": [
+            {
+              "id": "ph_ny_1",
+              "capturedAt": "2026-10-02 13:05",
+              "category": "Schakt",
+              "caption": "Bärlager packat och kontrollerat med rulltest",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_10b981%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_10b981)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2310b981%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%2310b981%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%2310b981%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.1%3A%20B%C3%A4rlager%200%2F32%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3EPaddat%20med%20400%20kg%20markvibrator%20(6%20%C3%B6verfarter)%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-02%2013%3A05%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        },
+        "1.2": {
+          "momentId": "1.2",
+          "status": "YELLOW",
+          "comment": "Sättsand 0/4 mm utlagd 30 mm och avdragen med rätskiva. Fall 2.0 cm per meter bort från husgrunden. STOPPUNKT: Väntar på att läraren inspekterar fallet innan stenläggning påbörjas!",
+          "signature": "Ny Elev",
+          "completedAt": "2026-10-03 11:10",
+          "weather": "SOL",
+          "measuredValue": "Fall 2 cm/m",
+          "photos": [
+            {
+              "id": "ph_ny_2",
+              "capturedAt": "2026-10-03 11:12",
+              "category": "Kontrollbevis",
+              "caption": "Sättsand avdragen, fall mot rännsten kontrollerat",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_eab308%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_eab308)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%23eab308%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%23eab308%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%23eab308%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.2%3A%20S%C3%A4ttsand%20%26%20Fall%202%20cm%2Fm%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3ESTOPPUNKT%20%E2%80%A2%20Avdragen%20med%20r%C3%A4tskiva%2C%20v%C3%A4ntar%20godk%C3%A4nnande%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-03%2011%3A12%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        },
+        "1.3": {
+          "momentId": "1.3",
+          "status": "RED",
+          "comment": "",
+          "signature": "",
+          "photos": []
+        }
+      }
+    },
+    "proj_elev1_altan": {
+      "id": "proj_elev1_altan",
+      "name": "Trädäck & Altan 35 kvm",
+      "projectType": "ALTAN_TRADACK",
+      "propertyDesignation": "Skolans övningsgård",
+      "clientName": "Yrkeslärare Trä",
+      "contractorName": "Elev / Lärling",
+      "studentId": "usr_elev_1",
+      "studentName": "Elev / Lärling",
+      "studentEmail": "elev@skola.se",
+      "schoolClass": "BA25 (Bygg Åk 1)",
+      "studentGroup": "Byggprogrammet (BA)",
+      "createdAt": "2026-10-01 10:00",
+      "updatedAt": "2026-10-02 15:45",
+      "lastSyncedAt": "2026-10-02 15:45",
+      "syncEnabled": true,
+      "notes": "Altanbygge med plintar och bärlina 45x170 mm.",
+      "preInspectionCompleted": true,
+      "moments": {
+        "1.1": {
+          "momentId": "1.1",
+          "status": "GREEN",
+          "comment": "Betongplintar med justerbara stolpskor gjutna på frostfritt djup 80 cm.",
+          "signature": "Elev / Lärling",
+          "completedAt": "2026-10-01 14:00",
+          "weather": "SOL",
+          "photos": [
+            {
+              "id": "ph_elev1_1",
+              "capturedAt": "2026-10-01 14:10",
+              "category": "Grund",
+              "caption": "Plintar i lod och våg",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_3b82f6%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_3b82f6)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%233b82f6%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%233b82f6%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%233b82f6%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.1%3A%20Plintar%20%26%20Grundl%C3%A4ggning%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3EGjutna%20plintar%20p%C3%A5%20frostfritt%20djup%20med%20stolpskor%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-01%2014%3A10%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        },
+        "1.2": {
+          "momentId": "1.2",
+          "status": "GREEN",
+          "comment": "Bärlina 45x170 mm monterad i våg med laser. Förankrad med fransk träskruv.",
+          "signature": "Elev / Lärling",
+          "completedAt": "2026-10-02 11:30",
+          "weather": "SOL",
+          "photos": [
+            {
+              "id": "ph_elev1_2",
+              "capturedAt": "2026-10-02 11:35",
+              "category": "Grund",
+              "caption": "Bärlina kontrollerad med vattenpass",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_10b981%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_10b981)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2310b981%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%2310b981%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%2310b981%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.2%3A%20B%C3%A4rlina%2045x170%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3EMonterad%20i%20v%C3%A5g%20och%20f%C3%A4st%20mot%20plintar%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-02%2011%3A35%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        },
+        "1.3": {
+          "momentId": "1.3",
+          "status": "GREEN",
+          "comment": "Golvbjälkar c/c 600 mm monterade med balkskor och ankarspik.",
+          "signature": "Elev / Lärling",
+          "completedAt": "2026-10-02 15:30",
+          "weather": "SOL",
+          "photos": [
+            {
+              "id": "ph_elev1_3",
+              "capturedAt": "2026-10-02 15:40",
+              "category": "Kontrollbevis",
+              "caption": "Bjälklag c/c 60 cm monterat",
+              "dataUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22g_38bdf8%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23182234%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230b1120%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22url(%23g_38bdf8)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22592%22%20height%3D%22432%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%222.5%22%20stroke-dasharray%3D%226%204%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22320%22%20cy%3D%22180%22%20r%3D%2250%22%20fill%3D%22%2338bdf8%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22175%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%2338bdf8%22%20text-anchor%3D%22middle%22%3E%F0%9F%93%B7%20F%C3%84LTDOKUMENTATION%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22210%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EMoment%201.3%3A%20Bj%C3%A4lklag%20c%2Fc%20600%20mm%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22320%22%20y%3D%22245%22%20font-family%3D%22system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22500%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%3EAlla%20fack%20m%C3%A4tta%20till%20600%20mm%20c%2Fc%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%22395%22%20width%3D%22570%22%20height%3D%2250%22%20rx%3D%2210%22%20fill%3D%22%23000000%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%2255%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2213%22%20font-weight%3D%22900%22%20fill%3D%22%23f97316%22%3EF%C3%84LTKOLL%20KONTROLLBEVIS%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22585%22%20y%3D%22426%22%20font-family%3D%22ui-monospace%2C%20monospace%22%20font-size%3D%2212%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22end%22%3E2026-10-02%2015%3A40%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fsvg%3E"
+            }
+          ]
+        }
+      }
+    },
+    "proj_local_test_1": {
+      "id": "proj_local_test_1",
+      "name": "Lokalt testarbete",
+      "projectType": "ALTAN_TRADACK",
+      "studentName": "Test Elev",
+      "schoolClass": "BA24 (Bygg Åk 2)",
+      "moments": {},
+      "lastSyncedAt": "2026-10-03 17:03",
+      "updatedAt": "2026-10-03 17:03"
+    }
+  },
+  "settings": {
+    "requireLoginOnStartup": false,
+    "customDeployUrl": "https://robbinwannstrom.github.io/faltkoll5/"
+  },
+  "adminSettings": {
+    "allowTeacherCreateTeacherAccounts": false,
+    "schoolName": "Bygg- & Anläggningsutbildning"
+  },
+  "exercises": [
+    {
+      "id": "ex_1791222714339_9i4v",
+      "code": "FORMS-236",
+      "title": "Övning: Enskilt Avlopp Text",
+      "description": "Övning skapad utifrån underlag: \"Enskilt Avlopp Text.txt\".",
+      "projectType": "PLATTSATTNING",
+      "creationSource": "SCRATCH",
+      "targetGroup": "Byggprogrammet (BA)",
+      "educationLevel": "ALL",
+      "specialization": "ALL",
+      "difficulty": "MEDEL",
+      "instructions": "1. Genomför kontrollerna från underlaget i fält.\n2. Dokumentera varje moment med foto och mätvärden.\n3. Beakta STOPPUNKTER – kalla på läraren innan inbyggnad!\n4. Signera med digital fingersignatur när momenten är slutförda.",
+      "createdAt": "2026-10-05 17:51",
+      "updatedAt": "2026-10-05 17:51",
+      "createdByTeacherName": "Administratör",
+      "createdByTeacherId": "usr_admin_skola",
+      "links": [],
+      "customMoments": [
+        {
+          "id": "1.1",
+          "order": 1,
+          "phaseNumber": 1,
+          "phaseName": "Fas 1: 1. Material och utrustning",
+          "title": "Material och utrustning",
+          "amaCode": "DEF.1",
+          "instruction": "Material:\n\nBergkross\n\nAvstängningsgrindar\n\nPP-rör\n\nRör-böjar\n\nMarkduk\n\nMaskiner:\n\nGrävmaskin för schaktningsarbete\n\nHjullastare för frambärning av material\n\nVerktyg:\n\nLaser\n\nSpade\n\nRaka\n\nPadda (vibratorplatta)\n\nTumstock\n\nMåttband\n\nSåg\n\nMärkspray\n\nVattenpass\n\nKniv\n\nMärkpenna\n\nStamp\n\nFyllhacka\n\nRitning och tillverkarens instruktioner: https://www.avloppscenter.se/shop/216613365-206be9-Neo_slamavskiljare_installationsmanual.pdf\n\nHus - självfallsledning - BL26 - renat vatten - utsläppspunkt/efterbehandling",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Material och utrustning",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Material och utrustning kontrollerat enligt anvisning",
+            "Mått, tolerans och instruktion verifierad",
+            "Fotobevis dokumenterat"
+          ]
+        },
+        {
+          "id": "2.1",
+          "order": 2,
+          "phaseNumber": 2,
+          "phaseName": "Fas 2: 2. Innan du börjar schakta!",
+          "title": "Innan du börjar schakta!",
+          "amaCode": "DEF.1",
+          "instruction": "Kontrollera att du har:\n\nTillverkarens installationsanvisning\n\nRitning/projektering\n\nGrindar för avstängning av schakt, schaktet ska spärras av så fort arbetet pausas.\n\nInkommande ledningshöjd\n\nTankens inloppsnivå\n\nTankens utlopp och utloppsnivå\n\nBestämd utloppspunkt/efterföljande rening\n\nSchaktmått\n\nSchaktdjup\n\nMark- och grundvattenförhållanden\n\nPlan för återfyllning och packning",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Innan du börjar schakta!",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Tillverkarens installationsanvisning",
+            "Ritning/projektering",
+            "Inkommande ledningshöjd",
+            "Tankens inloppsnivå",
+            "Tankens utlopp och utloppsnivå",
+            "Bestämd utloppspunkt/efterföljande rening",
+            "Schaktmått",
+            "Schaktdjup",
+            "Mark- och grundvattenförhållanden",
+            "Plan för återfyllning och packning"
+          ]
+        },
+        {
+          "id": "3.1",
+          "order": 3,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 1 - Läs tillverkarens instruktioner",
+          "amaCode": "NEO",
+          "instruction": "Rewatec Installations- och monteringsanvisningar\n\nSlamavskiljare NEO och BL26\n\nKontrollera särskilt: Tankens mått, inloppsnivå, utloppets placering/nivå, krav på kringfyllnad,\n\nkrav på grundvattennivå, krav på överfyllnad, krav på återkomlighet för service/slamtömning.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 1 - Läs tillverkarens instruktioner",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Rewatec Installations- och monteringsanvisningar",
+            "Slamavskiljare NEO och BL26"
+          ]
+        },
+        {
+          "id": "3.2",
+          "order": 4,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 2 - Kontrollera förutsättningarna på plats",
+          "amaCode": "DEF.1",
+          "instruction": "Lokalisera avloppsledningen från huset, kontrollera var tanken ska placeras, kontrollera vart de renade vattnet ska ledas,\n\nkontrollera höjderna på inlopp och utlopp, kontrollera att placeringen fungerar för slamtömning/service",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 2 - Kontrollera förutsättningarna på plats",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Steg 2 - Kontrollera förutsättningarna på plats kontrollerat enligt anvisning",
+            "Mått, tolerans och instruktion verifierad",
+            "Fotobevis dokumenterat"
+          ]
+        },
+        {
+          "id": "3.3",
+          "order": 5,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 3 - Gör mottagningskontroll",
+          "amaCode": "DEF.1",
+          "instruction": "Kontrollera att leveransen är komplett och att inga delar är skadade",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 3 - Gör mottagningskontroll",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Kontrollera att leveransen är komplett och att inga delar är skadade"
+          ]
+        },
+        {
+          "id": "3.4",
+          "order": 6,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 4 - Mät ut schaktets yta",
+          "amaCode": "DEF.1",
+          "instruction": "Läs tillverkarens anvisning, glöm inte släntlutningen",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 4 - Mät ut schaktets yta",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Läs tillverkarens anvisning, glöm inte släntlutningen"
+          ]
+        },
+        {
+          "id": "3.5",
+          "order": 7,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 5 - Bestäm schaktdjupet genom höjdsättning",
+          "amaCode": "DEF.1",
+          "instruction": "Kontrollera höjden på den inkommande spillvattenledningen från huset. Tankens inlopp ska placeras så att\n\nledningen kan anslutas med erforderligt fall enligt projektering och tillverkarens anvisningar,\n\nUtgår från tankens angivna inloppsnivå och beräkna därefter tankens bottennivå.\n\nKontrollera samtidigt att tankens utlopp hamnar på rätt nivå i förhållande till den efterföljande ledningen\n\noch utsläppspunkten.\n\nSchaktdjupet bestäms alltså av höjdsättningen, inte enbart av tankens totala höjd.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 5 - Bestäm schaktdjupet genom höjdsättning",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "och utsläppspunkten."
+          ]
+        },
+        {
+          "id": "3.6",
+          "order": 8,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 6 - Schakta",
+          "amaCode": "DEF.1",
+          "instruction": "Schakta till beräknad nivå, slänta schaktet enligt regler. Kontrollera schaktbotten mot projekterad nivå. Kontrollera\n\natt schaktbotten är stabil och fri från sten och andra föremål som kan skada tanken. Säkerställ erforderligt arbetsutrymme runt tanken",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 6 - Schakta",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Steg 6 - Schakta kontrollerat enligt anvisning",
+            "Mått, tolerans och instruktion verifierad",
+            "Fotobevis dokumenterat"
+          ]
+        },
+        {
+          "id": "3.7",
+          "order": 9,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 7 - Gör i ordning botten",
+          "amaCode": "DEF.1",
+          "instruction": "Följ den aktuella installationsanvisning för material och tjocklek av grusbädd\n\nLägg ut bäddmaterial. Jämna av. Kontrollera nivå. Kontrollera fall/riktning för anslutande ledningar.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 7 - Gör i ordning botten",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Steg 7 - Gör i ordning botten kontrollerat enligt anvisning",
+            "Mått, tolerans och instruktion verifierad",
+            "Fotobevis dokumenterat"
+          ]
+        },
+        {
+          "id": "3.8",
+          "order": 10,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 8 - Lyft ner tanken",
+          "amaCode": "DEF.1",
+          "instruction": "Kontrollera lyftpunkterna. Använd godkänd lyftutrustning. Sänk tanken försiktigt på bädden. Kontrollera att den står rätt i plan och höjd.\n\nKontrollera att inlopp och utlopp är åt rätt håll.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 8 - Lyft ner tanken",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Kontrollera att inlopp och utlopp är åt rätt håll."
+          ]
+        },
+        {
+          "id": "3.9",
+          "order": 11,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 9 - Anslut ledningarna",
+          "amaCode": "DEF.1",
+          "instruction": "Hus -> BL26. Anslut inkommande spillvattenledning med rätt dimension, tätning och fall enligt projektering/tillverkarens instruktion.\n\nBL26 -> efterföljande rening/utsläpp. Anslut utloppet till den lösning som anläggningen är projekterad för.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 9 - Anslut ledningarna",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Steg 9 - Anslut ledningarna kontrollerat enligt anvisning",
+            "Mått, tolerans och instruktion verifierad",
+            "Fotobevis dokumenterat"
+          ]
+        },
+        {
+          "id": "3.10",
+          "order": 12,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 10 - Förankring och kringfyllning",
+          "amaCode": "DEF.1",
+          "instruction": "Fyll tanken och kringfyll enligt tillverkarens instruktioner. Kringfyllningen utförs lagervis med föreskrivet material och packas enligt instruktioner.\n\nKontrollera fortlöpande tankens läge och höjd så att den inte förskjuts under arbetet.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 10 - Förankring och kringfyllning",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Steg 10 - Förankring och kringfyllning kontrollerat enligt anvisning",
+            "Mått, tolerans och instruktion verifierad",
+            "Fotobevis dokumenterat"
+          ]
+        },
+        {
+          "id": "4.1",
+          "order": 13,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 1 - Kontrollera förutsättningarna",
+          "amaCode": "DEF.1",
+          "instruction": "Läs igenom aktuell monteringsanvisning från tillverkaren\n\nKontrollera markens infiltrationsförmåga enligt projektering/markundersökning\n\nBestäm infiltrationens placering och höjdläge\n\nKontrollera att anläggningen kan placeras på frostfritt djup enligt projekteringen\n\nViktigt: Infiltrationens storlek ska bestämmas utifrån belastningen och markens förmåga att ta emot avloppsvattnet. Ändra inte antalet moduler utan att det är projekterat.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 1 - Kontrollera förutsättningarna",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Läs igenom aktuell monteringsanvisning från tillverkaren",
+            "Bestäm infiltrationens placering och höjdläge"
+          ]
+        },
+        {
+          "id": "4.2",
+          "order": 14,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 2 - Mät ut infiltrationen",
+          "amaCode": "BDT",
+          "instruction": "Mät ut infiltrationens placering på marken\n\nMarkera\n\nInfiltrationens längd och bredd\n\nSchaktets gränser\n\nHöjder och fall\n\nAnslutande ledningar\n\nFör aktuellt fabrikat anger monteringsanvisningen:\n\n7 biomoduler för ett hushåll med BDT+WC (BDT= Bad- disk och tvättvatten, WC=skithus)\n\n5 biomoduler för enbart BDT\n\n7 moduler motsvarar ca 8,8 m\n\n5 moduler motsvarar ca 5,5 m\n\nKontrollera alltid aktuellt projekt eftersom dimensioneringen kan vara annorlunda",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 2 - Mät ut infiltrationen",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Mät ut infiltrationens placering på marken",
+            "Markera",
+            "Infiltrationens längd och bredd",
+            "Schaktets gränser",
+            "Höjder och fall",
+            "Anslutande ledningar",
+            "5 biomoduler för enbart BDT",
+            "7 moduler motsvarar ca 8,8 m",
+            "5 moduler motsvarar ca 5,5 m"
+          ]
+        },
+        {
+          "id": "4.3",
+          "order": 15,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 3 - Schakta ur",
+          "amaCode": "DEF.1",
+          "instruction": "Schakta bort matjord och andra olämpliga massor\n\nBotten ska:\n\nVara stabil\n\nVara fri från stora stenar\n\nInte vara tjälad\n\nHa rätt höjd enligt projekteringen\n\nHar rätt förutsättningar för infiltration\n\nUndvik att köra sönder eller packa infiltrationsytan i onödan med maskinen\n\nViktigt: Infiltrationsytan är den del av anläggningen där avloppsvattnet ska kunna filtreras ned i marken.\n\nDen får därför inte förstöras eller tätas genom onödig packning.\n\nKör ej över tank eller modulerna för infiltration.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 3 - Schakta ur",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Schakta bort matjord och andra olämpliga massor",
+            "Vara stabil",
+            "Vara fri från stora stenar",
+            "Inte vara tjälad",
+            "Ha rätt höjd enligt projekteringen",
+            "Har rätt förutsättningar för infiltration",
+            "Undvik att köra sönder eller packa infiltrationsytan i onödan med maskinen",
+            "Den får därför inte förstöras eller tätas genom onödig packning.",
+            "Kör ej över tank eller modulerna för infiltration."
+          ]
+        },
+        {
+          "id": "4.4",
+          "order": 16,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 4 - Förbered infiltrationsbädden",
+          "amaCode": "DEF.1",
+          "instruction": "Om marken har tillräcklig infiltrationsförmåga kan biomodulerna enligt monteringsanvisningen\n\nplaceras direkt på spridarlagret/infiltrationsytan.\n\nVid förstärkt infiltration läggs ca 300 mm markbäddssand, 0,2-8 mm, under spridarplattorna.\n\nFördelningslagret ska vara jämnt och ha rätt nivå.\n\nKontrollera höjden innan modulerna placeras ut.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 4 - Förbered infiltrationsbädden",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "placeras direkt på spridarlagret/infiltrationsytan.",
+            "Fördelningslagret ska vara jämnt och ha rätt nivå.",
+            "Kontrollera höjden innan modulerna placeras ut."
+          ]
+        },
+        {
+          "id": "4.5",
+          "order": 17,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 5 - Lägg ut spridarplattorna",
+          "amaCode": "DEF.1",
+          "instruction": "För aktuellt system används 14 spridarplattor till 7 biomoduler.\n\nPlacera:\n\nTvå spridarplattor under varje biomodul\n\nPlacera 7 st mot varandra\n\nPlattorna stabilt och jämnt på marken\n\nKontrollera att spridarplattorna ligger rätt innan biomodulerna läggs på plats",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 5 - Lägg ut spridarplattorna",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "För aktuellt system används 14 spridarplattor till 7 biomoduler.",
+            "Två spridarplattor under varje biomodul",
+            "Placera 7 st mot varandra",
+            "Plattorna stabilt och jämnt på marken"
+          ]
+        },
+        {
+          "id": "4.6",
+          "order": 18,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 6 - Placera biomodulerna",
+          "amaCode": "DEF.1",
+          "instruction": "Biomodulerna placeras på spridarplattorna\n\nAktuell biomodul har enligt monteringsanvisningen ungefär följande mått:\n\nHöjd: 275 mm\n\nLängd: 1 100 mm\n\nBredd: 550 mm\n\nPlacera modulerna i rad med kortsidorna mot varandra.\n\nKontrollera under arbetets gång att\n\nModulerna ligger rakt\n\nDe står stabilt\n\nRätt antal moduler används\n\nDe ligger på rätt plats enligt ritning/projektering",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 6 - Placera biomodulerna",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Biomodulerna placeras på spridarplattorna",
+            "Höjd: 275 mm",
+            "Längd: 1 100 mm",
+            "Bredd: 550 mm",
+            "Placera modulerna i rad med kortsidorna mot varandra.",
+            "Kontrollera under arbetets gång att",
+            "Modulerna ligger rakt",
+            "De står stabilt",
+            "Rätt antal moduler används",
+            "De ligger på rätt plats enligt ritning/projektering"
+          ]
+        },
+        {
+          "id": "4.7",
+          "order": 19,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 7 - Montera ventilationen",
+          "amaCode": "DEF.1",
+          "instruction": "Ventilation ska monteras i ändarna av biomodulerna.\n\nMonteringsanvisningen anger ventilationsrör dim 40 x 2 mm, ett i vardera änden.\n\nVentilationen bör placeras så att den ena änden är högre och den andra lägre. Det ger möjlighet till luftcirkulation genom anläggningen.\n\nTänk på att ventilationen ska:\n\nMynna på lämplig höjd\n\nInte hamna under framtida marknivå\n\nVara tillräckligt hög för att inte täckas av snö\n\nInte kapas av för kort\n\nMonteringsanvisningen anger även att ca 12 hål med 10 mm diameter borras i ventilationsröret.\n\nFölj alltid den aktuella tillverkarens placering och antal hål.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 7 - Montera ventilationen",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Ventilation ska monteras i ändarna av biomodulerna.",
+            "Mynna på lämplig höjd",
+            "Inte hamna under framtida marknivå",
+            "Vara tillräckligt hög för att inte täckas av snö",
+            "Inte kapas av för kort",
+            "Följ alltid den aktuella tillverkarens placering och antal hål."
+          ]
+        },
+        {
+          "id": "4.8",
+          "order": 20,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 8 - Montera spridarrören",
+          "amaCode": "DEF.1",
+          "instruction": "Spridarrören placeras ovanpå biomodulerna.\n\nEnligt monteringsanvisningen används spridarrör med:\n\nDiameter 110 mm\n\nLängd ca 1,1 m\n\nRörens läggs på modulerna och kopplas samman enligt tillverkarens anvisning,\n\nRören ska bindas fast så att de inte kan flyttas sig under återfyllningen.\n\nKontrollera att rören ligger rätt och har den placering som anges i monteringsanvisningen.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 8 - Montera spridarrören",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Spridarrören placeras ovanpå biomodulerna.",
+            "Diameter 110 mm",
+            "Längd ca 1,1 m",
+            "Rören ska bindas fast så att de inte kan flyttas sig under återfyllningen."
+          ]
+        },
+        {
+          "id": "4.9",
+          "order": 21,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 9 - Kontrollera anläggningen innan återfyllningen",
+          "amaCode": "DEF.1",
+          "instruction": "Innan något fylls igen ska hela anläggningen kontrolleras.\n\nKontrollera:\n\nRätt antal biomoduler\n\nSpridarplattorna ligger rätt\n\nBiomodulerna ligger stabilt och rakt\n\nSpridarrören är korrekt placerade\n\nSpridarrören är fastbundna\n\nVentilationsrören är monterade\n\nVentilationsrören är utförda enligt anvisningen\n\nAnslutningarna är rätt utförda\n\nRätt höjder och nivåer\n\nInga stora stenar finns där de kan skada anläggnigen\n\nAnläggningen är dokumenterad innan den täcks över\n\nDet här är sista möjligheten att enkelt upptäcka och rätta fel.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 9 - Kontrollera anläggningen innan återfyllningen",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Innan något fylls igen ska hela anläggningen kontrolleras.",
+            "Rätt antal biomoduler",
+            "Spridarplattorna ligger rätt",
+            "Biomodulerna ligger stabilt och rakt",
+            "Spridarrören är korrekt placerade",
+            "Spridarrören är fastbundna",
+            "Ventilationsrören är monterade",
+            "Ventilationsrören är utförda enligt anvisningen",
+            "Anslutningarna är rätt utförda",
+            "Rätt höjder och nivåer"
+          ]
+        },
+        {
+          "id": "4.10",
+          "order": 22,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 10 - Skydda biomodulerna",
+          "amaCode": "DEF.1",
+          "instruction": "När anläggningen är kontrollerad ska biomodulerna skyddas innan återfyllning.\n\nFyll försiktigt runt modulerna så att de inte flyttas eller skadas.\n\nAnvänd lämpliga massor närmast anläggningen och följ tillverkarens anvisningar.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 10 - Skydda biomodulerna",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Fyll försiktigt runt modulerna så att de inte flyttas eller skadas."
+          ]
+        },
+        {
+          "id": "4.11",
+          "order": 23,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 11 - Återfyll",
+          "amaCode": "DEF.1",
+          "instruction": "Återfyll försiktigt runt och ovanför infiltrationen\n\nEnligt monteringsanvisningen ska det vara ca 60 cm täckning av befintliga jordmassor.\n\nVid återfyllningen:\n\nAnvänd inte stora stenar direkt mot anläggningen\n\nundvik att flytta spridarrör och ventilationsrör\n\nFyll jämnt runt konstruktionen\n\nPacka inte direkt ovanpå biomodulerna på ett sätt som kan skada dom\n\nSe till att ventilationen fortfarande är fri\n\nStora stenar ska sorteras bort.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 11 - Återfyll",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Återfyll försiktigt runt och ovanför infiltrationen",
+            "Använd inte stora stenar direkt mot anläggningen",
+            "undvik att flytta spridarrör och ventilationsrör",
+            "Fyll jämnt runt konstruktionen",
+            "Packa inte direkt ovanpå biomodulerna på ett sätt som kan skada dom",
+            "Se till att ventilationen fortfarande är fri",
+            "Stora stenar ska sorteras bort."
+          ]
+        },
+        {
+          "id": "4.12",
+          "order": 24,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 12 - Slutför marken",
+          "amaCode": "DEF.1",
+          "instruction": "När infiltrationen är täckt färdigställs marken.\n\nKontrollera att:\n\nMarken leder bort ytvatten från infiltrationen\n\nInga gropar där vatten kan samlas finns över anläggningen\n\nVentilationsrören fortfarande är fria\n\nMarknivån stämmer med projekteringen\n\nÅterställ området så långt det är möjligt.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 12 - Slutför marken",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "När infiltrationen är täckt färdigställs marken.",
+            "Marken leder bort ytvatten från infiltrationen",
+            "Inga gropar där vatten kan samlas finns över anläggningen",
+            "Ventilationsrören fortfarande är fria",
+            "Marknivån stämmer med projekteringen",
+            "Återställ området så långt det är möjligt."
+          ]
+        },
+        {
+          "id": "4.13",
+          "order": 25,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 13 - Dokumentera arbetet",
+          "amaCode": "DEF.1",
+          "instruction": "Innan schaktet fylls igen ska arbetet dokumenteras.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Steg 13 - Dokumentera arbetet",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Innan schaktet fylls igen ska arbetet dokumenteras."
+          ]
+        },
+        {
+          "id": "5.1",
+          "order": 26,
+          "phaseNumber": 5,
+          "phaseName": "Fas 5: 5. Dokumentera",
+          "title": "Dokumentera",
+          "amaCode": "DEF.1",
+          "instruction": "Infiltrationens placering\n\nHöjder\n\nAntal moduler\n\nSpridarplattornas placering\n\nSpridarrörens placering\n\nVentilationens utförande\n\nAnslutningar\n\nFotografier före återfyllning\n\nDokumentationen är viktig både för beställaren vid framtida service och felsökning, men också för godkännande hos kommunens enhet.",
+          "studentTip": "Följ underlagets anvisningar noggrant och rådgör med yrkesläraren vid oklarheter.",
+          "proTip": "Dokumentera utförandet med tidsstämplat foto och måttreferens före inbyggnad.",
+          "tolerance": "±3 mm",
+          "inspectionItem": "Dokumentera",
+          "method": "Visuell kontroll, måttband och mätinstrument",
+          "requirePhoto": true,
+          "isStopPoint": true,
+          "customChecklist": [
+            "Infiltrationens placering",
+            "Höjder",
+            "Antal moduler",
+            "Spridarplattornas placering",
+            "Spridarrörens placering",
+            "Ventilationens utförande",
+            "Anslutningar",
+            "Fotografier före återfyllning"
+          ]
+        }
+      ],
+      "fieldMeasurements": {
+        "sideA": 6,
+        "sideB": 4,
+        "diagonal": 7.21,
+        "fallCmPerM": 2
+      },
+      "exerciseSettings": {
+        "photoRequirementMode": "MARKED_ONLY",
+        "minPhotosPerMoment": 1,
+        "requireWatermark": true,
+        "strictSequentialPhases": false,
+        "preInspectionRule": "OPTIONAL",
+        "requireFingerSignature": true,
+        "requireWeatherLog": false,
+        "requireMeasurementInComment": false,
+        "examMode": false,
+        "allowAiHelper": true,
+        "showStudentTips": true,
+        "showProTips": true,
+        "allowCrossMeasureCalculator": true,
+        "allowGroupSync": true,
+        "gradingScale": "PASS_FAIL",
+        "requireTeacherStopPointSignoff": false,
+        "estimatedDuration": "4 timmar",
+        "globalToleranceMm": 5,
+        "targetDepthCm": 35,
+        "materialFraction": "Makadam 8/16 mm",
+        "customCategoryLabel": "Forms-importerad övning"
+      }
+    },
+    {
+      "id": "ex_enskilt_avlopp_infiltration",
+      "code": "AVLOPP-1",
+      "title": "Enskilt avlopp med infiltration",
+      "description": "Fullständig arbetsbeskrivning och egenkontroll för slamavskiljare Rewatec NEO/BL26 och infiltration med biomoduler enligt tillverkaranvisning och kommunens godkännande.",
+      "projectType": "ENSKILT_AVLOPP",
+      "creationSource": "PDF_IMPORT",
+      "createdAt": "2026-10-04 18:00",
+      "updatedAt": "2026-10-04 18:00",
+      "createdByTeacherName": "Huvudadministratör",
+      "createdByTeacherId": "usr_admin_main",
+      "targetGroup": "Anläggare (Mark & Anläggning)",
+      "specialization": "MARK_VA",
+      "difficulty": "MEDEL",
+      "educationLevel": "ALL",
+      "estimatedDuration": "6–8 timmar",
+      "instructions": "1. Studera installationsanvisningar för Rewatec NEO/BL26 och biomoduler noggrant.\n2. Utför slamavskiljaren och därefter infiltrationsbädden fasvis.\n3. OBSERVERA STOPPUNKT: Steg 9 (kontroll före återfyllning) samt slutdokumentation MÅSTE besiktas av yrkesläraren!\n4. Fotodokumentera alla moment med laser/måttband och tidsstämpel.",
+      "links": [
+        {
+          "id": "l_1",
+          "title": "Arbetsbeskrivningar Anläggning (Microsoft Forms)",
+          "url": "https://forms.cloud.microsoft/",
+          "category": "AMA_REGEL"
+        }
+      ],
+      "fieldMeasurements": {
+        "sideA": 8.8,
+        "sideB": 2.5,
+        "fallCmPerM": 1
+      },
+      "customMoments": [
+        {
+          "id": "1.1",
+          "order": 1,
+          "phaseNumber": 1,
+          "phaseName": "Fas 1: 1. Material och utrustning",
+          "title": "Material och utrustning",
+          "amaCode": "CBB.1",
+          "instruction": "Kontrollera att föreskrivet material finns på plats:\n\nMaterial: Bergkross, avstängningsgrindar, PP-rör, rör-böjar och markduk.\n\nMaskiner: Grävmaskin för schaktningsarbete och hjullastare.\n\nVerktyg: Laser, spade, raka, padda, tumstock, måttband, såg, märkspray, vattenpass, kniv, märkpenna, stamp och fyllhacka.",
+          "studentTip": "Gå igenom hela listan för material, maskiner och verktyg innan arbetet påbörjas.",
+          "proTip": "Kontrollera att alla verktyg är funktionsdugliga och att laser är kalibrerad.",
+          "tolerance": "Komplett material & utrustning",
+          "inspectionItem": "Material, maskiner och verktyg på plats",
+          "method": "Visuell kontroll mot punktlista",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Material: Bergkross, avstängningsgrindar, PP-rör, rör-böjar och markduk",
+            "Maskiner: Grävmaskin för schaktningsarbete och hjullastare",
+            "Verktyg: Laser, spade, raka, padda, tumstock, måttband, såg, märkspray, vattenpass, kniv, märkpenna, stamp och fyllhacka"
+          ]
+        },
+        {
+          "id": "2.1",
+          "order": 2,
+          "phaseNumber": 2,
+          "phaseName": "Fas 2: 2. Innan du börjar schakta!",
+          "title": "Innan du börjar schakta!",
+          "amaCode": "CBB.1",
+          "instruction": "Kontrollera att du har:\n- Tillverkarens installationsanvisning\n- Ritning/projektering\n- Grindar för avstängning av schakt (schaktet ska spärras av så fort arbetet pausas!)\n- Inkommande ledningshöjd\n- Tankens inlopps- och utloppsnivå\n- Bestämd utloppspunkt\n- Schaktmått\n- Mark- och grundvattenförhållanden\n- Plan för återfyllning och packning",
+          "studentTip": "Schaktet ska alltid spärras av med grindar så fort arbetet pausas.",
+          "proTip": "Mät inkommande ledningshöjd med laser innan grävning påbörjas.",
+          "tolerance": "Samtliga punkter kontrollerade",
+          "inspectionItem": "Kontroller och förberedelser inför schaktning",
+          "method": "Avstämning mot kontrollista & Laser",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Tillverkarens installationsanvisning",
+            "Ritning/projektering",
+            "Grindar för avstängning av schakt (schaktet ska spärras av så fort arbetet pausas!)",
+            "Inkommande ledningshöjd",
+            "Tankens inlopps- och utloppsnivå",
+            "Bestämd utloppspunkt",
+            "Schaktmått",
+            "Mark- och grundvattenförhållanden",
+            "Plan för återfyllning och packning"
+          ]
+        },
+        {
+          "id": "3.1",
+          "order": 3,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 1: Läs tillverkarens instruktioner",
+          "amaCode": "PBB.1",
+          "instruction": "Läs tillverkarens installations- och monteringsanvisningar för Slamavskiljare NEO och BL26. Kontrollera särskilt:\n- Tankens mått\n- Inloppsnivå\n- Utloppets placering/nivå\n- Krav på kringfyllnad\n- Krav på grundvattennivå\n- Krav på överfyllnad\n- Krav på åtkomlighet för service/slamtömning",
+          "studentTip": "Följ tillverkarens monteringsanvisning noggrant.",
+          "proTip": "Dokumentera tankens serienummer och modell.",
+          "tolerance": "Enligt tillverkarens manual",
+          "inspectionItem": "Genomgång av installations- och monteringsanvisningar",
+          "method": "Dokumentstudie",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Tankens mått",
+            "Inloppsnivå",
+            "Utloppets placering/nivå",
+            "Krav på kringfyllnad",
+            "Krav på grundvattennivå",
+            "Krav på överfyllnad",
+            "Krav på åtkomlighet för service/slamtömning"
+          ]
+        },
+        {
+          "id": "3.2",
+          "order": 4,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 2: Kontrollera förutsättningarna på plats",
+          "amaCode": "PBB.1",
+          "instruction": "- Lokalisera avloppsledningen från huset\n- Kontrollera var tanken ska placeras\n- Kontrollera vart det renade vattnet ska ledas\n- Kontrollera höjderna på inlopp och utlopp\n- Kontrollera att placeringen fungerar för slamtömning/service",
+          "studentTip": "Kontrollera att slamtömningsfordon kan nå tanken.",
+          "proTip": "Mät avstånd och höjdskillnader noggrant före schakt.",
+          "tolerance": "Enligt ritning & projektering",
+          "inspectionItem": "Platsförutsättningar och placering",
+          "method": "Visuell kontroll & Mätning",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Avloppsledning från huset lokaliserad",
+            "Tankens placering kontrollerad",
+            "Riktning för renat vatten kontrollerad",
+            "Höjder på inlopp och utlopp kontrollerade",
+            "Placering för slamtömning/service kontrollerad"
+          ]
+        },
+        {
+          "id": "3.3",
+          "order": 5,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 3: Mottagningskontroll",
+          "amaCode": "PBB.1",
+          "instruction": "Kontrollera att leveransen är komplett och att inga delar är skadade.",
+          "studentTip": "Inspektera tank och delar före montering.",
+          "proTip": "Ta bild på leveransen som kvitto på felfritt gods.",
+          "tolerance": "Komplett och oskadat gods",
+          "inspectionItem": "Mottagningskontroll av leverans",
+          "method": "Okulärbesiktning",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Leveransen är komplett",
+            "Inga delar är skadade"
+          ]
+        },
+        {
+          "id": "3.4",
+          "order": 6,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 4: Mät ut schaktets yta",
+          "amaCode": "CBB.1",
+          "instruction": "Mät ut schaktets yta på marken. Läs tillverkarens anvisning och glöm inte släntlutningen.",
+          "studentTip": "Räkna med släntlutning så att schaktet blir säkert att arbeta i.",
+          "proTip": "Märk ut schaktlinjer tydligt med märkspray.",
+          "tolerance": "Mått enligt tillverkaranvisning och släntregler",
+          "inspectionItem": "Schaktets yta och släntlutning",
+          "method": "Måttband och märkspray",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Schaktets yta uppmätt på marken",
+            "Tillverkarens anvisning kontrollerad",
+            "Släntlutning inräknad"
+          ]
+        },
+        {
+          "id": "3.5",
+          "order": 7,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 5: Bestäm schaktdjupet genom höjdsättning",
+          "amaCode": "CBB.1",
+          "instruction": "Kontrollera höjden på den inkommande spillvattenledningen från huset. Tankens inlopp ska placeras så att ledningen kan anslutas med erforderligt fall enligt projektering och tillverkarens anvisningar. Utgå från tankens angivna inloppsnivå och beräkna därefter tankens bottennivå. Kontrollera samtidigt att tankens utlopp hamnar på rätt nivå i förhållande till den efterföljande ledningen och utsläppspunkten. Schaktdjupet bestäms alltså av höjdsättningen, inte enbart av tankens totala höjd.",
+          "studentTip": "Schaktdjupet styrs av höjdsättningen och erforderligt rörfall.",
+          "proTip": "Väg av inlopp och utlopp med rotationslaser.",
+          "tolerance": "Beräknade nivåer stämda mot laser",
+          "inspectionItem": "Höjdsättning och schaktdjup",
+          "method": "Rotationslaser med avvägningsstång",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Inkommande spillvattenlednings höjd kontrollerad",
+            "Tankens inloppsnivå och bottennivå beräknade med erforderligt fall",
+            "Tankens utloppsnivå kontrollerad mot efterföljande ledning/utloppspunkt"
+          ]
+        },
+        {
+          "id": "3.6",
+          "order": 8,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 6: Schakta för tanken",
+          "amaCode": "CBB.1",
+          "instruction": "- Schakta till beräknad nivå, slänta schaktet enligt regler.\n- Kontrollera schaktbotten mot projekterad nivå.\n- Kontrollera att schaktbotten är stabil och fri från sten och andra föremål som kan skada tanken.\n- Säkerställ erforderligt arbetsutrymme runt tanken.",
+          "studentTip": "Schaktbotten ska vara jämn och fri från vassa stenar.",
+          "proTip": "Kontrollera bottennivån löpande med laser under grävningen.",
+          "tolerance": "Schaktbotten i nivå, fri från sten",
+          "inspectionItem": "Schaktning, släntning och schaktbotten",
+          "method": "Laser & Okulärkontroll",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Schaktat till beräknad nivå med släntning enligt regler",
+            "Schaktbotten kontrollerad mot projekterad nivå",
+            "Schaktbotten stabil och fri från sten/skadande föremål",
+            "Erforderligt arbetsutrymme runt tanken säkerställt"
+          ]
+        },
+        {
+          "id": "3.7",
+          "order": 9,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 7: Gör i ordning botten",
+          "amaCode": "DCB.1",
+          "instruction": "- Följ den aktuella installationsanvisningen för material och tjocklek av grusbädd.\n- Lägg ut bäddmaterial. Jämna av. Kontrollera nivå i våg.\n- Kontrollera fall och riktning för anslutande ledningar.",
+          "studentTip": "Grusbädden måste ligga helt i våg så att tanken står plant.",
+          "proTip": "Dra av bädden med rätskiva och kontrollera med vattenpass/laser.",
+          "tolerance": "Bädd i våg enligt tillverkaranvisning",
+          "inspectionItem": "Bäddmaterial, avjämning och nivå i våg",
+          "method": "Rotationslaser / Vattenpass & Rätskiva",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Material och tjocklek på grusbädd enligt anvisning",
+            "Bäddmaterial utlagt, avjämnat och i våg",
+            "Fall och riktning för anslutande ledningar kontrollerade"
+          ]
+        },
+        {
+          "id": "3.8",
+          "order": 10,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 8: Lyft ner tanken",
+          "amaCode": "PBB.1",
+          "instruction": "- Kontrollera lyftpunkterna på tanken.\n- Använd godkänd lyftutrustning.\n- Sänk tanken försiktigt på bädden.\n- Kontrollera att den står rätt i plan och höjd.\n- Kontrollera att inlopp och utlopp är åt rätt håll.",
+          "studentTip": "Använd alltid godkända lyftstroppar och kontrollera lyftpunkterna.",
+          "proTip": "Kontrollera flödesriktning på tanken före nedsänkning.",
+          "tolerance": "Tank i plan och höjd, in-/utlopp rätt vända",
+          "inspectionItem": "Lyft, nedsänkning, planhet och orientering",
+          "method": "Vattenpass & Visuell kontroll",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Lyftpunkter kontrollerade och godkänd lyftutrustning använd",
+            "Tanken försiktigt sänkt på bädden",
+            "Tankens plan och höjd kontrollerade",
+            "Inlopp och utlopp vända åt rätt håll"
+          ]
+        },
+        {
+          "id": "3.9",
+          "order": 11,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 9: Anslut ledningarna",
+          "amaCode": "PBB.1",
+          "instruction": "- Hus -> BL26: Anslut inkommande spillvattenledning med rätt dimension, tätning och fall enligt projektering/tillverkarens instruktion.\n- BL26 -> efterföljande rening/utsläpp: Anslut utloppet till den lösning som anläggningen är projekterad för.",
+          "studentTip": "Kontrollera att packningar sluter tätt och att ledningen har rätt fall.",
+          "proTip": "Använd smörjmedel på gummimuffar för säker och tät anslutning.",
+          "tolerance": "Täta anslutningar med fall enligt projektering",
+          "inspectionItem": "Röranslutningar inlopp och utlopp",
+          "method": "Vattenpass / Laser & Okulärkontroll",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Inkommande ledning ansluten med rätt dimension, tätning och fall",
+            "Utlopp anslutet till efterföljande rening/utsläpp enligt projektering"
+          ]
+        },
+        {
+          "id": "3.10",
+          "order": 12,
+          "phaseNumber": 3,
+          "phaseName": "Fas 3: 3. Arbetsbeskrivning",
+          "title": "Steg 10: Förankring och kringfyllning",
+          "amaCode": "PBB.1",
+          "instruction": "- Fyll tanken med vatten och kringfyll enligt tillverkarens instruktioner.\n- Kringfyllningen utförs lagervis med föreskrivet material och packas enligt instruktioner.\n- Kontrollera fortlöpande tankens läge och höjd så att den inte förskjuts under arbetet.",
+          "studentTip": "Fyll vatten i tanken parallellt med kringfyllningen enligt anvisning.",
+          "proTip": "Packa jämnt runt tanken i tunna lager för att undvika sättningar.",
+          "tolerance": "Lagervis kringfyllning och vattenfyllning enligt manual",
+          "inspectionItem": "Vattenfyllning, lagervis kringfyllning och lägeskontroll",
+          "method": "Visuell kontroll och packningsavstämning",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Tanken fylld med vatten enligt tillverkarens instruktioner",
+            "Kringfyllt lagervis med föreskrivet material och packat enligt instruktioner",
+            "Tankens läge och höjd fortlöpande kontrollerade"
+          ]
+        },
+        {
+          "id": "4.1",
+          "order": 13,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 1: Kontrollera förutsättningarna för infiltration",
+          "amaCode": "PBB.51",
+          "instruction": "- Läs igenom aktuell monteringsanvisning från tillverkaren.\n- Kontrollera markens infiltrationsförmåga enligt projektering/markundersökning.\n- Bestäm infiltrationens placering och höjdläge.\n- Kontrollera att anläggningen kan placeras på frostfritt djup enligt projekteringen.\n\nVIKTIGT: Infiltrationens storlek ska bestämmas utifrån belastningen och markens förmåga att ta emot avloppsvattnet. Ändra inte antalet moduler utan att det är projekterat.",
+          "studentTip": "Ändra aldrig antalet moduler utan att det är projekterat.",
+          "proTip": "Stäm av markundersökning och projekteringshandlingar noggrant.",
+          "tolerance": "Enligt projektering & monteringsanvisning",
+          "inspectionItem": "Förutsättningar, placering och höjdläge för infiltration",
+          "method": "Dokumentstudie & Granskning",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Aktuell monteringsanvisning genomläst",
+            "Markens infiltrationsförmåga kontrollerad mot projektering",
+            "Infiltrationens placering och höjdläge bestämda",
+            "Frostfritt djup kontrollerat enligt projekteringen",
+            "Antal moduler stämt mot projektering (ej ändrat utan godkännande)"
+          ]
+        },
+        {
+          "id": "4.2",
+          "order": 14,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 2: Mät ut infiltrationen",
+          "amaCode": "BBC.31",
+          "instruction": "Mät ut infiltrationens placering på marken. Markera:\n- Infiltrationens längd och bredd\n- Schaktets gränser\n- Höjder och fall\n- Anslutande ledningar\n\nFör aktuellt fabrikat anger monteringsanvisningen:\n- 7 biomoduler för ett hushåll med BDT+WC (BDT=Bad-, disk- och tvättvatten, WC=skithus)\n- 5 biomoduler för enbart BDT\n\n7 moduler motsvarar ca 8,8 m. 5 moduler motsvarar ca 5,5 m.\nKontrollera alltid aktuellt projekt eftersom dimensioneringen kan vara annorlunda.",
+          "studentTip": "7 moduler motsvarar ca 8,8 m (BDT+WC); 5 moduler ca 5,5 m (enbart BDT).",
+          "proTip": "Märk ut längd, bredd och fall tydligt på marken.",
+          "tolerance": "Längd och bredd enligt modulantal och projektering",
+          "inspectionItem": "Utsättning av infiltrationens placering och schaktgränser",
+          "method": "Måttband, märkspray och avvägning",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Infiltrationens längd och bredd markerade",
+            "Schaktets gränser markerade",
+            "Höjder och fall markerade",
+            "Anslutande ledningar markerade",
+            "Rätt modulantal kontrollerat mot projektering (7 st BDT+WC / 5 st BDT)"
+          ]
+        },
+        {
+          "id": "4.3",
+          "order": 15,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 3: Schakta ur",
+          "amaCode": "CBB.1",
+          "instruction": "Schakta bort matjord och andra olämpliga massor. Botten ska:\n- Vara stabil\n- Vara fri från stora stenar\n- Inte vara tjälad\n- Ha rätt höjd enligt projekteringen\n- Ha rätt förutsättningar för infiltration\n\nUndvik att köra sönder eller packa infiltrationsytan i onödan med maskinen.\n\nVIKTIGT: Infiltrationsytan är den del av anläggningen där avloppsvattnet ska kunna filtreras ned i marken. Den får därför inte förstöras eller tätas genom onödig packning. KÖR EJ ÖVER TANK ELLER MODULERNA FÖR INFILTRATION.",
+          "studentTip": "KÖR EJ ÖVER TANK ELLER MODULERNA FÖR INFILTRATION!",
+          "proTip": "Packa inte schaktbotten i onödan med maskinen – infiltrationsytan måste behålla sin genomsläpplighet.",
+          "tolerance": "Botten stabil, fri från sten och tjäle, rätt nivå",
+          "inspectionItem": "Schaktning och skydd av infiltrationsytan",
+          "method": "Laser & Okulärkontroll",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Matjord och olämpliga massor bortschahtade",
+            "Botten stabil och fri från stora stenar",
+            "Botten fri från tjäle",
+            "Rätt höjd enligt projekteringen",
+            "Infiltrationsytan skyddad från maskinkörning och onödig packning"
+          ]
+        },
+        {
+          "id": "4.4",
+          "order": 16,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 4: Förbered infiltrationsbädden",
+          "amaCode": "DCB.1",
+          "instruction": "- Om marken har tillräcklig infiltrationsförmåga kan biomodulerna enligt monteringsanvisningen placeras direkt på spridarlagret/infiltrationsytan.\n- Vid förstärkt infiltration läggs ca 300 mm markbäddssand, 0,2–8 mm, under spridarplattorna.\n- Fördelningslagret ska vara jämnt och ha rätt nivå. Kontrollera höjden innan modulerna placeras ut.",
+          "studentTip": "Vid förstärkt infiltration läggs ca 300 mm markbäddssand (0,2–8 mm).",
+          "proTip": "Kontrollera att fördelningslagret är jämnt och i rätt höjd före modulläggning.",
+          "tolerance": "Jämnt lager i rätt nivå (ev. 300 mm markbäddssand)",
+          "inspectionItem": "Infiltrationsbädd och fördelningslager",
+          "method": "Laser och rätskiva",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Placering direkt på spridarlager alt. ca 300 mm markbäddssand 0,2-8 mm utförd",
+            "Fördelningslagret jämnt avjämnat",
+            "Höjdnivå kontrollerad innan moduler placeras ut"
+          ]
+        },
+        {
+          "id": "4.5",
+          "order": 17,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 5: Lägg ut spridarplattorna",
+          "amaCode": "PBB.51",
+          "instruction": "För aktuellt system används 14 spridarplattor till 7 biomoduler. Placera:\n- Två spridarplattor under varje biomodul\n- Placera 7 st mot varandra\n- Plattorna stabilt och jämnt på marken\n\nKontrollera att spridarplattorna ligger rätt innan biomodulerna läggs på plats.",
+          "studentTip": "Två spridarplattor under varje biomodul (totalt 14 st för 7 moduler).",
+          "proTip": "Se till att plattorna ligger stabilt och jämnt.",
+          "tolerance": "14 st plattor, stabilt och jämnt underlag",
+          "inspectionItem": "Spridarplattornas antal, placering och stabilitet",
+          "method": "Visuell kontroll och räkning",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "14 spridarplattor använda till 7 biomoduler (2 under varje modul)",
+            "7 st placerade mot varandra",
+            "Plattorna ligger stabilt och jämnt på marken",
+            "Placering kontrollerad innan biomoduler läggs på"
+          ]
+        },
+        {
+          "id": "4.6",
+          "order": 18,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 6: Placera biomodulerna",
+          "amaCode": "PBB.51",
+          "instruction": "Biomodulerna placeras på spridarplattorna. Aktuell biomodul har enligt monteringsanvisningen ungefär följande mått:\n- Höjd: 275 mm\n- Längd: 1 100 mm\n- Bredd: 550 mm\n\nPlacera modulerna i rad med kortsidorna mot varandra.\nKontrollera under arbetets gång att:\n- Modulerna ligger rakt\n- De står stabilt\n- Rätt antal moduler används\n- De ligger på rätt plats enligt ritning/projektering",
+          "studentTip": "Mått på biomodul: ca 275 mm hög, 1 100 mm lång, 550 mm bred.",
+          "proTip": "Placera modulerna i rak rad med kortsidorna tätt mot varandra.",
+          "tolerance": "Raka rader, stabilt placerade",
+          "inspectionItem": "Biomodulernas placering, rakhet och stabilitet",
+          "method": "Snörslå, vattenpass och måttband",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Biomodulerna placerade på spridarplattorna",
+            "Modulerna lagda i rad med kortsidorna mot varandra",
+            "Modulerna ligger rakt och står stabilt",
+            "Rätt antal moduler använda på rätt plats enligt ritning"
+          ]
+        },
+        {
+          "id": "4.7",
+          "order": 19,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 7: Montera ventilationen",
+          "amaCode": "PBB.51",
+          "instruction": "Ventilation ska monteras i ändarna av biomodulerna. Monteringsanvisningen anger ventilationsrör dim 40 x 2 mm, ett i vardera änden.\n\nVentilationen bör placeras så att den ena änden är högre och den andra lägre. Det ger möjlighet till luftcirkulation genom anläggningen.\nTänk på att ventilationen ska:\n- Mynna på lämplig höjd\n- Inte hamna under framtida marknivå\n- Vara tillräckligt hög för att inte täckas av snö\n- Inte kapas av för kort\n\nMonteringsanvisningen anger även att ca 12 hål med 10 mm diameter borras i ventilationsröret. Följ alltid den aktuella tillverkarens placering och antal hål.",
+          "studentTip": "Ventilationsrör dim 40x2 mm i vardera änden. Ca 12 hål med 10 mm diameter.",
+          "proTip": "Se till att ena änden är högre än den andra för att driva luftcirkulationen.",
+          "tolerance": "Rör 40x2 mm, ca 12 st 10 mm hål, mynning över snönivå",
+          "inspectionItem": "Ventilationsrör, hålborrning och mynning",
+          "method": "Måttband, borrkontroll och visuell inspektion",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Ventilationsrör dim 40x2 mm monterat i vardera änden",
+            "Höjdskillnad mellan ändarna för luftcirkulation",
+            "Mynnar på lämplig höjd över framtida marknivå och snö",
+            "Ca 12 hål med 10 mm diameter borrade enligt anvisning"
+          ]
+        },
+        {
+          "id": "4.8",
+          "order": 20,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 8: Montera spridarrören",
+          "amaCode": "PBB.51",
+          "instruction": "Spridarrören placeras ovanpå biomodulerna. Enligt monteringsanvisningen används spridarrör med:\n- Diameter 110 mm\n- Längd ca 1,1 m\n\nRören läggs på modulerna och kopplas samman enligt tillverkarens anvisning. Rören ska bindas fast så att de inte kan flytta sig under återfyllningen. Kontrollera att rören ligger rätt och har den placering som anges i monteringsanvisningen.",
+          "studentTip": "Spridarrör dim 110 mm, längd ca 1,1 m. Bind fast ordentligt!",
+          "proTip": "Kontrollera att rören inte kan förskjutas vid masspåläggning.",
+          "tolerance": "Rör 110 mm, sammankopplade och fastbundna",
+          "inspectionItem": "Spridarrör, sammankoppling och fastbindning",
+          "method": "Måttband och mekanisk kontroll",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Spridarrör dim 110 mm (L=ca 1,1 m) placerade ovanpå biomodulerna",
+            "Rören sammankopplade enligt tillverkarens anvisning",
+            "Rören fastbundna så de inte kan flytta sig under återfyllning",
+            "Rörens placering stämmer mot monteringsanvisningen"
+          ]
+        },
+        {
+          "id": "4.9",
+          "order": 21,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 9: Kontrollera anläggningen innan återfyllningen",
+          "amaCode": "PBB.51",
+          "instruction": "Innan något fylls igen ska hela anläggningen kontrolleras. Kontrollera:\n- Rätt antal biomoduler\n- Spridarplattorna ligger rätt\n- Biomodulerna ligger stabilt och rakt\n- Spridarrören är korrekt placerade\n- Spridarrören är fastbundna\n- Ventilationsrören är monterade\n- Ventilationsrören är utförda enligt anvisningen\n- Anslutningarna är rätt utförda\n- Rätt höjder och nivåer\n- Inga stora stenar finns där de kan skada anläggningen\n- Anläggningen är dokumenterad innan den täcks över\n\nDet här är sista möjligheten att enkelt upptäcka och rätta fel.",
+          "studentTip": "Sista möjligheten att enkelt upptäcka och rätta fel!",
+          "proTip": "Fotografera hela den öppna bädden från alla vinklar.",
+          "tolerance": "Samtliga kontrollpunkter godkända",
+          "inspectionItem": "Slutkontroll av hela anläggningen före övertäckning",
+          "method": "Gemensam okulär- och mätkontroll",
+          "requirePhoto": true,
+          "isStopPoint": true,
+          "customChecklist": [
+            "Rätt antal biomoduler",
+            "Spridarplattorna ligger rätt",
+            "Biomodulerna ligger stabilt och rakt",
+            "Spridarrören är korrekt placerade och fastbundna",
+            "Ventilationsrören är monterade och utförda enligt anvisning",
+            "Anslutningarna är rätt utförda",
+            "Rätt höjder och nivåer",
+            "Inga stora stenar kan skada anläggningen",
+            "Anläggningen dokumenterad innan övertäckning"
+          ]
+        },
+        {
+          "id": "4.10",
+          "order": 22,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 10: Skydda biomodulerna",
+          "amaCode": "PBB.51",
+          "instruction": "När anläggningen är kontrollerad ska biomodulerna skyddas innan återfyllning:\n- Fyll försiktigt runt modulerna så att de inte flyttas eller skadas.\n- Använd lämpliga massor närmast anläggningen och följ tillverkarens anvisningar.\n- Lägg geotextil (markduk) ovanpå för att förhindra att finjord tränger ner.",
+          "studentTip": "Lägg geotextil (markduk) ovanpå för att förhindra att finjord tränger ner.",
+          "proTip": "Fyll försiktigt närmast modulerna så att de inte rubbas.",
+          "tolerance": "Skonsam fyllning, geotextil utlagd",
+          "inspectionItem": "Skyddsåtgärder och geotextil",
+          "method": "Okulärbesiktning",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Försiktig fyllning runt modulerna utan skador/förskjutning",
+            "Lämpliga massor använda närmast anläggningen enligt anvisning",
+            "Geotextil (markduk) utlagd ovanpå som skydd mot finjord"
+          ]
+        },
+        {
+          "id": "4.11",
+          "order": 23,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 11: Återfyll",
+          "amaCode": "CBB.1",
+          "instruction": "Återfyll försiktigt runt och ovanför infiltrationen. Enligt monteringsanvisningen ska det vara ca 60 cm täckning av befintliga jordmassor.\n\nVid återfyllningen:\n- Använd inte stora stenar direkt mot anläggningen\n- Undvik att flytta spridarrör och ventilationsrör\n- Fyll jämnt runt konstruktionen\n- Packa inte direkt ovanpå biomodulerna på ett sätt som kan skada dem\n- Se till att ventilationen fortfarande är fri\n\nStora stenar ska sorteras bort.",
+          "studentTip": "Ca 60 cm täckning av befintliga jordmassor. Stora stenar ska sorteras bort.",
+          "proTip": "Packa inte direkt ovanpå modulerna så att de skadas.",
+          "tolerance": "Täckning ca 60 cm, fri från stora stenar",
+          "inspectionItem": "Återfyllning och täckningsdjup",
+          "method": "Måttband och visuell kontroll",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Ca 60 cm täckning av befintliga jordmassor",
+            "Inga stora stenar direkt mot anläggningen (bortsorterade)",
+            "Spridarrör och ventilationsrör ej flyttade",
+            "Jämn fyllning runt konstruktionen utan skadlig packning ovanpå",
+            "Ventilationen hålls fri"
+          ]
+        },
+        {
+          "id": "4.12",
+          "order": 24,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 12: Slutför marken",
+          "amaCode": "CBB.1",
+          "instruction": "När infiltrationen är täckt färdigställs marken. Kontrollera att:\n- Marken leder bort ytvatten från infiltrationen\n- Inga gropar där vatten kan samlas finns över anläggningen\n- Ventilationsrören fortfarande är fria\n- Marknivån stämmer med projekteringen\n\nÅterställ området så långt det är möjligt.",
+          "studentTip": "Marken ska leda bort ytvatten från infiltrationen.",
+          "proTip": "Säkerställ att ventilationsrören mynnar fritt och oskadat ovan mark.",
+          "tolerance": "Ytvattenfall bort från anläggning, fria rör",
+          "inspectionItem": "Markplanering, ytvattenavrinning och ventilationskontroll",
+          "method": "Laser, vattenpass och visuell inspektion",
+          "requirePhoto": true,
+          "isStopPoint": false,
+          "customChecklist": [
+            "Marken leder bort ytvatten från infiltrationen",
+            "Inga gropar där vatten kan samlas över anläggningen",
+            "Ventilationsrören är fria",
+            "Marknivån stämmer med projekteringen",
+            "Området återställt så långt det är möjligt"
+          ]
+        },
+        {
+          "id": "4.13",
+          "order": 25,
+          "phaseNumber": 4,
+          "phaseName": "Fas 4: 4. Infiltration",
+          "title": "Steg 13: Dokumentera arbetet",
+          "amaCode": "YJJ.1",
+          "instruction": "Innan schaktet fylls igen ska arbetet dokumenteras. Dokumentera:\n- Infiltrationens placering\n- Höjder\n- Antal moduler\n- Spridarplattornas placering\n- Spridarrörens placering\n- Ventilationens utförande\n- Anslutningar\n- Fotografier före återfyllning\n\nDokumentationen är viktig för framtida service och felsökning.",
+          "studentTip": "Dokumentationen är viktig för framtida service och felsökning.",
+          "proTip": "Sammanställ relationsmått och fotobevis i appen.",
+          "tolerance": "Fullständig dokumentation och fotobevis",
+          "inspectionItem": "Slutdokumentation och fotobevis",
+          "method": "Dokumentation i appen & Signering",
+          "requirePhoto": true,
+          "isStopPoint": true,
+          "customChecklist": [
+            "Infiltrationens placering dokumenterad",
+            "Höjder och antal moduler dokumenterade",
+            "Spridarplattornas och spridarrörens placering dokumenterad",
+            "Ventilationens utförande och anslutningar dokumenterade",
+            "Fotografier före återfyllning sparade"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ex_grund_standard_1",
+      "code": "GRUND-1",
+      "title": "Övning: Platta på mark - Schakt & Makadam",
+      "description": "Praktisk övning i anläggningshallen. Mät kryssmått och laseravväg makadambädd med max ±5 mm tolerans.",
+      "projectType": "HUSGRUND",
+      "targetGroup": "Byggprogrammet",
+      "createdByTeacherName": "Yrkeslärare Mark & Betong",
+      "instructions": "1. Kontrollera ledningsanvisning\n2. Mät ut profiler och beräkna diagonal\n3. Schakta och jämna av schaktbotten\n4. Lägg fiberduk och makadambädd",
+      "createdAt": "2026-09-20 08:30"
+    },
+    {
+      "id": "ex_sten_standard_1",
+      "code": "PLATTA-2",
+      "title": "Övning: Marksten & Plattsättning Garageinfart",
+      "description": "Övning i sättsand, fall 2 cm/meter och fogning enligt AMA Anläggning.",
+      "projectType": "PLATTSATTNING",
+      "targetGroup": "Anläggare",
+      "createdByTeacherName": "Yrkeslärare Mark & Betong",
+      "instructions": "Säkerställ att bärlagret är väl paddat. Dra av sättsanden med rätskiva och kontrollera fall bort från sockel.",
+      "createdAt": "2026-09-22 09:00"
+    }
+  ],
+  "inviteCodes": [],
+  "emailWhitelist": [
+    {
+      "id": "wl_email_robbin",
+      "pattern": "robbinwannstrom@gmail.com",
+      "type": "EXACT_EMAIL",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Huvudadministratör & ägare"
+    },
+    {
+      "id": "wl_email_admin",
+      "pattern": "admin@faltkoll.se",
+      "type": "EXACT_EMAIL",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Huvudadministratör"
+    }
+  ],
+  "registrationSecurity": {
+    "requireInviteCodeOrWhitelist": true
+  }
+}
