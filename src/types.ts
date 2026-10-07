@@ -255,9 +255,18 @@ export interface CustomColorTheme {
   isLightMode?: boolean;
 }
 
+export type AiDisplayMode = 'FLOATING_BUBBLE' | 'COMPACT_BUTTON' | 'EMBEDDED' | 'HIDDEN';
+
 export interface UserSettings {
   userName: string;
-  companyName: string;
+  companyName?: string;
+  contractorName?: string;
+  inspectorName?: string;
+  inspectorTitle?: string;
+  inspectorCompany?: string;
+  inspectorPhone?: string;
+  inspectorEmail?: string;
+  defaultRole?: string;
   preferredProjectType?: ProjectType | 'ALL';
   easyFieldMode?: boolean;
   hasSeenWizard?: boolean;
@@ -278,6 +287,7 @@ export interface UserSettings {
   featureCrossMeasure?: boolean;
   featureFieldNotes?: boolean;
   featureAiHelper?: boolean;
+  aiDisplayMode?: AiDisplayMode;
   featurePreInspection?: boolean;
   featurePhotoWatermark?: boolean;
   saveToDeviceGallery?: boolean;       // "fråga om man vill spara en kopia i mobilens galleri"

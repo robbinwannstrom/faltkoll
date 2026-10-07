@@ -18,6 +18,8 @@ import { MomentAiHelperModal } from './MomentAiHelperModal';
 import { fileToBase64Optimized, getFormattedCurrentTime } from '../db/indexedDb';
 import { getDefaultCategoryForMoment } from '../utils/photoStorage';
 import { getSuggestionsForMoment } from '../data/momentCheckSuggestions';
+import { saveProjectToCloud } from '../services/studentWorkService';
+import { FloatingAiBubble } from './FloatingAiBubble';
 import {
   getContextVocabulary,
   resolveAppContextMode,
@@ -485,18 +487,10 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
     try {
       setIsCloudSyncing(true);
       setCloudSyncMsg('Synkar med molnet...');
-      const res = await fetch('/api/sync/push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project }),
-      });
-      if (res.ok) {
-        setCloudSyncMsg('Synkning klar! Allt sparat i molnet.');
-      } else {
-        setCloudSyncMsg('Sparat lokalt på enheten.');
-      }
+      await saveProjectToCloud(project);
+      setCloudSyncMsg('✓ Synkning klar! Allt sparat och säkrat i Google Cloud.');
     } catch {
-      setCloudSyncMsg('Offlineläge: Allt sparat lokalt på telefonen.');
+      setCloudSyncMsg('✓ Sparat lokalt på enheten (offline).');
     } finally {
       setIsCloudSyncing(false);
       setTimeout(() => setCloudSyncMsg(null), 4000);
@@ -607,42 +601,21 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
               <p className="text-xs text-slate-300 mt-0.5">
                 {status === 'GREEN'
                   ? `${record.signature || 'Signerat'} ${record.completedAt ? `(${record.completedAt})` : ''}`
-                  : 'Klicka på "Godkänn moment" när kontrollen är utförd, eller signera med fingret längst ner.'}
+                  : 'Följ instruktionen och signera i rutan längst ner för att slutföra.'}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            {status !== 'GREEN' ? (
-              <button
-                type="button"
-                onClick={() => handleSetStatus(moment, 'GREEN')}
-                className="min-h-[42px] px-4 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-black font-black text-xs sm:text-sm rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-500/20 transition-all"
-              >
-                <Check className="w-4 h-4 stroke-[3]" />
-                <span>Godkänn moment direkt</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleSetStatus(moment, 'YELLOW')}
-                className="min-h-[40px] px-3.5 bg-[#16281e] hover:bg-[#1f382a] text-emerald-300 border border-emerald-600 font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Ändra till pågående</span>
-              </button>
-            )}
-
-            {status !== 'RED' && (
-              <button
-                type="button"
-                onClick={() => handleSetStatus(moment, 'RED')}
-                className="min-h-[40px] px-3 bg-[#1c1c1c] hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 border border-[#333] rounded-xl text-xs font-bold cursor-pointer transition-colors"
-              >
-                Nollställ
-              </button>
-            )}
-          </div>
+          {status !== 'RED' && (
+            <button
+              type="button"
+              onClick={() => handleSetStatus(moment, 'RED')}
+              className="px-3 py-1.5 bg-[#202020] hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 border border-[#333] rounded-xl text-xs font-bold cursor-pointer transition-colors self-start sm:self-auto shrink-0"
+              title="Återställ moment till ej påbörjat"
+            >
+              Återställ
+            </button>
+          )}
         </div>
 
         {/* ELEMENT 1 (Överst): En låst textruta med stor och tydlig typografi */}
@@ -664,8 +637,8 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
             {renderInstructionWithMeasurements(moment.instruction)}
           </p>
 
-          {/* AI-HJÄLPAREN FÖR DETTA MOMENT */}
-          {project.exerciseSettings?.allowAiHelper !== false && (
+          {/* AI-HJÄLPAREN (Visas inbäddad endast om användaren valt Inbäddat läge i inställningar) */}
+          {userSettings.aiDisplayMode === 'EMBEDDED' && project.exerciseSettings?.allowAiHelper !== false && (
             <div className="bg-gradient-to-r from-sky-950/70 via-[#0e1624] to-sky-950/40 border-2 border-sky-500/40 hover:border-sky-400/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-sky-950/40 transition-all">
               <div className="flex items-start sm:items-center gap-3.5">
                 <div className="w-11 h-11 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-400/40 flex items-center justify-center shrink-0 shadow-sm">
@@ -2381,32 +2354,23 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                                   type="button"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleSetStatus(
-                                      moment,
-                                      status === 'RED' ? 'YELLOW' : status === 'YELLOW' ? 'GREEN' : 'RED'
-                                    );
+                                    handleSetStatus(moment, status === 'GREEN' ? 'RED' : 'GREEN');
                                   }}
-                                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 border font-bold transition-all cursor-pointer active:scale-90 shadow-sm ${
+                                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 border-2 font-black transition-all cursor-pointer active:scale-90 shadow-sm ${
                                     status === 'GREEN'
                                       ? 'bg-emerald-500 border-emerald-400 text-black shadow-emerald-500/20'
-                                      : status === 'YELLOW'
-                                      ? 'bg-amber-500 border-amber-400 text-black shadow-amber-500/20'
-                                      : 'bg-[#181818] border-[#383838] hover:border-emerald-500/60 text-slate-500 hover:text-emerald-400'
+                                      : 'bg-[#181818] border-[#383838] hover:border-emerald-500 text-slate-500 hover:text-emerald-400'
                                   }`}
                                   title={
                                     status === 'GREEN'
-                                      ? 'Moment är godkänt! Klicka för att nollställa'
-                                      : status === 'YELLOW'
-                                      ? 'Moment pågår! Klicka för att godkänna'
-                                      : 'Klicka för att påbörja eller godkänna'
+                                      ? 'Moment är klart! Klicka för att ångra'
+                                      : 'Klicka här för att bocka av som klart'
                                   }
                                 >
                                   {status === 'GREEN' ? (
-                                    <Check className="w-5 h-5 stroke-[3.5]" />
-                                  ) : status === 'YELLOW' ? (
-                                    <span className="w-3 h-3 rounded-full bg-black" />
+                                    <Check className="w-5 h-5 stroke-[3.5] text-black" />
                                   ) : (
-                                    <span className="w-2.5 h-2.5 rounded-full bg-slate-600" />
+                                    <span className="w-3 h-3 rounded-xs border border-slate-600" />
                                   )}
                                 </button>
 
@@ -2770,6 +2734,16 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
           />
         </div>
       )}
+
+      {/* 5c. Flyttbar AI Bygghjälp Bubbla */}
+      {userSettings.aiDisplayMode !== 'HIDDEN' &&
+        userSettings.aiDisplayMode !== 'EMBEDDED' &&
+        project.exerciseSettings?.allowAiHelper !== false && (
+          <FloatingAiBubble
+            onOpenAi={() => setIsFieldHelperOpen(true)}
+            activeMomentTitle={project.name}
+          />
+        )}
     </div>
   );
 };

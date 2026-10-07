@@ -135,7 +135,11 @@ export function isValidEmail(email: string | null | undefined): boolean {
 export function canManageAccounts(actor: UserAccount | null | undefined): boolean {
   if (!actor) return false;
   const actorEmail = actor.email?.toLowerCase().trim();
-  if (actorEmail === 'robbinwannstrom@gmail.com' || actorEmail === 'admin@faltkoll.se') {
+  if (
+    actorEmail === 'skoogshuggarn@gmail.com' ||
+    actorEmail === 'robbinwannstrom@gmail.com' ||
+    actorEmail === 'admin@faltkoll.se'
+  ) {
     return true;
   }
   if (actor.role === 'STUDENT' || (actor.role as any) === 'WORKER') {
@@ -156,7 +160,11 @@ export function canManageAccounts(actor: UserAccount | null | undefined): boolea
 export function canEditExercise(actor: UserAccount | null | undefined): boolean {
   if (!actor) return false;
   const actorEmail = actor.email?.toLowerCase().trim();
-  if (actorEmail === 'robbinwannstrom@gmail.com' || actorEmail === 'admin@faltkoll.se') {
+  if (
+    actorEmail === 'skoogshuggarn@gmail.com' ||
+    actorEmail === 'robbinwannstrom@gmail.com' ||
+    actorEmail === 'admin@faltkoll.se'
+  ) {
     return true;
   }
   if (actor.role === 'STUDENT' || (actor.role as any) === 'WORKER') {
@@ -178,7 +186,13 @@ export function canEditExercise(actor: UserAccount | null | undefined): boolean 
 export function canEditUser(actor: UserAccount | null | undefined, target: UserAccount): boolean {
   if (!actor) return false;
   const actorEmail = actor.email?.toLowerCase().trim();
-  if (actorEmail === 'robbinwannstrom@gmail.com' || actor.role === 'ADMIN') return true;
+  if (
+    actorEmail === 'skoogshuggarn@gmail.com' ||
+    actorEmail === 'robbinwannstrom@gmail.com' ||
+    actor.role === 'ADMIN'
+  ) {
+    return true;
+  }
   if (actor.role === 'STUDENT' || (actor.role as any) === 'WORKER') return false;
   if (actor.role === 'SCHOOL_ADMIN') return target.role !== 'ADMIN';
   if (actor.role === 'TEACHER') {
@@ -193,7 +207,14 @@ export function canEditUser(actor: UserAccount | null | undefined, target: UserA
 export function canChangeRoleTo(actor: UserAccount | null | undefined, newRole: UserRole): boolean {
   if (!actor) return false;
   const actorEmail = actor.email?.toLowerCase().trim();
-  if (actorEmail === 'robbinwannstrom@gmail.com' || actor.role === 'ADMIN' || actor.role === 'SCHOOL_ADMIN') return true;
+  if (
+    actorEmail === 'skoogshuggarn@gmail.com' ||
+    actorEmail === 'robbinwannstrom@gmail.com' ||
+    actor.role === 'ADMIN' ||
+    actor.role === 'SCHOOL_ADMIN'
+  ) {
+    return true;
+  }
   if (actor.role === 'TEACHER') return newRole === 'STUDENT';
   return false;
 }
@@ -213,10 +234,12 @@ export function canDeleteUser(actor: UserAccount | null | undefined, target: Use
   const targetEmail = target.email?.toLowerCase().trim();
   const actorEmail = actor.email?.toLowerCase().trim();
 
-  // Ingen kan ta bort huvudadmin (RobbinWannstrom@gmail.com, admin@faltkoll.se) eller sitt eget inloggade konto
+  // Ingen kan ta bort huvudadmin (skoogshuggarn@gmail.com, RobbinWannstrom@gmail.com, admin@faltkoll.se) eller sitt eget inloggade konto
   if (
     target.id === 'usr_admin_main' ||
+    target.id === 'usr_skoogshuggarn' ||
     target.id === 'usr_robbin_owner' ||
+    targetEmail === 'skoogshuggarn@gmail.com' ||
     targetEmail === 'robbinwannstrom@gmail.com' ||
     targetEmail === 'admin@faltkoll.se' ||
     targetEmail === 'caataclysm@gmail.com' ||
@@ -226,7 +249,11 @@ export function canDeleteUser(actor: UserAccount | null | undefined, target: Use
   }
 
   // Huvudadmin kan ta bort alla
-  if (actor.role === 'ADMIN' || actorEmail === 'robbinwannstrom@gmail.com') {
+  if (
+    actor.role === 'ADMIN' ||
+    actorEmail === 'skoogshuggarn@gmail.com' ||
+    actorEmail === 'robbinwannstrom@gmail.com'
+  ) {
     return true;
   }
 
@@ -917,6 +944,32 @@ export async function verifyAndConsumeInviteCode(
     reason: 'INVALID_CODE',
     message: 'Ogiltig inbjudningskod. Endast koder genererade av administratören kan användas.',
   };
+}
+
+/**
+ * Atomically mark a license / invite code as consumed in Google Cloud Firestore.
+ * Enforces strict 1-time single use per code.
+ */
+export async function consumeInviteCodeInCloud(code: string, email: string): Promise<boolean> {
+  const cleanCode = code.trim().toUpperCase();
+  const cleanEmail = email.trim().toLowerCase();
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+  try {
+    const codeRef = doc(db, INVITE_CODES_COLLECTION, cleanCode);
+    await setDoc(
+      codeRef,
+      {
+        consumed: true,
+        consumedBy: cleanEmail,
+        consumedAt: now,
+      },
+      { merge: true }
+    );
+    return true;
+  } catch (err) {
+    console.warn('Could not mark code consumed in Firestore:', err);
+    return false;
+  }
 }
 
 /**

@@ -237,6 +237,7 @@ export function getUserSettings(): UserSettings {
     featureCrossMeasure: true,
     featureFieldNotes: true,
     featureAiHelper: true,
+    aiDisplayMode: 'FLOATING_BUBBLE',
     featurePreInspection: true,
     featurePhotoWatermark: true,
     saveToDeviceGallery: false,

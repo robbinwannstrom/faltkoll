@@ -1,6 +1,38 @@
 {
   "users": [
     {
+      "id": "usr_1791375973154_lvrc",
+      "email": "lisa.bygg@skola.se",
+      "displayName": "Lisa Byggare",
+      "role": "STUDENT",
+      "accountContext": "WORKPLACE",
+      "password": "lisa123",
+      "schoolOrCompany": "Anläggning & Entreprenad AB",
+      "createdAt": "2026-10-07 12:26",
+      "lastLogin": "2026-10-07 12:26"
+    },
+    {
+      "id": "usr_1791375963702_wacz",
+      "email": "kalle.svensson@skola.se",
+      "displayName": "Kalle Svensson",
+      "role": "STUDENT",
+      "accountContext": "WORKPLACE",
+      "password": "kalle123",
+      "schoolOrCompany": "Anläggning & Entreprenad AB",
+      "createdAt": "2026-10-07 12:26",
+      "lastLogin": "2026-10-07 12:26"
+    },
+    {
+      "id": "usr_skoogshuggarn",
+      "email": "admin@faltkoll.se",
+      "displayName": "Skoogshuggarn (Huvudadmin)",
+      "role": "ADMIN",
+      "password": "admin123",
+      "schoolOrCompany": "Anläggningssektionen & Byggutbildning",
+      "createdAt": "2026-01-01 08:00",
+      "lastLogin": "2026-10-07 10:00"
+    },
+    {
       "id": "usr_1790725123408_pqio",
       "email": "erik.bygg@skola.se",
       "displayName": "Erik Svensson",
@@ -8,7 +40,7 @@
       "password": "hemligt123",
       "schoolOrCompany": "Bygg & Anläggning",
       "createdAt": "2026-09-29 23:38",
-      "lastLogin": "2026-09-29 23:38",
+      "lastLogin": "2026-10-07 12:26",
       "schoolClass": "BA24 (Bygg Åk 2)",
       "studentGroup": "Byggprogrammet (BA)"
     },
@@ -20,7 +52,7 @@
       "password": "1234",
       "schoolOrCompany": "Bygg- & Anläggningsutbildning",
       "createdAt": "2026-09-29 08:00",
-      "lastLogin": "2026-09-29 23:38"
+      "lastLogin": "2026-10-07 12:26"
     },
     {
       "id": "usr_admin_skola",
@@ -30,7 +62,7 @@
       "password": "admin123",
       "schoolOrCompany": "Bygg- & Anläggningsutbildning",
       "createdAt": "2026-09-29 08:00",
-      "lastLogin": "2026-10-05 15:57"
+      "lastLogin": "2026-10-07 12:19"
     },
     {
       "id": "usr_1790594250865_0wxq",
@@ -1864,8 +1896,67 @@
       "createdAt": "2026-09-22 09:00"
     }
   ],
-  "inviteCodes": [],
+  "inviteCodes": [
+    {
+      "code": "FALT-2026",
+      "createdBy": "Huvudadministratör",
+      "createdAt": "2026-01-01",
+      "roleToAssign": "STUDENT",
+      "accountContext": "SCHOOL",
+      "companyOrSchool": "Bygg- & Anläggningsutbildning",
+      "consumed": false,
+      "notes": "Generell skolkod för elever och lärlingar"
+    },
+    {
+      "code": "LARARE-2026",
+      "createdBy": "Huvudadministratör",
+      "createdAt": "2026-01-01",
+      "roleToAssign": "TEACHER",
+      "accountContext": "SCHOOL",
+      "companyOrSchool": "Bygg- & Anläggningsutbildning",
+      "consumed": false,
+      "notes": "Registreringskod för yrkeslärare & instruktörer"
+    },
+    {
+      "code": "BYGG-2026",
+      "createdBy": "Huvudadministratör",
+      "createdAt": "2026-01-01",
+      "roleToAssign": "STUDENT",
+      "accountContext": "WORKPLACE",
+      "companyOrSchool": "Anläggning & Entreprenad AB",
+      "consumed": false,
+      "notes": "Arbetsplats & Entreprenadkod"
+    },
+    {
+      "code": "APL-2026",
+      "createdBy": "Huvudadministratör",
+      "createdAt": "2026-01-01",
+      "roleToAssign": "STUDENT",
+      "accountContext": "APL",
+      "companyOrSchool": "APL-företag",
+      "consumed": false,
+      "notes": "APL & Praktikkod"
+    },
+    {
+      "code": "SKOLA-2026",
+      "createdBy": "Huvudadministratör",
+      "createdAt": "2026-01-01",
+      "roleToAssign": "STUDENT",
+      "accountContext": "SCHOOL",
+      "companyOrSchool": "Byggprogrammet (BA)",
+      "consumed": false,
+      "notes": "Skol- och utbildningskod"
+    }
+  ],
   "emailWhitelist": [
+    {
+      "id": "wl_email_skoog",
+      "pattern": "skoogshuggarn@gmail.com",
+      "type": "EXACT_EMAIL",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Huvudadministratör & ägare"
+    },
     {
       "id": "wl_email_robbin",
       "pattern": "robbinwannstrom@gmail.com",
@@ -1881,6 +1972,70 @@
       "addedBy": "System",
       "addedAt": "2026-01-01",
       "description": "Huvudadministratör"
+    },
+    {
+      "id": "wl_email_angfar",
+      "pattern": "angfar@skola.se",
+      "type": "EXACT_EMAIL",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Yrkeslärare"
+    },
+    {
+      "id": "wl_domain_skola",
+      "pattern": "@skola.se",
+      "type": "DOMAIN",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Skolans e-postdomän"
+    },
+    {
+      "id": "wl_domain_edu",
+      "pattern": "@edu.se",
+      "type": "DOMAIN",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Utbildningsdomän"
+    },
+    {
+      "id": "wl_domain_skolan",
+      "pattern": "@skolan.se",
+      "type": "DOMAIN",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Skoldomän"
+    },
+    {
+      "id": "wl_domain_foretag",
+      "pattern": "@foretag.se",
+      "type": "DOMAIN",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Företagsdomän"
+    },
+    {
+      "id": "wl_domain_entreprenad",
+      "pattern": "@entreprenad.se",
+      "type": "DOMAIN",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Entreprenaddomän"
+    },
+    {
+      "id": "wl_domain_bygg",
+      "pattern": "@bygg.se",
+      "type": "DOMAIN",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Byggdomän"
+    },
+    {
+      "id": "wl_domain_gmail",
+      "pattern": "@gmail.com",
+      "type": "DOMAIN",
+      "addedBy": "System",
+      "addedAt": "2026-01-01",
+      "description": "Allmän domän"
     }
   ],
   "registrationSecurity": {

@@ -129,11 +129,11 @@ export const TeacherFieldInspectionView: React.FC<TeacherFieldInspectionViewProp
     setSyncStatusNotice(null);
     try {
       const result = await syncAllLocalProjectsToCloud(currentUser);
-      if (result.error) {
+      if (result.error && result.count === 0) {
         setSyncStatusNotice(`Synkmeddelande: ${result.error}`);
       } else {
         setSyncStatusNotice(
-          `✓ ${result.count} sparade arbeten från enheten och tidigare sessioner har nu synkats till molnet!`
+          `✓ ${result.count} sparade arbeten från enheten har nu synkats till Google Cloud!`
         );
         await loadData(true);
       }

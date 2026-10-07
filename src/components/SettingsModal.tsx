@@ -8,6 +8,7 @@ import {
   UserAccount,
   AppContextMode,
   CustomColorTheme,
+  AiDisplayMode,
 } from '../types';
 import { getContextVocabulary, resolveAppContextMode } from '../utils/contextLabels';
 import {
@@ -31,6 +32,8 @@ import {
   Copy,
   ExternalLink,
   Lock,
+  Bot,
+  MessageSquare,
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import {
@@ -137,6 +140,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [userName, setUserName] = useState<string>(userSettings.userName || '');
   const [companyName, setCompanyName] = useState<string>(userSettings.companyName || '');
   const [preferredType, setPreferredType] = useState<ProjectType | 'ALL'>(userSettings.preferredProjectType || 'ALL');
+  const [aiDisplayMode, setAiDisplayMode] = useState<AiDisplayMode>(userSettings.aiDisplayMode || 'FLOATING_BUBBLE');
 
   const vocab = getContextVocabulary(contextMode);
 
@@ -148,6 +152,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       appContextMode: contextMode,
       appLayoutMode: layoutMode,
       colorPalette: palette,
+      aiDisplayMode: aiDisplayMode,
       activeCustomTheme: {
         id: userSettings.activeCustomTheme?.id || 'custom_active',
         name: customThemeName.trim() || 'Mitt Eget Färgtema',
@@ -168,6 +173,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       ...partial,
     };
     onUpdateUserSettings(updated);
+  };
+
+  const handleSelectAiMode = (newMode: AiDisplayMode) => {
+    setAiDisplayMode(newMode);
+    handleApplyChanges({ aiDisplayMode: newMode });
   };
 
   const handleSelectContextMode = (newMode: AppContextMode) => {
@@ -873,6 +883,147 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </div>
                   </div>
                 </button>
+              </div>
+
+              {/* 3. AI BYGGHJÄLP & CHAT-VISNING */}
+              <div className="pt-4 border-t border-[#262626] space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-base font-black text-white flex items-center gap-2">
+                      <Bot className="w-5 h-5 text-sky-400" />
+                      <span>3. AI Bygghjälp & Chat-läge</span>
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Välj hur AI-assistenten ska visas när du arbetar i fält och kontrollerar moment.
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md bg-sky-950 text-sky-300 border border-sky-700 text-[10px] font-black uppercase">
+                    Interaktiv
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Alternativ 1: Flytande bubbla */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectAiMode('FLOATING_BUBBLE')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+                      aiDisplayMode === 'FLOATING_BUBBLE'
+                        ? 'bg-sky-500/10 border-sky-500 ring-2 ring-sky-500/30 text-white shadow-lg'
+                        : 'bg-[#181818] border-[#2c2c2c] text-slate-300 hover:border-[#3c3c3c]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-black text-white">
+                          💬 Flytande bubbla (Kan flyttas fritt)
+                        </span>
+                        <span className="text-[9px] font-black uppercase bg-sky-500 text-black px-1.5 py-0.5 rounded">
+                          Standard
+                        </span>
+                      </div>
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                          aiDisplayMode === 'FLOATING_BUBBLE'
+                            ? 'border-sky-500 bg-sky-500 text-black'
+                            : 'border-[#444] bg-[#121212]'
+                        }`}
+                      >
+                        {aiDisplayMode === 'FLOATING_BUBBLE' && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      En rund chattbubbla som svävar på skärmen. Du kan dra och flytta den vart du vill med fingret så den aldrig är i vägen.
+                    </p>
+                  </button>
+
+                  {/* Alternativ 2: Inbäddad i instruktionskortet */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectAiMode('EMBEDDED')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+                      aiDisplayMode === 'EMBEDDED'
+                        ? 'bg-sky-500/10 border-sky-500 ring-2 ring-sky-500/30 text-white shadow-lg'
+                        : 'bg-[#181818] border-[#2c2c2c] text-slate-300 hover:border-[#3c3c3c]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-black text-white">
+                        📄 Inbäddad i instruktionen
+                      </span>
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                          aiDisplayMode === 'EMBEDDED'
+                            ? 'border-sky-500 bg-sky-500 text-black'
+                            : 'border-[#444] bg-[#121212]'
+                        }`}
+                      >
+                        {aiDisplayMode === 'EMBEDDED' && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Klassisk stor ruta inbäddad direkt inuti varje moments text och instruktion.
+                    </p>
+                  </button>
+
+                  {/* Alternativ 3: Kompakt knapp */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectAiMode('COMPACT_BUTTON')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+                      aiDisplayMode === 'COMPACT_BUTTON'
+                        ? 'bg-sky-500/10 border-sky-500 ring-2 ring-sky-500/30 text-white shadow-lg'
+                        : 'bg-[#181818] border-[#2c2c2c] text-slate-300 hover:border-[#3c3c3c]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-black text-white">
+                        📍 Fast knapp i bottenmenyn
+                      </span>
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                          aiDisplayMode === 'COMPACT_BUTTON'
+                            ? 'border-sky-500 bg-sky-500 text-black'
+                            : 'border-[#444] bg-[#121212]'
+                        }`}
+                      >
+                        {aiDisplayMode === 'COMPACT_BUTTON' && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Ligger stilla som en knapp i verktygsraden längst ner utan att sväva över innehållet.
+                    </p>
+                  </button>
+
+                  {/* Alternativ 4: Dölj */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectAiMode('HIDDEN')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+                      aiDisplayMode === 'HIDDEN'
+                        ? 'bg-rose-500/10 border-rose-500 ring-2 ring-rose-500/30 text-white shadow-lg'
+                        : 'bg-[#181818] border-[#2c2c2c] text-slate-300 hover:border-[#3c3c3c]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-black text-white">
+                        🚫 Dölj AI-hjälparen
+                      </span>
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                          aiDisplayMode === 'HIDDEN'
+                            ? 'border-rose-500 bg-rose-500 text-black'
+                            : 'border-[#444] bg-[#121212]'
+                        }`}
+                      >
+                        {aiDisplayMode === 'HIDDEN' && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Stäng av AI-frågor helt och hållet om du vill ha maximalt rent och avskalat gränssnitt.
+                    </p>
+                  </button>
+                </div>
               </div>
             </div>
           )}

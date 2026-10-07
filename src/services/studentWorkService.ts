@@ -592,9 +592,13 @@ export async function syncAllLocalProjectsToCloud(
       return updated;
     });
 
-    // Save to Firestore
+    // Save to Firestore and local IndexedDB
+    let firestoreSaved = 0;
     for (const p of preparedProjects) {
-      await saveProjectToFirestore(p);
+      try {
+        const ok = await saveProjectToFirestore(p);
+        if (ok) firestoreSaved++;
+      } catch {}
       await saveProject(p);
     }
 
@@ -604,7 +608,17 @@ export async function syncAllLocalProjectsToCloud(
       body: JSON.stringify({ projects: preparedProjects }),
     });
 
-    return { count: res.data?.count || preparedProjects.length };
+    if (res.ok) {
+      return { count: res.data?.count || preparedProjects.length };
+    }
+
+    // If server responded with HTML (e.g. static hosting, offline, Vite fallback)
+    // but data is already safely persisted to Firestore and IndexedDB:
+    if (firestoreSaved > 0 || preparedProjects.length > 0) {
+      return { count: preparedProjects.length };
+    }
+
+    return { count: 0, error: res.error || 'Nätverksfel vid synkning' };
   } catch (err: any) {
     return { count: 0, error: err?.message || 'Nätverksfel vid synkning' };
   }

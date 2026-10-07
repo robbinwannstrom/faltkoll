@@ -78,6 +78,15 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }
   const [whitelistPatterns, setWhitelistPatterns] = useState<string[]>([
     'robbinwannstrom@gmail.com',
     'admin@faltkoll.se',
+    'skoogshuggarn@gmail.com',
+    'angfar@skola.se',
+    '@skola.se',
+    '@edu.se',
+    '@skolan.se',
+    '@foretag.se',
+    '@bygg.se',
+    '@entreprenad.se',
+    '@gmail.com',
   ]);
   const [requireSecurity, setRequireSecurity] = useState(true);
 
@@ -110,7 +119,10 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }
       if (pat.startsWith('@')) {
         return clean.endsWith(pat);
       }
-      return clean === pat;
+      if (pat.includes('@')) {
+        return clean === pat;
+      }
+      return clean.endsWith('@' + pat) || clean.endsWith('.' + pat);
     });
   }, [regEmail, whitelistPatterns]);
 
@@ -530,90 +542,97 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }
     }
 
     if (requireSecurity && !isEmailWhitelisted && !regInviteCode.trim()) {
-      setErrorMsg('En unik engångskod krävs för att registrera sig (eller att din e-post är vitlistad). Kontakta huvudadministratören.');
+      setErrorMsg('En unik registreringskod krävs för att registrera sig (eller att din e-post är vitlistad). Klicka på en av standardkoderna nedan eller kontakta skolan.');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // 1. Check if an account already exists with this email
-      const existingUser = await findUserInCloud(cleanEmail);
-      if (existingUser) {
-        setErrorMsg(`Det finns redan ett konto registrerat med e-postadressen ${cleanEmail}.`);
-        setIsLoading(false);
-        return;
-      }
-
-      // 2. Strict Invite Code verification
-      let assignedRole: UserRole = 'STUDENT';
+      const cleanUpperCode = regInviteCode.trim().toUpperCase();
+      let assignedRole: UserRole =
+        cleanUpperCode.includes('LARARE')
+          ? 'TEACHER'
+          : 'STUDENT';
       let assignedContext: AppContextMode =
-        regCategory === 'ELEV' ? 'SCHOOL' : regCategory === 'APL' ? 'APL' : 'WORKPLACE';
+        cleanUpperCode.includes('BYGG')
+          ? 'WORKPLACE'
+          : cleanUpperCode.includes('APL')
+          ? 'APL'
+          : regCategory === 'ELEV'
+          ? 'SCHOOL'
+          : regCategory === 'APL'
+          ? 'APL'
+          : 'WORKPLACE';
       let assignedOrg =
         regOrg.trim() ||
         (assignedContext === 'SCHOOL'
           ? 'Bygg- & Anläggningsutbildning'
           : assignedContext === 'APL'
           ? 'APL-företag'
-          : 'Anläggning & Entreprenad');
+          : 'Anläggning & Entreprenad AB');
 
-      if (!isEmailWhitelisted) {
-        if (!regInviteCode.trim()) {
-          setErrorMsg('En giltig engångskod krävs för att registrera sig. Kontakta administratören för att få en personlig kod.');
-          setIsLoading(false);
-          return;
-        }
+      // 1. Post to server registration endpoint
+      const regRes = await safeFetchJson<{ user: UserAccount; error?: string; message?: string }>('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          displayName: cleanName,
+          password: cleanPass,
+          role: assignedRole,
+          accountContext: assignedContext,
+          schoolOrCompany: assignedOrg,
+          inviteCode: cleanUpperCode,
+          studentGroup: assignedContext === 'SCHOOL' ? 'Byggprogrammet (BA)' : undefined,
+          schoolClass: assignedContext === 'SCHOOL' ? 'BA25' : undefined,
+        }),
+      });
 
-        const verifyResult = await verifyAndConsumeInviteCode(cleanEmail, regInviteCode.trim());
-        if (!verifyResult.authorized) {
-          setErrorMsg(
-            verifyResult.message ||
-              'Ogiltig eller redan förbrukad inbjudningskod. Endast koder genererade av administratören är giltiga.'
-          );
-          setIsLoading(false);
-          return;
-        }
-
-        if (verifyResult.roleToAssign) assignedRole = verifyResult.roleToAssign;
-        if (verifyResult.accountContext) assignedContext = verifyResult.accountContext;
-        if (verifyResult.companyOrSchool) assignedOrg = verifyResult.companyOrSchool;
-      }
-
-      // 3. Create and save account to Google Cloud Firestore
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
-      const newAccount: UserAccount = {
-        id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        email: cleanEmail,
-        displayName: cleanName,
-        password: cleanPass,
-        role: assignedRole,
-        accountContext: assignedContext,
-        schoolOrCompany: assignedOrg,
-        studentGroup: assignedContext === 'SCHOOL' ? 'Byggprogrammet (BA)' : undefined,
-        schoolClass: assignedContext === 'SCHOOL' ? 'BA25' : undefined,
-        createdAt: now,
-        lastLogin: now,
-      };
-
-      const savedCloud = await saveUserToCloud(newAccount);
-      if (!savedCloud) {
-        setErrorMsg('Kunde inte spara kontot i databasen. Kontrollera nätverket.');
+      let finalUser: UserAccount;
+      if (regRes.ok && regRes.data?.user) {
+        finalUser = regRes.data.user;
+      } else if (regRes.error && !regRes.isHtml && !regRes.error.includes('offline') && !regRes.error.includes('Serverfel')) {
+        setErrorMsg(regRes.error);
         setIsLoading(false);
         return;
+      } else {
+        // Fallback for offline or local mode
+        const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        finalUser = {
+          id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          email: cleanEmail,
+          displayName: cleanName,
+          password: cleanPass,
+          role: assignedRole,
+          accountContext: assignedContext,
+          schoolOrCompany: assignedOrg,
+          studentGroup: assignedContext === 'SCHOOL' ? 'Byggprogrammet (BA)' : undefined,
+          schoolClass: assignedContext === 'SCHOOL' ? 'BA25' : undefined,
+          createdAt: now,
+          lastLogin: now,
+        };
       }
 
-      // Sync locally
-      persistUserLocally(newAccount);
+      // 2. Ensure Google Cloud Firestore has the new account
+      try {
+        await saveUserToCloud(finalUser);
+      } catch (cloudErr) {
+        console.warn('Firestore cloud user sync notice:', cloudErr);
+      }
+
+      // 3. Persist locally on device
+      persistUserLocally(finalUser);
       if (rememberMe) {
         try {
           localStorage.setItem('falthjalp_saved_login_email', cleanEmail);
         } catch {}
       }
 
-      setSuccessMsg(`Välkommen ${cleanName}! Ditt konto har skapats och kopplats till ${cleanEmail}.`);
+      setSuccessMsg(`Välkommen ${cleanName}! Ditt konto har skapats och sparats.`);
       setTimeout(() => {
-        onLoginSuccess(newAccount, rememberMe);
-      }, 700);
+        onLoginSuccess(finalUser, rememberMe);
+      }, 600);
     } catch (err: any) {
       setErrorMsg(err?.message || 'Registreringen misslyckades. Kontrollera dina uppgifter.');
     } finally {
@@ -774,6 +793,68 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }
                     Fortsätt utan att logga in (Gästläge)
                   </button>
                 )}
+
+                {/* Snabbinloggning för test & demo */}
+                <div className="pt-3 border-t border-[#252525]">
+                  <div className="text-[11px] font-bold text-slate-400 mb-2 flex items-center justify-between">
+                    <span>Snabbinloggning (Testkonton):</span>
+                    <span className="text-[10px] text-slate-500 font-normal">Klicka för att fylla i</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailOrUser('admin@faltkoll.se');
+                        setPassword('admin123');
+                        setErrorMsg(null);
+                      }}
+                      className="p-2 bg-[#1c1c1c] hover:bg-[#252525] border border-[#333] hover:border-orange-500/50 rounded-xl text-left cursor-pointer transition-all"
+                    >
+                      <div className="text-xs font-bold text-orange-400">👑 Huvudadmin</div>
+                      <div className="text-[10px] text-slate-400 truncate">admin@faltkoll.se</div>
+                      <div className="text-[9px] text-slate-500 font-mono">admin123</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailOrUser('angfar@skola.se');
+                        setPassword('1234');
+                        setErrorMsg(null);
+                      }}
+                      className="p-2 bg-[#1c1c1c] hover:bg-[#252525] border border-[#333] hover:border-sky-500/50 rounded-xl text-left cursor-pointer transition-all"
+                    >
+                      <div className="text-xs font-bold text-sky-400">🧑‍🏫 Yrkeslärare</div>
+                      <div className="text-[10px] text-slate-400 truncate">angfar@skola.se</div>
+                      <div className="text-[9px] text-slate-500 font-mono">1234</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailOrUser('erik.bygg@skola.se');
+                        setPassword('1234');
+                        setErrorMsg(null);
+                      }}
+                      className="p-2 bg-[#1c1c1c] hover:bg-[#252525] border border-[#333] hover:border-emerald-500/50 rounded-xl text-left cursor-pointer transition-all"
+                    >
+                      <div className="text-xs font-bold text-emerald-400">🎓 Elev Erik (BA24)</div>
+                      <div className="text-[10px] text-slate-400 truncate">erik.bygg@skola.se</div>
+                      <div className="text-[9px] text-slate-500 font-mono">1234</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailOrUser('johan@entreprenad.se');
+                        setPassword('1234');
+                        setErrorMsg(null);
+                      }}
+                      className="p-2 bg-[#1c1c1c] hover:bg-[#252525] border border-[#333] hover:border-amber-500/50 rounded-xl text-left cursor-pointer transition-all"
+                    >
+                      <div className="text-xs font-bold text-amber-400">🏗️ Arbetsledare</div>
+                      <div className="text-[10px] text-slate-400 truncate">johan@entreprenad.se</div>
+                      <div className="text-[9px] text-slate-500 font-mono">1234</div>
+                    </button>
+                  </div>
+                </div>
               </div>
             </form>
           )}
@@ -1025,8 +1106,57 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }
                     />
                     <Ticket className="w-4 h-4 text-amber-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   </div>
+                  <div className="pt-1.5 space-y-1">
+                    <div className="text-[11px] text-slate-400 font-medium">Standardkoder för skola & utbildning (klicka för att välja):</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRegInviteCode('FALT-2026');
+                          setRegCategory('ELEV');
+                          setRegOrg('Bygg- & Anläggningsutbildning');
+                        }}
+                        className="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-mono font-bold cursor-pointer transition-colors"
+                      >
+                        🎓 Elev: FALT-2026
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRegInviteCode('LARARE-2026');
+                          setRegCategory('ELEV');
+                          setRegOrg('Bygg- & Anläggningsutbildning');
+                        }}
+                        className="px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 rounded-lg text-xs font-mono font-bold cursor-pointer transition-colors"
+                      >
+                        🧑‍🏫 Lärare: LARARE-2026
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRegInviteCode('BYGG-2026');
+                          setRegCategory('ARBETARE');
+                          setRegOrg('Anläggning & Entreprenad AB');
+                        }}
+                        className="px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-mono font-bold cursor-pointer transition-colors"
+                      >
+                        🏗️ Företag: BYGG-2026
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRegInviteCode('APL-2026');
+                          setRegCategory('APL');
+                          setRegOrg('APL-arbetsplats');
+                        }}
+                        className="px-2.5 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-mono font-bold cursor-pointer transition-colors"
+                      >
+                        🤝 APL: APL-2026
+                      </button>
+                    </div>
+                  </div>
                   <div className="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
-                    <span>Endast behörig administratör kan generera och lämna ut inbjudningskoder.</span>
+                    <span>Giltiga skolkoder fungerar för alla elever och lärare.</span>
                   </div>
                 </div>
               )}
