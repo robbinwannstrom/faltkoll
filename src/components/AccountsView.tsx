@@ -65,6 +65,7 @@ import {
 import { InviteCodeItem, WhitelistItem, RegistrationSecuritySettings } from '../types';
 import { TeacherExerciseCreatorModal } from './TeacherExerciseCreatorModal';
 import { StudentGroupsManagerPanel } from './StudentGroupsManagerPanel';
+import { SchoolGdprModal } from './SchoolGdprModal';
 
 interface AccountsViewProps {
   currentUser: UserAccount | null;
@@ -121,17 +122,41 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
   const [newInviteContext, setNewInviteContext] = useState<AppContextMode>('WORKPLACE');
   const [newInviteCompany, setNewInviteCompany] = useState('');
   const [newInviteNotes, setNewInviteNotes] = useState('');
+  const [newInviteUsageType, setNewInviteUsageType] = useState<'SINGLE_USE' | 'MULTI_USE'>('SINGLE_USE');
+  const [newInviteMaxUses, setNewInviteMaxUses] = useState(35);
+  const [inviteFilterStatus, setInviteFilterStatus] = useState<'ALL' | 'ACTIVE' | 'CONSUMED'>('ALL');
   const [newWhitelistPattern, setNewWhitelistPattern] = useState('');
   const [newWhitelistDesc, setNewWhitelistDesc] = useState('');
   const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
   const [isAddingWhitelist, setIsAddingWhitelist] = useState(false);
   const [copiedCodeVal, setCopiedCodeVal] = useState<string | null>(null);
 
+  // Teacher class code generator states
+  const [newCodeType, setNewCodeType] = useState<'CLASS_JOIN_CODE' | 'ONE_TIME_STUDENT' | 'STANDARD_INVITE'>('CLASS_JOIN_CODE');
+  const [selectedClassForCode, setSelectedClassForCode] = useState<string>('BA24');
+  const [customClassForCode, setCustomClassForCode] = useState<string>('');
+  const [isGdprModalOpen, setIsGdprModalOpen] = useState(false);
+
   const handleCopyCode = (code: string) => {
     try {
       navigator.clipboard?.writeText(code);
       setCopiedCodeVal(code);
       setTimeout(() => setCopiedCodeVal(null), 2000);
+    } catch {}
+  };
+
+  const handleCopyInviteMessage = (item: InviteCodeItem) => {
+    const isClassCode = item.codeType === 'CLASS_JOIN_CODE';
+    const isSingle = (item.usageType || 'SINGLE_USE') === 'SINGLE_USE';
+    const text = isClassCode
+      ? `Hej! Här är vår klasskod till FältKoll: ${item.code} (${item.schoolClass || 'Klasskod'})\nSkapa ditt elevkonto på FältKoll och ange denna kod för att ansluta till klassen och fältövningarna!`
+      : isSingle
+      ? `Hej! Här är din unika engångskod till FältKoll: ${item.code}\nSkapa ditt elevkonto på FältKoll med denna personliga kod. Koden förbrukas automatiskt när du registrerar dig.`
+      : `Hej! Här är din registreringskod till FältKoll: ${item.code}\nSkapa ditt konto på FältKoll med denna kod.`;
+    try {
+      navigator.clipboard?.writeText(text);
+      setCopiedCodeVal('MSG_' + item.code);
+      setTimeout(() => setCopiedCodeVal(null), 2500);
     } catch {}
   };
 
@@ -590,7 +615,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
 
   const loadSecurityData = async () => {
     try {
-      const data = await fetchAdminSecurityData();
+      const data = await fetchAdminSecurityData(currentUser);
       if (data) {
         setSecSettings(data.settings);
         setWhitelistList(data.whitelist || []);
@@ -604,34 +629,70 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
   useEffect(() => {
     loadUsers();
     loadLicense();
-    if (isAdmin || isMainAdmin || isRobbinSuperAdmin) {
+    if (isAdmin || isMainAdmin || isRobbinSuperAdmin || isTeacher) {
       loadSecurityData();
     }
   }, [currentUser?.id, currentUser?.role]);
 
   const handleGenerateInviteCodes = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAdmin && !isMainAdmin) {
-      setErrorMsg('Endast huvudadministratören kan generera engångskoder.');
+    if (!isAdmin && !isMainAdmin && !isTeacher) {
+      setErrorMsg('Behörighet saknas för att generera koder.');
       return;
     }
     setIsGeneratingCodes(true);
     setErrorMsg(null);
     try {
+      const isTeacherMode = isTeacher && !isAdmin;
+      const effectiveCodeType = isTeacherMode ? newCodeType : 'STANDARD_INVITE';
+      const effectiveClass = isTeacherMode
+        ? (selectedClassForCode === '__CUSTOM__' ? customClassForCode.trim() : selectedClassForCode) ||
+          currentUser?.schoolClass ||
+          'BA24'
+        : undefined;
+
+      const effectiveUsageType =
+        effectiveCodeType === 'CLASS_JOIN_CODE'
+          ? 'MULTI_USE'
+          : effectiveCodeType === 'ONE_TIME_STUDENT'
+          ? 'SINGLE_USE'
+          : newInviteUsageType;
+
+      const effectivePrefix =
+        isTeacherMode && effectiveClass
+          ? effectiveClass.toUpperCase().replace(/[^A-Z0-9]/g, '')
+          : newInvitePrefix.trim() || 'FK-INV';
+
       const res = await createAdminInviteCodes({
-        count: newInviteCount,
-        prefix: newInvitePrefix.trim() || 'FK-INV',
-        roleToAssign: newInviteRole,
-        accountContext: newInviteContext,
-        companyOrSchool: newInviteCompany.trim() || undefined,
-        notes: newInviteNotes.trim() || undefined,
+        count: effectiveCodeType === 'CLASS_JOIN_CODE' ? 1 : newInviteCount,
+        prefix: effectivePrefix,
+        roleToAssign: isTeacherMode ? 'STUDENT' : newInviteRole,
+        accountContext: isTeacherMode ? 'SCHOOL' : newInviteContext,
+        companyOrSchool: currentUser?.schoolOrCompany || newInviteCompany.trim() || undefined,
+        notes: isTeacherMode ? `Klasskod för ${effectiveClass}` : newInviteNotes.trim() || undefined,
+        usageType: effectiveUsageType,
+        maxUses: effectiveUsageType === 'MULTI_USE' ? newInviteMaxUses : 1,
+        schoolClass: effectiveClass,
+        teacherId: currentUser?.id,
+        teacherName: currentUser?.displayName,
+        codeType: effectiveCodeType,
+        callerRole: currentUser?.role,
+        callerId: currentUser?.id,
       });
+
       if (res.ok && res.allCodes) {
         setInviteCodesList(res.allCodes);
-        setSuccessMsg(`${res.generatedCodes.length} st ny(a) engångskod(er) har genererats!`);
+        const countTxt = res.generatedCodes.length;
+        const typeTxt =
+          effectiveCodeType === 'CLASS_JOIN_CODE'
+            ? `klasskod för ${effectiveClass} (gäller för upp till ${newInviteMaxUses} elever)`
+            : effectiveUsageType === 'SINGLE_USE'
+            ? 'engångskod(er)'
+            : `flergångskod(er) (max ${newInviteMaxUses} reg)`;
+        setSuccessMsg(`✓ ${countTxt} st ${typeTxt} har skapats!`);
         setTimeout(() => setSuccessMsg(null), 4000);
       } else {
-        setErrorMsg('Kunde inte generera inbjudningskoder.');
+        setErrorMsg('Kunde inte generera koder.');
       }
     } catch {
       setErrorMsg('Ett fel inträffade vid skapandet av koder.');
@@ -1517,7 +1578,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
             <Layers className="w-3.5 h-3.5" />
             <span>{vocab.classLabel} & Grupper</span>
           </button>
-          {(isAdmin || isMainAdmin || isRobbinSuperAdmin) && (
+          {(isAdmin || isMainAdmin || isRobbinSuperAdmin || isTeacher) && (
             <button
               type="button"
               onClick={() =>
@@ -1530,7 +1591,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
               }`}
             >
               <Ticket className="w-3.5 h-3.5" />
-              <span>Engångskoder & Whitelist</span>
+              <span>{isTeacher && !isAdmin ? 'Klasskoder & Elever' : 'Engångskoder & Whitelist'}</span>
               {inviteCodesList.filter((c) => !c.consumed).length > 0 && (
                 <span className="px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">
                   {inviteCodesList.filter((c) => !c.consumed).length}
@@ -1538,6 +1599,15 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
               )}
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => setIsGdprModalOpen(true)}
+            className="min-h-[38px] px-3 font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors border bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/40 text-emerald-300"
+            title="Läs GDPR- och DPA-dokumentation för skolor och IT-avdelning"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="hidden sm:inline">GDPR-underlag</span>
+          </button>
           {canManageAccounts && (
             <button
               type="button"
@@ -2337,95 +2407,278 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
           {/* TWO COLUMN GRID: 1. GENERATE INVITE CODES, 2. WHITELIST */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* COLUMN 1: GENERATE & MANAGE UNIQUE INVITE CODES */}
+            {/* COLUMN 1: GENERATE & MANAGE CODES (TEACHER CLASS CODES & ADMIN LICENSES) */}
             <div className="space-y-4">
               <div className="bg-[#141414] border border-[#2b2b2b] rounded-2xl p-5 space-y-4 shadow-md">
                 <div className="flex items-center justify-between border-b border-[#242424] pb-3">
                   <div className="flex items-center gap-2">
                     <Ticket className="w-4 h-4 text-amber-400" />
-                    <h3 className="text-sm font-black text-white">Generera unika engångskoder</h3>
+                    <h3 className="text-sm font-black text-white">
+                      {isTeacher && !isAdmin
+                        ? 'Skapa klasskod eller elevkoder'
+                        : 'Generera unika registreringskoder'}
+                    </h3>
                   </div>
                   <span className="text-[11px] font-bold text-amber-400/90 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-500/30">
-                    Endast Huvudadmin
+                    {isTeacher && !isAdmin ? 'Yrkeslärare' : 'Huvudadmin'}
                   </span>
                 </div>
 
                 <form onSubmit={handleGenerateInviteCodes} className="space-y-3 text-xs">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="font-bold text-slate-300 block">Antal koder:</label>
-                      <select
-                        value={newInviteCount}
-                        onChange={(e) => setNewInviteCount(Number(e.target.value))}
-                        className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-bold"
-                      >
-                        <option value={1}>1 unik kod</option>
-                        <option value={3}>3 unika koder</option>
-                        <option value={5}>5 unika koder</option>
-                        <option value={10}>10 unika koder</option>
-                      </select>
+                  {/* TEACHER SPECIFIC INTERFACE */}
+                  {isTeacher && !isAdmin ? (
+                    <div className="space-y-3">
+                      <div className="p-3 rounded-xl bg-[#191919] border border-[#2e2e2e] space-y-2">
+                        <label className="font-bold text-amber-300 block text-[11px] uppercase tracking-wider">
+                          Välj typ av elevkod:
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewCodeType('CLASS_JOIN_CODE');
+                              setNewInviteUsageType('MULTI_USE');
+                            }}
+                            className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                              newCodeType === 'CLASS_JOIN_CODE'
+                                ? 'bg-amber-500/15 border-amber-400 text-amber-300 font-bold shadow-md shadow-amber-500/10'
+                                : 'bg-[#151515] border-[#2c2c2c] text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            <div className="text-xs font-black flex items-center gap-1.5">
+                              <span>👥 Klasskod (Hela klassen)</span>
+                            </div>
+                            <div className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                              1 gemensam kod för hela klassen (t.ex. 35 elever). Eleverna kopplas direkt till klassen.
+                            </div>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewCodeType('ONE_TIME_STUDENT');
+                              setNewInviteUsageType('SINGLE_USE');
+                            }}
+                            className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                              newCodeType === 'ONE_TIME_STUDENT'
+                                ? 'bg-sky-500/15 border-sky-400 text-sky-300 font-bold shadow-md shadow-sky-500/10'
+                                : 'bg-[#151515] border-[#2c2c2c] text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            <div className="text-xs font-black flex items-center gap-1.5">
+                              <span>🔒 1-gångskoder (1 per elev)</span>
+                            </div>
+                            <div className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                              Personliga koder som förbrukas direkt vid registrering för 100% kontroll.
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Välj Klass */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-300 block">Klass / Kurs för eleverna:</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <select
+                            value={selectedClassForCode}
+                            onChange={(e) => setSelectedClassForCode(e.target.value)}
+                            className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-bold"
+                          >
+                            <option value="BA24">BA24 (Bygg Åk 2)</option>
+                            <option value="BA25">BA25 (Bygg Åk 1)</option>
+                            <option value="ANL23">ANL23 (Anläggare)</option>
+                            <option value="ANL24">ANL24 (Anläggare)</option>
+                            {allAvailableClasses
+                              .filter((c) => !['BA24', 'BA25', 'ANL23', 'ANL24'].includes(c))
+                              .map((cls) => (
+                                <option key={cls} value={cls}>
+                                  {cls}
+                                </option>
+                              ))}
+                            <option value="__CUSTOM__">Annan klass (skriv egen)...</option>
+                          </select>
+
+                          {selectedClassForCode === '__CUSTOM__' ? (
+                            <input
+                              type="text"
+                              value={customClassForCode}
+                              onChange={(e) => setCustomClassForCode(e.target.value.toUpperCase())}
+                              placeholder="Klassnamn (t.ex. BA26)"
+                              className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-bold"
+                            />
+                          ) : (
+                            <div className="flex items-center px-3 bg-[#171717] rounded-xl border border-[#2a2a2a] text-[11px] text-slate-400">
+                              Ansvarig lärare: <strong className="text-white ml-1">{currentUser?.displayName}</strong>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {newCodeType === 'CLASS_JOIN_CODE' ? (
+                        <div className="p-3 bg-[#151515] rounded-xl border border-[#292929] flex items-center justify-between text-xs">
+                          <span className="text-slate-300">Max antal elever som kan ansluta:</span>
+                          <input
+                            type="number"
+                            min={5}
+                            max={100}
+                            value={newInviteMaxUses}
+                            onChange={(e) => setNewInviteMaxUses(Number(e.target.value))}
+                            className="w-20 min-h-[34px] px-2 text-center bg-[#111] border border-[#383838] rounded-lg text-white font-bold"
+                          />
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <label className="font-bold text-slate-300 block">Antal 1-gångskoder att skapa:</label>
+                          <select
+                            value={newInviteCount}
+                            onChange={(e) => setNewInviteCount(Number(e.target.value))}
+                            className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-bold"
+                          >
+                            <option value={1}>1 elevkod</option>
+                            <option value={5}>5 elevkoder</option>
+                            <option value={10}>10 elevkoder</option>
+                            <option value={20}>20 elevkoder</option>
+                            <option value={35}>35 elevkoder (hel klass)</option>
+                          </select>
+                        </div>
+                      )}
                     </div>
+                  ) : (
+                    /* ADMIN INTERFACE */
+                    <>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="font-bold text-slate-300 block">Antal koder att skapa:</label>
+                          <select
+                            value={newInviteCount}
+                            onChange={(e) => setNewInviteCount(Number(e.target.value))}
+                            className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-bold"
+                          >
+                            <option value={1}>1 unik kod</option>
+                            <option value={3}>3 unika koder</option>
+                            <option value={5}>5 unika koder</option>
+                            <option value={10}>10 unika koder</option>
+                            <option value={20}>20 unika koder</option>
+                            <option value={50}>50 unika koder</option>
+                          </select>
+                        </div>
 
-                    <div className="space-y-1">
-                      <label className="font-bold text-slate-300 block">Kodprefix:</label>
-                      <input
-                        type="text"
-                        value={newInvitePrefix}
-                        onChange={(e) => setNewInvitePrefix(e.target.value.toUpperCase())}
-                        placeholder="T.ex. FK-INV eller ELEV"
-                        className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-mono font-bold uppercase"
-                      />
-                    </div>
-                  </div>
+                        <div className="space-y-1">
+                          <label className="font-bold text-slate-300 block">Kodprefix:</label>
+                          <input
+                            type="text"
+                            value={newInvitePrefix}
+                            onChange={(e) => setNewInvitePrefix(e.target.value.toUpperCase())}
+                            placeholder="T.ex. FK-INV eller ELEV"
+                            className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-mono font-bold uppercase"
+                          />
+                        </div>
+                      </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="font-bold text-slate-300 block">Kontotyp som tilldelas:</label>
-                      <select
-                        value={newInviteContext}
-                        onChange={(e) => setNewInviteContext(e.target.value as AppContextMode)}
-                        className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-bold"
-                      >
-                        <option value="WORKPLACE">🏗️ Arbetskonto (Företag)</option>
-                        <option value="SCHOOL">🎓 Elevkonto (Skola)</option>
-                        <option value="APL">🤝 APL-konto (Praktik)</option>
-                      </select>
-                    </div>
+                      {/* KODTYP (1-GÅNGSKOD ELLER FLERGÅNGSKOD) */}
+                      <div className="p-2.5 rounded-xl bg-[#191919] border border-[#2f2f2f] space-y-2">
+                        <label className="font-bold text-amber-300 block text-[11px] uppercase tracking-wider">
+                          Kodtyp & Begränsning:
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setNewInviteUsageType('SINGLE_USE')}
+                            className={`p-2 rounded-lg border text-left cursor-pointer transition-all ${
+                              newInviteUsageType === 'SINGLE_USE'
+                                ? 'bg-amber-500/15 border-amber-400 text-amber-300 font-bold'
+                                : 'bg-[#151515] border-[#2c2c2c] text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            <div className="text-[11px] font-bold">🔒 1-gångskod</div>
+                            <div className="text-[9px] text-slate-400">1 registrering per kod (Standard)</div>
+                          </button>
 
-                    <div className="space-y-1">
-                      <label className="font-bold text-slate-300 block">Roll:</label>
-                      <select
-                        value={newInviteRole}
-                        onChange={(e) => setNewInviteRole(e.target.value as UserRole)}
-                        className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-bold"
-                      >
-                        <option value="STUDENT">Elev / Medarbetare</option>
-                        <option value="TEACHER">Yrkeslärare / Arbetsledare</option>
-                        <option value="SCHOOL_ADMIN">Skolledare / Platschef</option>
-                      </select>
-                    </div>
-                  </div>
+                          <button
+                            type="button"
+                            onClick={() => setNewInviteUsageType('MULTI_USE')}
+                            className={`p-2 rounded-lg border text-left cursor-pointer transition-all ${
+                              newInviteUsageType === 'MULTI_USE'
+                                ? 'bg-sky-500/15 border-sky-400 text-sky-300 font-bold'
+                                : 'bg-[#151515] border-[#2c2c2c] text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            <div className="text-[11px] font-bold">👥 Flergångskod</div>
+                            <div className="text-[9px] text-slate-400">Max antal registreringar</div>
+                          </button>
+                        </div>
 
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-300 block">Skola / Företag (valfritt):</label>
-                    <input
-                      type="text"
-                      value={newInviteCompany}
-                      onChange={(e) => setNewInviteCompany(e.target.value)}
-                      placeholder="T.ex. Skanska AB eller Byggprogrammet"
-                      className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400"
-                    />
-                  </div>
+                        {newInviteUsageType === 'MULTI_USE' && (
+                          <div className="pt-1.5 space-y-1">
+                            <label className="font-bold text-slate-300 block text-[11px]">
+                              Max antal tillåtna registreringar:
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                min={2}
+                                max={500}
+                                value={newInviteMaxUses}
+                                onChange={(e) => setNewInviteMaxUses(Math.max(2, Number(e.target.value) || 2))}
+                                className="w-28 min-h-[36px] px-3 bg-[#131313] border border-[#383838] rounded-xl text-white outline-none focus:border-sky-400 font-bold"
+                              />
+                              <span className="text-[11px] text-slate-400">konton kan skapas med samma kod</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
 
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-300 block">Anteckning / Referens (valfritt):</label>
-                    <input
-                      type="text"
-                      value={newInviteNotes}
-                      onChange={(e) => setNewInviteNotes(e.target.value)}
-                      placeholder="T.ex. Betald licens kund #440 eller provperiod"
-                      className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400"
-                    />
-                  </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="font-bold text-slate-300 block">Kontotyp som tilldelas:</label>
+                          <select
+                            value={newInviteContext}
+                            onChange={(e) => setNewInviteContext(e.target.value as AppContextMode)}
+                            className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-bold"
+                          >
+                            <option value="WORKPLACE">🏗️ Arbetskonto (Företag)</option>
+                            <option value="SCHOOL">🎓 Elevkonto (Skola)</option>
+                            <option value="APL">🤝 APL-konto (Praktik)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold text-slate-300 block">Roll:</label>
+                          <select
+                            value={newInviteRole}
+                            onChange={(e) => setNewInviteRole(e.target.value as UserRole)}
+                            className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400 font-bold"
+                          >
+                            <option value="STUDENT">Elev / Medarbetare</option>
+                            <option value="TEACHER">Yrkeslärare / Arbetsledare</option>
+                            <option value="SCHOOL_ADMIN">Skolledare / Platschef</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-300 block">Skola / Företag (valfritt):</label>
+                        <input
+                          type="text"
+                          value={newInviteCompany}
+                          onChange={(e) => setNewInviteCompany(e.target.value)}
+                          placeholder="T.ex. Skanska AB eller Byggprogrammet"
+                          className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-300 block">Anteckning / Kundreferens (valfritt):</label>
+                        <input
+                          type="text"
+                          value={newInviteNotes}
+                          onChange={(e) => setNewInviteNotes(e.target.value)}
+                          placeholder="T.ex. Betald licens kund #440 eller provperiod"
+                          className="w-full min-h-[38px] px-3 bg-[#1a1a1a] border border-[#333333] rounded-xl text-white outline-none focus:border-amber-400"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <button
                     type="submit"
@@ -2433,131 +2686,238 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
                     className="w-full min-h-[42px] bg-amber-400 hover:bg-amber-300 text-black font-black text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-amber-500/10 transition-colors"
                   >
                     <Sparkles className="w-4 h-4 stroke-[2.5]" />
-                    <span>{isGeneratingCodes ? 'Genererar...' : 'Skapa unika engångskoder'}</span>
+                    <span>
+                      {isGeneratingCodes
+                        ? 'Skapar koder...'
+                        : isTeacher && !isAdmin
+                        ? newCodeType === 'CLASS_JOIN_CODE'
+                          ? `Generera Klasskod för ${selectedClassForCode === '__CUSTOM__' ? customClassForCode || 'klassen' : selectedClassForCode}`
+                          : `Generera ${newInviteCount} st 1-gångskoder för elever`
+                        : newInviteUsageType === 'SINGLE_USE'
+                        ? `Skapa ${newInviteCount} st 1-gångskod(er)`
+                        : `Skapa ${newInviteCount} st flergångskod(er)`}
+                    </span>
                   </button>
                 </form>
               </div>
 
               {/* LIST OF INVITE CODES */}
               <div className="bg-[#141414] border border-[#282828] rounded-2xl p-4 sm:p-5 space-y-3">
-                <div className="flex items-center justify-between border-b border-[#242424] pb-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#242424] pb-2.5">
                   <div className="text-xs font-black text-white flex items-center gap-2">
                     <span>Genererade koder</span>
                     <span className="px-2 py-0.5 rounded-full bg-[#202020] text-slate-300 text-[10px] font-bold">
                       {inviteCodesList.filter((c) => !c.consumed).length} lediga / {inviteCodesList.length} totalt
                     </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={loadSecurityData}
-                    className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
-                  >
-                    <RefreshCw className="w-3 h-3" /> Uppdatera
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {/* Status filter tabs */}
+                    <div className="flex bg-[#1b1b1b] p-0.5 rounded-lg border border-[#303030] text-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => setInviteFilterStatus('ALL')}
+                        className={`px-2 py-1 rounded-md font-bold cursor-pointer transition-colors ${
+                          inviteFilterStatus === 'ALL' ? 'bg-amber-400 text-black' : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Alla ({inviteCodesList.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setInviteFilterStatus('ACTIVE')}
+                        className={`px-2 py-1 rounded-md font-bold cursor-pointer transition-colors ${
+                          inviteFilterStatus === 'ACTIVE' ? 'bg-emerald-500 text-black' : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Lediga ({inviteCodesList.filter((c) => !c.consumed).length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setInviteFilterStatus('CONSUMED')}
+                        className={`px-2 py-1 rounded-md font-bold cursor-pointer transition-colors ${
+                          inviteFilterStatus === 'CONSUMED' ? 'bg-rose-500 text-white' : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Förbrukade ({inviteCodesList.filter((c) => c.consumed).length})
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={loadSecurityData}
+                      className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
 
                 {inviteCodesList.length === 0 ? (
                   <div className="py-8 text-center text-xs text-slate-500">
-                    Inga engångskoder har skapats ännu. Använd formuläret ovan för att generera koder.
+                    Inga koder har skapats ännu. Använd formuläret ovan för att generera unika 1-gångskoder.
                   </div>
                 ) : (
-                  <div className="space-y-2.5 max-h-[450px] overflow-y-auto pr-1">
-                    {inviteCodesList.map((item) => (
-                      <div
-                        key={item.code}
-                        className={`p-3 rounded-xl border transition-all ${
-                          item.consumed
-                            ? 'bg-[#121212] border-[#222222] opacity-70'
-                            : 'bg-[#181818] border-amber-500/30 hover:border-amber-400/60'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono font-black text-sm text-amber-400 tracking-wider">
-                              {item.code}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleCopyCode(item.code)}
-                              className="px-2 py-1 rounded-md bg-[#252525] hover:bg-[#333333] text-[11px] text-slate-300 font-bold flex items-center gap-1 cursor-pointer transition-colors"
-                              title="Kopiera kod"
-                            >
-                              {copiedCodeVal === item.code ? (
-                                <>
-                                  <Check className="w-3 h-3 text-emerald-400" />
-                                  <span className="text-emerald-400">Kopierad!</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3 h-3" />
-                                  <span>Kopiera</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
-
-                          {/* Status Badge */}
-                          {item.consumed ? (
-                            <span className="px-2 py-0.5 rounded-full bg-rose-950/80 border border-rose-500/40 text-rose-300 text-[10px] font-bold">
-                              Förbrukad
-                            </span>
-                          ) : (
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-[10px] font-bold">
-                              Ledig (1 reg)
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Details */}
-                        <div className="mt-2 text-[11px] text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1">
-                          <span>
-                            Typ:{' '}
-                            <strong className="text-slate-200">
-                              {item.accountContext === 'SCHOOL'
-                                ? 'Elev'
-                                : item.accountContext === 'APL'
-                                ? 'APL'
-                                : 'Arbete'}
-                            </strong>
-                          </span>
-                          <span>
-                            Roll:{' '}
-                            <strong className="text-slate-200">
-                              {item.roleToAssign === 'TEACHER' ? 'Lärare' : 'Elev/Medarbetare'}
-                            </strong>
-                          </span>
-                          {item.companyOrSchool && (
-                            <span>
-                              Org: <strong className="text-slate-200">{item.companyOrSchool}</strong>
-                            </span>
-                          )}
-                        </div>
-
-                        {item.consumed && item.consumedBy && (
-                          <div className="mt-1.5 p-1.5 rounded-lg bg-black/40 border border-[#282828] text-[10px] text-rose-300/90">
-                            Användes av: <strong className="text-white">{item.consumedBy}</strong> ({item.consumedAt})
-                          </div>
-                        )}
-
-                        {item.notes && (
-                          <div className="mt-1 text-[10px] text-slate-500 italic">
-                            Notering: {item.notes}
-                          </div>
-                        )}
-
-                        <div className="mt-2 pt-2 border-t border-[#222222] flex items-center justify-between text-[10px] text-slate-500">
-                          <span>Skapad: {item.createdAt}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteInviteCode(item.code)}
-                            className="text-rose-400 hover:text-rose-300 flex items-center gap-1 cursor-pointer"
+                  <div className="space-y-2.5 max-h-[480px] overflow-y-auto pr-1">
+                    {inviteCodesList
+                      .filter((item) => {
+                        if (inviteFilterStatus === 'ACTIVE') return !item.consumed;
+                        if (inviteFilterStatus === 'CONSUMED') return item.consumed;
+                        return true;
+                      })
+                      .map((item) => {
+                        const isSingle = (item.usageType || 'SINGLE_USE') === 'SINGLE_USE';
+                        const max = item.maxUses || 1;
+                        const used = item.usedCount || (item.consumed ? 1 : 0);
+                        return (
+                          <div
+                            key={item.code}
+                            className={`p-3 rounded-xl border transition-all ${
+                              item.consumed
+                                ? 'bg-[#121212] border-[#222222] opacity-75'
+                                : 'bg-[#181818] border-amber-500/30 hover:border-amber-400/60'
+                            }`}
                           >
-                            <Trash2 className="w-3 h-3" />
-                            <span>Ta bort</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono font-black text-sm text-amber-400 tracking-wider">
+                                  {item.code}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyCode(item.code)}
+                                  className="px-2 py-1 rounded-md bg-[#252525] hover:bg-[#333333] text-[11px] text-slate-300 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                                  title="Kopiera kod"
+                                >
+                                  {copiedCodeVal === item.code ? (
+                                    <>
+                                      <Check className="w-3 h-3 text-emerald-400" />
+                                      <span className="text-emerald-400">Kopierad!</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3 h-3" />
+                                      <span>Kopiera</span>
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyInviteMessage(item)}
+                                  className="px-2 py-1 rounded-md bg-[#222222] hover:bg-[#2e2e2e] text-[10px] text-amber-300/90 font-medium flex items-center gap-1 cursor-pointer transition-colors"
+                                  title="Kopiera färdigt meddelande till kund"
+                                >
+                                  {copiedCodeVal === 'MSG_' + item.code ? (
+                                    <>
+                                      <Check className="w-3 h-3 text-emerald-400" />
+                                      <span className="text-emerald-400">Klar!</span>
+                                    </>
+                                  ) : (
+                                    <span>Kopiera text</span>
+                                  )}
+                                </button>
+                              </div>
+
+                              {/* Status Badges */}
+                              <div className="flex items-center gap-1.5">
+                                <span className="px-2 py-0.5 rounded-full bg-[#202020] text-slate-300 text-[10px] font-bold">
+                                  {isSingle ? '1-gångskod' : `Flergång (${used}/${max})`}
+                                </span>
+                                {item.consumed ? (
+                                  <span className="px-2 py-0.5 rounded-full bg-rose-950/80 border border-rose-500/40 text-rose-300 text-[10px] font-bold">
+                                    Förbrukad
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-[10px] font-bold">
+                                    Ledig
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Details */}
+                            <div className="mt-2 text-[11px] text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1">
+                              <span>
+                                Typ:{' '}
+                                <strong className="text-slate-200">
+                                  {item.codeType === 'CLASS_JOIN_CODE'
+                                    ? 'Klasskod (Flergångs)'
+                                    : item.codeType === 'ONE_TIME_STUDENT'
+                                    ? 'Elev (1-gång)'
+                                    : item.accountContext === 'SCHOOL'
+                                    ? 'Elev'
+                                    : item.accountContext === 'APL'
+                                    ? 'APL'
+                                    : 'Arbete'}
+                                </strong>
+                              </span>
+                              {item.schoolClass && (
+                                <span className="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold">
+                                  Klass: {item.schoolClass}
+                                </span>
+                              )}
+                              {item.teacherName && (
+                                <span>
+                                  Lärare: <strong className="text-slate-200">{item.teacherName}</strong>
+                                </span>
+                              )}
+                              <span>
+                                Roll:{' '}
+                                <strong className="text-slate-200">
+                                  {item.roleToAssign === 'TEACHER' ? 'Lärare' : 'Elev'}
+                                </strong>
+                              </span>
+                              {item.companyOrSchool && (
+                                <span>
+                                  Skola/Företag: <strong className="text-slate-200">{item.companyOrSchool}</strong>
+                                </span>
+                              )}
+                            </div>
+
+                            {item.usedByList && item.usedByList.length > 0 && (
+                              <div className="mt-2 p-2 rounded-xl bg-black/50 border border-[#262626] text-[10px] space-y-1">
+                                <div className="text-slate-400 font-bold flex items-center justify-between">
+                                  <span>Registrerade elever ({item.usedByList.length} st):</span>
+                                  <span className="text-emerald-400">Aktiva i klassen</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
+                                  {item.usedByList.map((u, i) => (
+                                    <span
+                                      key={i}
+                                      className="px-1.5 py-0.5 bg-[#1b1b1b] border border-[#2e2e2e] rounded text-emerald-300 font-mono"
+                                      title={`Användes: ${u.usedAt}`}
+                                    >
+                                      {u.email}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {item.consumed && item.consumedBy && (!item.usedByList || item.usedByList.length === 0) && (
+                              <div className="mt-1.5 p-1.5 rounded-lg bg-black/40 border border-[#282828] text-[10px] text-rose-300/90">
+                                Användes av: <strong className="text-white">{item.consumedBy}</strong> ({item.consumedAt})
+                              </div>
+                            )}
+
+                            {item.notes && (
+                              <div className="mt-1 text-[10px] text-slate-500 italic">
+                                Referens: {item.notes}
+                              </div>
+                            )}
+
+                            <div className="mt-2 pt-2 border-t border-[#222222] flex items-center justify-between text-[10px] text-slate-500">
+                              <span>Skapad: {item.createdAt}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteInviteCode(item.code)}
+                                className="text-rose-400 hover:text-rose-300 flex items-center gap-1 cursor-pointer"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                <span>Ta bort</span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
                   </div>
                 )}
               </div>
@@ -2923,6 +3283,13 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
           }}
         />
       )}
+
+      {/* GDPR & DPA DOCUMENTATION MODAL */}
+      <SchoolGdprModal
+        isOpen={isGdprModalOpen}
+        onClose={() => setIsGdprModalOpen(false)}
+        schoolName={currentUser?.schoolOrCompany || 'Bygg- & Anläggningsutbildning'}
+      />
     </div>
   );
 };

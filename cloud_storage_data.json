@@ -9,7 +9,9 @@
       "password": "lisa123",
       "schoolOrCompany": "Anläggning & Entreprenad AB",
       "createdAt": "2026-10-07 12:26",
-      "lastLogin": "2026-10-07 12:26"
+      "lastLogin": "2026-10-07 12:26",
+      "schoolClass": "BA25 (Bygg Åk 1)",
+      "studentGroup": "Byggprogrammet (BA)"
     },
     {
       "id": "usr_1791375963702_wacz",
@@ -20,7 +22,9 @@
       "password": "kalle123",
       "schoolOrCompany": "Anläggning & Entreprenad AB",
       "createdAt": "2026-10-07 12:26",
-      "lastLogin": "2026-10-07 12:26"
+      "lastLogin": "2026-10-07 12:26",
+      "schoolClass": "BA25 (Bygg Åk 1)",
+      "studentGroup": "Byggprogrammet (BA)"
     },
     {
       "id": "usr_skoogshuggarn",
@@ -1905,7 +1909,10 @@
       "accountContext": "SCHOOL",
       "companyOrSchool": "Bygg- & Anläggningsutbildning",
       "consumed": false,
-      "notes": "Generell skolkod för elever och lärlingar"
+      "usageType": "SINGLE_USE",
+      "maxUses": 1,
+      "usedCount": 0,
+      "notes": "Unik 1-gångskod för elevregistrering"
     },
     {
       "code": "LARARE-2026",
@@ -1915,7 +1922,10 @@
       "accountContext": "SCHOOL",
       "companyOrSchool": "Bygg- & Anläggningsutbildning",
       "consumed": false,
-      "notes": "Registreringskod för yrkeslärare & instruktörer"
+      "usageType": "SINGLE_USE",
+      "maxUses": 1,
+      "usedCount": 0,
+      "notes": "Unik 1-gångskod för yrkeslärare & instruktörer"
     },
     {
       "code": "BYGG-2026",
@@ -1925,7 +1935,10 @@
       "accountContext": "WORKPLACE",
       "companyOrSchool": "Anläggning & Entreprenad AB",
       "consumed": false,
-      "notes": "Arbetsplats & Entreprenadkod"
+      "usageType": "SINGLE_USE",
+      "maxUses": 1,
+      "usedCount": 0,
+      "notes": "Unik 1-gångskod för arbetsplats"
     },
     {
       "code": "APL-2026",
@@ -1935,7 +1948,10 @@
       "accountContext": "APL",
       "companyOrSchool": "APL-företag",
       "consumed": false,
-      "notes": "APL & Praktikkod"
+      "usageType": "SINGLE_USE",
+      "maxUses": 1,
+      "usedCount": 0,
+      "notes": "Unik 1-gångskod för APL & praktik"
     },
     {
       "code": "SKOLA-2026",
@@ -1945,7 +1961,10 @@
       "accountContext": "SCHOOL",
       "companyOrSchool": "Byggprogrammet (BA)",
       "consumed": false,
-      "notes": "Skol- och utbildningskod"
+      "usageType": "SINGLE_USE",
+      "maxUses": 1,
+      "usedCount": 0,
+      "notes": "Unik 1-gångskod för skola"
     }
   ],
   "emailWhitelist": [
@@ -2028,14 +2047,6 @@
       "addedBy": "System",
       "addedAt": "2026-01-01",
       "description": "Byggdomän"
-    },
-    {
-      "id": "wl_domain_gmail",
-      "pattern": "@gmail.com",
-      "type": "DOMAIN",
-      "addedBy": "System",
-      "addedAt": "2026-01-01",
-      "description": "Allmän domän"
     }
   ],
   "registrationSecurity": {

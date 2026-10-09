@@ -9,6 +9,7 @@ import {
   ClassSummary,
 } from '../services/studentWorkService';
 import { StudentWorkInspectorModal } from './StudentWorkInspectorModal';
+import { SchoolGdprModal } from './SchoolGdprModal';
 import { PROJECT_TYPE_LABELS } from '../data/momentsData';
 import {
   Users,
@@ -35,6 +36,11 @@ import {
   GraduationCap,
   UploadCloud,
   Check,
+  Lock,
+  ShieldAlert,
+  FileText,
+  ArrowLeft,
+  Building,
 } from 'lucide-react';
 
 interface TeacherFieldInspectionViewProps {
@@ -68,6 +74,13 @@ export const TeacherFieldInspectionView: React.FC<TeacherFieldInspectionViewProp
   const [isSyncingAllLocal, setIsSyncingAllLocal] = useState(false);
   const [syncStatusNotice, setSyncStatusNotice] = useState<string | null>(null);
 
+  // GDPR & Privacy Wall states
+  const [isGdprModalOpen, setIsGdprModalOpen] = useState(false);
+  const [isPrivacyShieldActive, setIsPrivacyShieldActive] = useState(
+    currentUser?.role === 'ADMIN'
+  );
+  const [privacyShieldNotice, setPrivacyShieldNotice] = useState<string | null>(null);
+
   // Inspector modal state
   const [inspectingProject, setInspectingProject] = useState<Project | null>(null);
 
@@ -91,18 +104,30 @@ export const TeacherFieldInspectionView: React.FC<TeacherFieldInspectionViewProp
           await onForceSync();
         } catch {}
       }
-      const data = await fetchStudentFieldWorks({
-        schoolClass: selectedClass,
-        studentGroup: selectedGroup,
-        status: selectedStatus,
-        projectType: selectedType,
-        search: searchQuery,
-      });
+      const data = await fetchStudentFieldWorks(
+        {
+          schoolClass: selectedClass,
+          studentGroup: selectedGroup,
+          status: selectedStatus,
+          projectType: selectedType,
+          search: searchQuery,
+        },
+        currentUser
+      );
 
       setProjects(data.projects);
       setStats(data.stats);
       if (data.classes && data.classes.length > 0) {
         setAvailableClasses(data.classes);
+      }
+      if (data.privacyShieldActive || currentUser?.role === 'ADMIN') {
+        setIsPrivacyShieldActive(true);
+        setPrivacyShieldNotice(
+          data.privacyShieldNotice ||
+            'Strikt Integritetsvägg (Privacy Wall): Elevinnehåll och foton är spärrade för huvudadministratören enligt GDPR och Skollagens personuppgiftskrav.'
+        );
+      } else {
+        setIsPrivacyShieldActive(false);
       }
     } finally {
       setIsLoading(false);
@@ -185,6 +210,16 @@ export const TeacherFieldInspectionView: React.FC<TeacherFieldInspectionViewProp
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             type="button"
+            onClick={() => setIsGdprModalOpen(true)}
+            className="min-h-[42px] px-3.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
+            title="Läs hur FältKoll skyddar elevers integritet enligt GDPR och Skollagen"
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span className="hidden sm:inline">GDPR-underlag</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => loadData(true)}
             disabled={isRefreshing}
             className="min-h-[42px] px-3.5 bg-[#181818] hover:bg-[#222] border border-[#2e2e2e] text-slate-300 font-bold text-xs rounded-xl flex items-center gap-2 cursor-pointer transition-colors"
@@ -194,36 +229,40 @@ export const TeacherFieldInspectionView: React.FC<TeacherFieldInspectionViewProp
             <span className="hidden sm:inline">Uppdatera</span>
           </button>
 
-          <button
-            type="button"
-            onClick={handleSyncAllLocalProjects}
-            disabled={isSyncingAllLocal}
-            className="min-h-[42px] px-3.5 bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/40 text-orange-300 font-black text-xs rounded-xl flex items-center gap-2 cursor-pointer transition-colors"
-            title="Synka alla tidigare och lokala arbeten till molnet så de inte glöms bort"
-          >
-            <UploadCloud className="w-4 h-4 text-orange-400" />
-            <span className="hidden md:inline">
-              {isSyncingAllLocal ? 'Synkar lokala...' : 'Synka alla lokala arbeten'}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-            className={`min-h-[42px] px-4 font-black text-xs sm:text-sm rounded-xl flex items-center gap-2 cursor-pointer transition-all border ${
-              isFilterMenuOpen || activeFilterCount > 0
-                ? 'bg-orange-500 text-black border-orange-400 shadow-md shadow-orange-500/20'
-                : 'bg-[#181818] hover:bg-[#222] text-white border-[#333]'
-            }`}
-          >
-            <Filter className="w-4 h-4 stroke-[2.5]" />
-            <span>{isFilterMenuOpen ? 'Stäng filtermeny' : 'Filtermeny (Klasser)'}</span>
-            {activeFilterCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-black text-orange-400 text-[10px] font-black flex items-center justify-center">
-                {activeFilterCount}
+          {!isPrivacyShieldActive && (
+            <button
+              type="button"
+              onClick={handleSyncAllLocalProjects}
+              disabled={isSyncingAllLocal}
+              className="min-h-[42px] px-3.5 bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/40 text-orange-300 font-black text-xs rounded-xl flex items-center gap-2 cursor-pointer transition-colors"
+              title="Synka alla tidigare och lokala arbeten till molnet så de inte glöms bort"
+            >
+              <UploadCloud className="w-4 h-4 text-orange-400" />
+              <span className="hidden md:inline">
+                {isSyncingAllLocal ? 'Synkar lokala...' : 'Synka alla lokala arbeten'}
               </span>
-            )}
-          </button>
+            </button>
+          )}
+
+          {!isPrivacyShieldActive && (
+            <button
+              type="button"
+              onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+              className={`min-h-[42px] px-4 font-black text-xs sm:text-sm rounded-xl flex items-center gap-2 cursor-pointer transition-all border ${
+                isFilterMenuOpen || activeFilterCount > 0
+                  ? 'bg-orange-500 text-black border-orange-400 shadow-md shadow-orange-500/20'
+                  : 'bg-[#181818] hover:bg-[#222] text-white border-[#333]'
+              }`}
+            >
+              <Filter className="w-4 h-4 stroke-[2.5]" />
+              <span>{isFilterMenuOpen ? 'Stäng filtermeny' : 'Filtermeny (Klasser)'}</span>
+              {activeFilterCount > 0 && (
+                <span className="w-5 h-5 rounded-full bg-black text-orange-400 text-[10px] font-black flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
@@ -234,6 +273,122 @@ export const TeacherFieldInspectionView: React.FC<TeacherFieldInspectionViewProp
           <span>{syncStatusNotice}</span>
         </div>
       )}
+
+      {/* ========================================================================= */}
+      {/* STRICT PRIVACY WALL (ADMIN VIEW ONLY)                                     */}
+      {/* ========================================================================= */}
+      {isPrivacyShieldActive && currentUser?.role === 'ADMIN' ? (
+        <div className="space-y-6 animate-in fade-in">
+          <div className="p-6 sm:p-8 rounded-2xl bg-[#141414] border-2 border-emerald-500/40 space-y-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+              <Lock className="w-56 h-56 text-emerald-400" />
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 relative z-10">
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/10">
+                  <ShieldCheck className="w-8 h-8" />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                      GDPR & Skollagen aktiv
+                    </span>
+                    <span className="text-xs text-slate-400">• Strikt Integritetsvägg</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-black text-white">
+                    Elevinnehåll är spärrat för systemadministratören
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                    Som huvudadministratör agerar du teknisk driftleverantör och licensansvarig. För att
+                    garantera elevernas personliga integritet och uppfylla skolans personuppgiftsbiträdesavtal
+                    (DPA) är all elevdata (fältanteckningar, loggböcker, elevkommentarer och fotografier)
+                    spärrad för administratörskonton. Endast behöriga yrkeslärare kopplade till respektive
+                    klass har behörighet att läsa och granska fältarbetena.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Anonymized metrics */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-2 relative z-10">
+              <div className="p-4 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Elever i skolan
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-white mt-1 block">
+                  {stats.totalStudents} st
+                </span>
+                <span className="text-[11px] text-slate-500">Registrerade via klasskod</span>
+              </div>
+              <div className="p-4 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Aktiva fältprojekt
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-white mt-1 block">
+                  {stats.activeInField} st
+                </span>
+                <span className="text-[11px] text-slate-500">I skolans databas</span>
+              </div>
+              <div className="p-4 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Foton i molnet
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-white mt-1 block">
+                  {stats.totalPhotos} st
+                </span>
+                <span className="text-[11px] text-emerald-400 font-bold">Krypterade i vila</span>
+              </div>
+              <div className="p-4 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Integritetsstatus
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-emerald-400 mt-1 block">
+                  100% Skyddad
+                </span>
+                <span className="text-[11px] text-slate-500">DPA & Skollagen uppfylld</span>
+              </div>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-[#262626] relative z-10">
+              <button
+                type="button"
+                onClick={() => setIsGdprModalOpen(true)}
+                className="min-h-[44px] px-5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs sm:text-sm rounded-xl flex items-center gap-2 cursor-pointer transition-colors shadow-lg shadow-emerald-500/20"
+              >
+                <FileText className="w-4 h-4 stroke-[2.5]" />
+                <span>Läs Dataskyddsöversikt för Rektor & IT-avdelning</span>
+              </button>
+              <button
+                type="button"
+                onClick={onBackToDashboard}
+                className="min-h-[44px] px-4 bg-[#202020] hover:bg-[#282828] text-slate-300 hover:text-white font-bold text-xs rounded-xl border border-[#333] flex items-center gap-2 cursor-pointer transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Tillbaka till mina projekt</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* TEACHER PRIVACY ASSURANCE BANNER */}
+          <div className="p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/40 text-emerald-300 text-xs sm:text-sm font-bold flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+              <span>
+                Integritetsskyddad fältvy för <strong>{currentUser?.schoolOrCompany || 'skolan'}</strong> • Endast behöriga yrkeslärare har åtkomst till att granska och betygsätta dessa fältarbeten.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsGdprModalOpen(true)}
+              className="text-xs text-emerald-400 hover:text-white underline shrink-0 cursor-pointer hidden sm:inline"
+            >
+              Läs GDPR-info
+            </button>
+          </div>
 
       {/* Live Metrics Overview Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -712,6 +867,8 @@ export const TeacherFieldInspectionView: React.FC<TeacherFieldInspectionViewProp
           })}
         </div>
       )}
+        </>
+      )}
 
       {/* INSPECTION MODAL */}
       {inspectingProject && (
@@ -725,6 +882,13 @@ export const TeacherFieldInspectionView: React.FC<TeacherFieldInspectionViewProp
           }}
         />
       )}
+
+      {/* GDPR & DPA DOCUMENTATION MODAL */}
+      <SchoolGdprModal
+        isOpen={isGdprModalOpen}
+        onClose={() => setIsGdprModalOpen(false)}
+        schoolName={currentUser?.schoolOrCompany || 'Bygg- & Anläggningsutbildning'}
+      />
     </div>
   );
 };

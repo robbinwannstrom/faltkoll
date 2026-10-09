@@ -974,9 +974,9 @@ export async function consumeInviteCodeInCloud(code: string, email: string): Pro
 
 /**
  * Fetch registration security data (settings, whitelist, invite codes).
- * Only accessible to Admin.
+ * Accessible to Admin and Teachers (teachers see their class and student invite codes).
  */
-export async function fetchAdminSecurityData(): Promise<{
+export async function fetchAdminSecurityData(callerUser?: UserAccount | null): Promise<{
   settings: RegistrationSecuritySettings;
   whitelist: WhitelistItem[];
   inviteCodes: InviteCodeItem[];
@@ -988,7 +988,18 @@ export async function fetchAdminSecurityData(): Promise<{
     snap.forEach((d) => {
       const data = d.data() as InviteCodeItem;
       if (data && data.code) {
-        cloudCodes.push(data);
+        if (callerUser?.role === 'TEACHER') {
+          if (
+            data.teacherId === callerUser.id ||
+            data.codeType === 'CLASS_JOIN_CODE' ||
+            data.codeType === 'ONE_TIME_STUDENT' ||
+            (data.schoolClass && callerUser.schoolClass && data.schoolClass === callerUser.schoolClass)
+          ) {
+            cloudCodes.push(data);
+          }
+        } else {
+          cloudCodes.push(data);
+        }
       }
     });
   } catch {}
@@ -1001,7 +1012,12 @@ export async function fetchAdminSecurityData(): Promise<{
   let settings: RegistrationSecuritySettings = { requireInviteCodeOrWhitelist: true, allowWhitelistedDomainAutoRegistration: false };
 
   try {
-    const res = await fetch('/api/admin/security/registration');
+    const queryParams = new URLSearchParams();
+    if (callerUser?.role) queryParams.set('callerRole', callerUser.role);
+    if (callerUser?.id) queryParams.set('callerId', callerUser.id);
+    const qStr = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
+    const res = await fetch(`/api/admin/security/registration${qStr}`);
     if (res.ok) {
       const data = await res.json();
       if (data.settings) settings = data.settings;
@@ -1027,7 +1043,7 @@ export async function fetchAdminSecurityData(): Promise<{
 }
 
 /**
- * Generate unique single-use invite codes (Admin only).
+ * Generate unique single-use invite codes, class codes, or multi-use student codes (Admin or Teacher).
  * Saves to both Google Cloud Firestore and server storage.
  */
 export async function createAdminInviteCodes(params: {
@@ -1037,10 +1053,32 @@ export async function createAdminInviteCodes(params: {
   accountContext?: AppContextMode;
   companyOrSchool?: string;
   notes?: string;
+  usageType?: 'SINGLE_USE' | 'MULTI_USE';
+  maxUses?: number;
+  schoolClass?: string;
+  teacherId?: string;
+  teacherName?: string;
+  codeType?: 'ONE_TIME_STUDENT' | 'CLASS_JOIN_CODE' | 'STANDARD_INVITE';
+  callerRole?: UserRole;
+  callerId?: string;
 }): Promise<{ ok: boolean; generatedCodes: InviteCodeItem[]; allCodes: InviteCodeItem[] }> {
-  const count = Math.max(1, Math.min(params.count || 1, 20));
-  const prefix = (params.prefix || 'FK-INV').trim().toUpperCase();
+  const count = Math.max(1, Math.min(params.count || 1, 50));
+  const isClassCode = params.codeType === 'CLASS_JOIN_CODE';
+  const defaultPrefix =
+    params.prefix && params.prefix.trim()
+      ? params.prefix.trim().toUpperCase()
+      : isClassCode && params.schoolClass
+      ? params.schoolClass.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
+      : params.callerRole === 'TEACHER'
+      ? 'KLASS'
+      : 'FK-INV';
+
+  const prefix = defaultPrefix;
   const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+  const isMulti = isClassCode || params.usageType === 'MULTI_USE';
+  const effectiveMaxUses = isMulti ? Math.max(1, params.maxUses || (isClassCode ? 45 : 10)) : 1;
+  const creatorLabel =
+    params.teacherName || (params.callerRole === 'TEACHER' ? 'Yrkeslärare' : 'Huvudadministratör');
 
   const localGenerated: InviteCodeItem[] = [];
   for (let i = 0; i < count; i++) {
@@ -1048,13 +1086,21 @@ export async function createAdminInviteCodes(params: {
     const code = `${prefix}-${randPart}`;
     const item: InviteCodeItem = {
       code,
-      createdBy: 'Huvudadministratör',
+      createdBy: creatorLabel,
       createdAt: now,
-      roleToAssign: params.roleToAssign || 'STUDENT',
-      accountContext: params.accountContext || 'WORKPLACE',
-      companyOrSchool: params.companyOrSchool ? params.companyOrSchool.trim() : undefined,
+      roleToAssign: isClassCode || params.codeType === 'ONE_TIME_STUDENT' ? 'STUDENT' : params.roleToAssign || 'STUDENT',
+      accountContext: isClassCode || params.codeType === 'ONE_TIME_STUDENT' ? 'SCHOOL' : params.accountContext || 'WORKPLACE',
+      companyOrSchool: params.companyOrSchool ? params.companyOrSchool.trim() : 'Bygg- & Anläggningsutbildning',
       consumed: false,
       notes: params.notes ? params.notes.trim() : undefined,
+      usageType: isMulti ? 'MULTI_USE' : 'SINGLE_USE',
+      maxUses: effectiveMaxUses,
+      usedCount: 0,
+      usedByList: [],
+      schoolClass: params.schoolClass ? params.schoolClass.trim() : undefined,
+      teacherId: params.teacherId || params.callerId,
+      teacherName: params.teacherName || (params.callerRole === 'TEACHER' ? 'Yrkeslärare' : undefined),
+      codeType: params.codeType || (isClassCode ? 'CLASS_JOIN_CODE' : 'STANDARD_INVITE'),
     };
     localGenerated.push(item);
 

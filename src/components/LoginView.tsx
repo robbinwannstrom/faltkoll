@@ -542,7 +542,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }
     }
 
     if (requireSecurity && !isEmailWhitelisted && !regInviteCode.trim()) {
-      setErrorMsg('En unik registreringskod krävs för att registrera sig (eller att din e-post är vitlistad). Klicka på en av standardkoderna nedan eller kontakta skolan.');
+      setErrorMsg('En unik engångskod (1-time use) krävs för att registrera sig. Kontakta administratören för att få en licenskod.');
       return;
     }
 
@@ -1088,10 +1088,10 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }
                   </div>
                 </div>
               ) : (
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold text-slate-300 block">
-                      Unik engångskod / Inbjudningskod *
+                      Klasskod eller Registreringskod *
                     </label>
                     <span className="text-[10px] text-amber-400 font-semibold">Krävs</span>
                   </div>
@@ -1100,63 +1100,23 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }
                       type="text"
                       value={regInviteCode}
                       onChange={(e) => setRegInviteCode(e.target.value.toUpperCase())}
-                      placeholder="Ange din inbjudningskod..."
+                      placeholder="Ange klasskod (t.ex. BA24-4921) eller engångskod..."
                       className="w-full min-h-[46px] px-4 pl-10 bg-[#1c1c1c] border border-amber-500/50 focus:border-amber-400 rounded-xl text-sm font-mono font-bold text-amber-400 placeholder:text-slate-600 outline-none uppercase"
                       required
                     />
                     <Ticket className="w-4 h-4 text-amber-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   </div>
-                  <div className="pt-1.5 space-y-1">
-                    <div className="text-[11px] text-slate-400 font-medium">Standardkoder för skola & utbildning (klicka för att välja):</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setRegInviteCode('FALT-2026');
-                          setRegCategory('ELEV');
-                          setRegOrg('Bygg- & Anläggningsutbildning');
-                        }}
-                        className="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-mono font-bold cursor-pointer transition-colors"
-                      >
-                        🎓 Elev: FALT-2026
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setRegInviteCode('LARARE-2026');
-                          setRegCategory('ELEV');
-                          setRegOrg('Bygg- & Anläggningsutbildning');
-                        }}
-                        className="px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 rounded-lg text-xs font-mono font-bold cursor-pointer transition-colors"
-                      >
-                        🧑‍🏫 Lärare: LARARE-2026
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setRegInviteCode('BYGG-2026');
-                          setRegCategory('ARBETARE');
-                          setRegOrg('Anläggning & Entreprenad AB');
-                        }}
-                        className="px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-mono font-bold cursor-pointer transition-colors"
-                      >
-                        🏗️ Företag: BYGG-2026
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setRegInviteCode('APL-2026');
-                          setRegCategory('APL');
-                          setRegOrg('APL-arbetsplats');
-                        }}
-                        className="px-2.5 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-mono font-bold cursor-pointer transition-colors"
-                      >
-                        🤝 APL: APL-2026
-                      </button>
+                  <div className="p-3 rounded-xl bg-[#161616] border border-[#2a2a2a] text-[11px] text-slate-400 space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-amber-300">
+                      <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span>Klasskod eller personlig engångskod krävs</span>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
-                    <span>Giltiga skolkoder fungerar för alla elever och lärare.</span>
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                      Ange klasskoden från din yrkeslärare eller din personliga engångskod. Ditt konto kopplas automatiskt till din klass och lärare.
+                    </p>
+                    <div className="text-[10px] text-slate-500 pt-1 border-t border-[#222222]">
+                      Har du inte fått någon kod? Be din yrkeslärare om klasskoden eller kontakta administratören.
+                    </div>
                   </div>
                 </div>
               )}

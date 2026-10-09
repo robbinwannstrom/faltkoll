@@ -281,13 +281,25 @@ export async function saveProjectToCloud(project: Project): Promise<void> {
 
 /**
  * Fetch all student field projects from cloud (combining Server, Firestore and local IndexedDB)
+ * Enforces strict GDPR Privacy Wall for ADMIN accounts and class scoping for TEACHER accounts.
  */
 export async function fetchStudentFieldWorks(
-  filters?: StudentWorkFilterOptions
-): Promise<{ projects: Project[]; stats: FieldWorkStats; classes: ClassSummary[] }> {
+  filters?: StudentWorkFilterOptions,
+  callerUser?: UserAccount | null
+): Promise<{
+  projects: Project[];
+  stats: FieldWorkStats;
+  classes: ClassSummary[];
+  privacyShieldActive?: boolean;
+  privacyShieldNotice?: string;
+}> {
   let serverProjects: Project[] = [];
   let serverStats: FieldWorkStats | null = null;
   let serverClasses: ClassSummary[] = [];
+  let privacyShieldActive = false;
+  let privacyShieldNotice: string | undefined;
+
+  const isAdmin = callerUser?.role === 'ADMIN';
 
   try {
     const params = new URLSearchParams();
@@ -306,21 +318,54 @@ export async function fetchStudentFieldWorks(
     if (filters?.search?.trim()) {
       params.set('search', filters.search.trim());
     }
+    if (callerUser?.role) {
+      params.set('callerRole', callerUser.role);
+    }
+    if (callerUser?.id) {
+      params.set('callerId', callerUser.id);
+    }
 
     const queryStr = params.toString() ? `?${params.toString()}` : '';
     const res = await safeFetchJson<{
       projects: Project[];
       stats: FieldWorkStats;
       classes: ClassSummary[];
+      privacyShieldActive?: boolean;
+      privacyShieldNotice?: string;
     }>(`/api/field/student-work${queryStr}`);
 
     if (res.ok && res.data) {
       serverProjects = res.data.projects || [];
       serverStats = res.data.stats || null;
       serverClasses = res.data.classes || [];
+      privacyShieldActive = !!res.data.privacyShieldActive;
+      privacyShieldNotice = res.data.privacyShieldNotice;
     }
   } catch (err) {
     console.warn('Could not fetch student works from server:', err);
+  }
+
+  // =========================================================================
+  // STRICT PRIVACY WALL (GDPR & SKOLLAGENS PERSONUPPGIFTSKRAV)
+  // If caller is ADMIN: Do NOT query Firestore or IndexedDB for student projects!
+  // Return privacy shield state immediately so student data & photos stay shielded.
+  // =========================================================================
+  if (isAdmin || privacyShieldActive) {
+    return {
+      projects: [],
+      stats: serverStats || {
+        totalStudents: 0,
+        activeInField: 0,
+        pendingTeacherReview: 0,
+        totalPhotos: 0,
+        averageProgressPercent: 0,
+      },
+      classes: serverClasses,
+      privacyShieldActive: true,
+      privacyShieldNotice:
+        privacyShieldNotice ||
+        'Strikt Integritetsvägg (Privacy Wall) aktiv: Elevinnehåll, loggböcker och fältfoton är spärrade för administratören enligt GDPR & Skollagens personuppgiftskrav. Endast behörig yrkeslärare har åtkomst.',
+    };
   }
 
   // Also query Google Cloud Firestore directly to guarantee live discovery across separate browsers/devices!
@@ -382,6 +427,17 @@ export async function fetchStudentFieldWorks(
   }
 
   let mergedProjects = Array.from(projectMap.values());
+
+  // TEACHER PRIVACY SCOPING: Teachers only see their own classes and assigned students
+  if (callerUser?.role === 'TEACHER' && callerUser.schoolClass) {
+    const targetClass = callerUser.schoolClass.toLowerCase().trim();
+    mergedProjects = mergedProjects.filter((p) => {
+      if (p.teacherId && p.teacherId === callerUser.id) return true;
+      if (p.creatorId && p.creatorId === callerUser.id) return true;
+      if (p.schoolClass && String(p.schoolClass).toLowerCase().includes(targetClass)) return true;
+      return false;
+    });
+  }
 
   // Apply filters
   if (filters?.schoolClass && filters.schoolClass !== 'ALL') {

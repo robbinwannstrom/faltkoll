@@ -142,6 +142,7 @@ export interface Project {
   studentEmail?: string;
   schoolClass?: string;
   studentGroup?: string;
+  teacherId?: string;
   teacherFeedback?: {
     overallComment?: string;
     evaluatedAt?: string;
@@ -355,6 +356,15 @@ export interface InviteCodeItem {
   consumedBy?: string;
   consumedAt?: string;
   notes?: string;
+  usageType?: 'SINGLE_USE' | 'MULTI_USE'; // Default 'SINGLE_USE' (1-time use)
+  maxUses?: number; // 1 for single-use, or specified number
+  usedCount?: number; // Number of times used
+  usedByList?: Array<{ email: string; usedAt: string }>;
+  // Skola- och Integritetskoppling
+  schoolClass?: string;       // t.ex. "BA24" eller "ANL23"
+  teacherId?: string;         // ID för läraren som skapade koden
+  teacherName?: string;       // Namn på ansvarig lärare
+  codeType?: 'ONE_TIME_STUDENT' | 'CLASS_JOIN_CODE' | 'STANDARD_INVITE';
 }
 
 export interface WhitelistItem {

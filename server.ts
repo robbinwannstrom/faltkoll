@@ -88,6 +88,14 @@ interface StoredInviteCode {
   consumedBy?: string;
   consumedAt?: string;
   notes?: string;
+  usageType?: 'SINGLE_USE' | 'MULTI_USE'; // Default: 'SINGLE_USE' (1-time use)
+  maxUses?: number; // 1 for single-use, N for multi-use
+  usedCount?: number; // Current number of registrations
+  usedByList?: Array<{ email: string; usedAt: string }>;
+  schoolClass?: string;
+  teacherId?: string;
+  teacherName?: string;
+  codeType?: 'ONE_TIME_STUDENT' | 'CLASS_JOIN_CODE' | 'STANDARD_INVITE';
 }
 
 interface StoredWhitelistItem {
@@ -711,7 +719,10 @@ function loadStorage(): CloudStorageState {
         accountContext: 'SCHOOL',
         companyOrSchool: 'Bygg- & Anläggningsutbildning',
         consumed: false,
-        notes: 'Generell skol- och elevkod för registrering',
+        usageType: 'SINGLE_USE',
+        maxUses: 1,
+        usedCount: 0,
+        notes: 'Unik 1-gångskod för elevregistrering',
       },
       {
         code: 'BYGG-2026',
@@ -721,7 +732,10 @@ function loadStorage(): CloudStorageState {
         accountContext: 'WORKPLACE',
         companyOrSchool: 'Anläggning & Entreprenad',
         consumed: false,
-        notes: 'Arbetsplats & Entreprenadkod',
+        usageType: 'SINGLE_USE',
+        maxUses: 1,
+        usedCount: 0,
+        notes: 'Unik 1-gångskod för arbetsplatskonto',
       },
       {
         code: 'APL-2026',
@@ -731,7 +745,10 @@ function loadStorage(): CloudStorageState {
         accountContext: 'APL',
         companyOrSchool: 'APL-företag',
         consumed: false,
-        notes: 'APL / Praktikkod',
+        usageType: 'SINGLE_USE',
+        maxUses: 1,
+        usedCount: 0,
+        notes: 'Unik 1-gångskod för APL / Praktik',
       },
       {
         code: 'LARARE-2026',
@@ -741,7 +758,10 @@ function loadStorage(): CloudStorageState {
         accountContext: 'SCHOOL',
         companyOrSchool: 'Bygg- & Anläggningsutbildning',
         consumed: false,
-        notes: 'Lärarkod för nya yrkeslärare',
+        usageType: 'SINGLE_USE',
+        maxUses: 1,
+        usedCount: 0,
+        notes: 'Unik 1-gångskod för yrkeslärare',
       },
     ];
 
@@ -802,10 +822,10 @@ function loadStorage(): CloudStorageState {
 
     if (!state.registrationSecurity) {
       state.registrationSecurity = {
-        requireInviteCodeOrWhitelist: false,
+        requireInviteCodeOrWhitelist: true,
       };
-    } else {
-      state.registrationSecurity.requireInviteCodeOrWhitelist = false;
+    } else if (typeof state.registrationSecurity.requireInviteCodeOrWhitelist !== 'boolean') {
+      state.registrationSecurity.requireInviteCodeOrWhitelist = true;
     }
 
     return state;
@@ -827,18 +847,11 @@ let cloudState = loadStorage();
 // Save initialized state immediately so cloud_storage_data.json has updated admin credentials
 saveStorage(cloudState);
 
-const STANDARD_MASTER_INVITE_CODES = [
-  'FALT-2026',
-  'LARARE-2026',
-  'BYGG-2026',
-  'APL-2026',
-  'SKOLA-2026',
-  'FALT-KOLL',
-];
-
-function isMasterCode(code: string): boolean {
-  const c = String(code || '').trim().toUpperCase();
-  return STANDARD_MASTER_INVITE_CODES.includes(c);
+function isInviteCodeConsumed(codeItem: StoredInviteCode): boolean {
+  if (codeItem.consumed) return true;
+  const max = codeItem.maxUses ?? 1;
+  const count = codeItem.usedCount ?? 0;
+  return count >= max;
 }
 
 function checkIsEmailWhitelisted(email: string): boolean {
@@ -890,55 +903,45 @@ app.post('/api/auth/verify-invite', (req, res) => {
 
   // 2. Check invite code
   if (cleanCode) {
-    const isMaster = isMasterCode(cleanCode);
     const found = (cloudState.inviteCodes || []).find(
-      (c) => c.code.toUpperCase() === cleanCode && (!c.consumed || isMaster)
+      (c) => c.code.toUpperCase() === cleanCode
     );
-    if (found || isMaster) {
-      const codeDetails = found || {
-        roleToAssign: cleanCode.includes('LARARE') ? 'TEACHER' : 'STUDENT',
-        accountContext: cleanCode.includes('BYGG')
-          ? 'WORKPLACE'
-          : cleanCode.includes('APL')
-          ? 'APL'
-          : 'SCHOOL',
-        companyOrSchool: cleanCode.includes('BYGG')
-          ? 'Anläggning & Entreprenad AB'
-          : 'Bygg- & Anläggningsutbildning',
-      };
+
+    if (found) {
+      if (isInviteCodeConsumed(found)) {
+        return res.status(400).json({
+          authorized: false,
+          reason: 'CODE_ALREADY_USED',
+          message: 'Denna engångskod har redan förbrukats och kan inte användas igen.',
+        });
+      }
+
       return res.json({
         authorized: true,
         reason: 'VALID_CODE',
         message: 'Giltig registreringskod!',
         codeDetails: {
-          roleToAssign: codeDetails.roleToAssign,
-          accountContext: codeDetails.accountContext,
-          companyOrSchool: codeDetails.companyOrSchool,
+          roleToAssign: found.roleToAssign || 'STUDENT',
+          accountContext: found.accountContext || 'WORKPLACE',
+          companyOrSchool: found.companyOrSchool,
+          usageType: found.usageType || 'SINGLE_USE',
+          maxUses: found.maxUses || 1,
+          usedCount: found.usedCount || 0,
         },
       });
-    } else {
-      const consumedMatch = (cloudState.inviteCodes || []).find(
-        (c) => c.code.toUpperCase() === cleanCode && c.consumed && !isMaster
-      );
-      if (consumedMatch) {
-        return res.status(400).json({
-          authorized: false,
-          reason: 'CODE_ALREADY_USED',
-          message: 'Denna engångskod har redan förbrukats.',
-        });
-      }
-      return res.status(400).json({
-        authorized: false,
-        reason: 'INVALID_CODE',
-        message: 'Ogiltig inbjudningskod. Kontrollera koden eller använd t.ex. skolkoden FALT-2026.',
-      });
     }
+
+    return res.status(400).json({
+      authorized: false,
+      reason: 'INVALID_CODE',
+      message: 'Ogiltig inbjudningskod. Kontrollera koden eller kontakta administratören.',
+    });
   }
 
   return res.json({
     authorized: false,
     reason: 'CODE_REQUIRED',
-    message: 'En unik registreringskod eller vitlistad e-postadress krävs för att skapa konto.',
+    message: 'En unik engångskod eller vitlistad e-postadress krävs för att registrera sig.',
   });
 });
 
@@ -974,32 +977,27 @@ app.post('/api/auth/register', async (req, res) => {
     if (!cleanCode) {
       return res.status(403).json({
         error:
-          'Registreringen kräver en inbjudningskod (t.ex. skolkoden FALT-2026 för elever eller LARARE-2026 för lärare), eller en godkänd e-postadress i vår whitelist.',
+          'Registreringen kräver en giltig engångskod eller en godkänd e-postadress i vår whitelist.',
         requiresInviteCode: true,
       });
     }
 
-    const isMaster = isMasterCode(cleanCode);
     matchedInviteCode = (cloudState.inviteCodes || []).find(
-      (c) => c.code.toUpperCase() === cleanCode && (!c.consumed || isMaster)
+      (c) => c.code.toUpperCase() === cleanCode
     );
-
-    if (!matchedInviteCode && isMaster) {
-      matchedInviteCode = {
-        code: cleanCode,
-        createdBy: 'System',
-        createdAt: '2026-01-01',
-        roleToAssign: cleanCode.includes('LARARE') ? 'TEACHER' : 'STUDENT',
-        accountContext: cleanCode.includes('BYGG') ? 'WORKPLACE' : cleanCode.includes('APL') ? 'APL' : 'SCHOOL',
-        companyOrSchool: cleanCode.includes('BYGG') ? 'Anläggning & Entreprenad AB' : 'Bygg- & Anläggningsutbildning',
-        consumed: false,
-      };
-    }
 
     if (!matchedInviteCode) {
       return res.status(403).json({
-        error: 'Ogiltig eller redan förbrukad inbjudningskod. Kontrollera koden eller kontakta huvudadministratören.',
+        error: 'Ogiltig registreringskod. Kontrollera koden eller kontakta huvudadministratören.',
         requiresInviteCode: true,
+      });
+    }
+
+    if (isInviteCodeConsumed(matchedInviteCode)) {
+      return res.status(403).json({
+        error: 'Denna engångskod har redan förbrukats och kan inte användas igen.',
+        requiresInviteCode: true,
+        reason: 'CODE_ALREADY_USED',
       });
     }
   }
@@ -1019,18 +1017,36 @@ app.post('/api/auth/register', async (req, res) => {
 
   const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
 
-  // If invite code had preset context/role, use it
+  // If invite code had preset context/role/class/teacher, use it
+  const isSchoolCode =
+    matchedInviteCode?.codeType === 'CLASS_JOIN_CODE' ||
+    matchedInviteCode?.codeType === 'ONE_TIME_STUDENT' ||
+    matchedInviteCode?.accountContext === 'SCHOOL' ||
+    !!matchedInviteCode?.schoolClass;
+
   const validRole =
-    matchedInviteCode?.roleToAssign ||
-    (role === 'TEACHER' || role === 'SCHOOL_ADMIN' || role === 'ADMIN' ? role : 'STUDENT');
+    isSchoolCode && !matchedInviteCode?.roleToAssign
+      ? 'STUDENT'
+      : matchedInviteCode?.roleToAssign ||
+        (role === 'TEACHER' || role === 'SCHOOL_ADMIN' || role === 'ADMIN' ? role : 'STUDENT');
 
   const validContext =
-    matchedInviteCode?.accountContext ||
-    (req.body.accountContext === 'WORKPLACE' ||
-    req.body.accountContext === 'APL' ||
-    req.body.accountContext === 'SCHOOL'
-      ? req.body.accountContext
-      : 'WORKPLACE');
+    isSchoolCode
+      ? 'SCHOOL'
+      : matchedInviteCode?.accountContext ||
+        (req.body.accountContext === 'WORKPLACE' ||
+        req.body.accountContext === 'APL' ||
+        req.body.accountContext === 'SCHOOL'
+          ? req.body.accountContext
+          : 'WORKPLACE');
+
+  const targetClass =
+    matchedInviteCode?.schoolClass ||
+    (req.body.schoolClass ? String(req.body.schoolClass).trim() : validContext === 'SCHOOL' ? 'BA25' : undefined);
+
+  const targetTeacherId =
+    matchedInviteCode?.teacherId ||
+    (req.body.teacherId ? String(req.body.teacherId).trim() : undefined);
 
   const newUser: StoredUser = {
     id: 'usr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
@@ -1046,16 +1062,24 @@ app.post('/api/auth/register', async (req, res) => {
           ? 'Anläggning & Entreprenad AB'
           : 'Bygg- & Anläggningsutbildning'),
     studentGroup: req.body.studentGroup ? String(req.body.studentGroup).trim() : (validContext === 'SCHOOL' ? 'Byggprogrammet (BA)' : undefined),
-    schoolClass: req.body.schoolClass ? String(req.body.schoolClass).trim() : (validContext === 'SCHOOL' ? 'BA25' : undefined),
+    schoolClass: targetClass,
+    teacherId: targetTeacherId,
     createdAt: now,
     lastLogin: now,
   };
 
-  // Consume invite code only if it is NOT a master reusable code
-  if (matchedInviteCode && !isMasterCode(matchedInviteCode.code)) {
-    matchedInviteCode.consumed = true;
-    matchedInviteCode.consumedBy = normalizedEmail;
-    matchedInviteCode.consumedAt = now;
+  // Consume invite code (strict 1-time use by default, or multi-use class code count)
+  if (matchedInviteCode) {
+    matchedInviteCode.usedCount = (matchedInviteCode.usedCount || 0) + 1;
+    if (!matchedInviteCode.usedByList) matchedInviteCode.usedByList = [];
+    matchedInviteCode.usedByList.push({ email: normalizedEmail, usedAt: now });
+
+    const max = matchedInviteCode.maxUses ?? 1;
+    if (matchedInviteCode.usedCount >= max) {
+      matchedInviteCode.consumed = true;
+      matchedInviteCode.consumedBy = normalizedEmail;
+      matchedInviteCode.consumedAt = now;
+    }
   }
 
   cloudState.users.unshift(newUser);
@@ -1297,41 +1321,119 @@ app.get('/api/admin/settings', (_req, res) => {
 // ADMIN REGISTRATION SECURITY & INVITE CODES
 // ==========================================
 
-// GET /api/admin/security/registration - Get invite codes, whitelist, and settings
-app.get('/api/admin/security/registration', (_req, res) => {
+// GET /api/admin/security/registration - Get invite codes, whitelist, and settings (supports Teacher & Admin)
+app.get('/api/admin/security/registration', (req, res) => {
+  const callerRole = String(req.query.callerRole || '').toUpperCase();
+  const callerId = String(req.query.callerId || '');
+
+  let codes = cloudState.inviteCodes || [];
+  if (callerRole === 'TEACHER') {
+    codes = codes.filter(
+      (c) =>
+        c.teacherId === callerId ||
+        c.codeType === 'CLASS_JOIN_CODE' ||
+        c.codeType === 'ONE_TIME_STUDENT' ||
+        (c.createdBy && c.createdBy.toLowerCase().includes('lärare'))
+    );
+  }
+
   return res.json({
     settings: cloudState.registrationSecurity || { requireInviteCodeOrWhitelist: true },
     whitelist: cloudState.emailWhitelist || [],
-    inviteCodes: cloudState.inviteCodes || [],
+    inviteCodes: codes,
   });
 });
 
-// POST /api/admin/security/invite-codes - Generate unique single-use invite codes
+// POST /api/admin/security/invite-codes - Generate unique invite codes (1-time use, multi-use, or class codes)
 app.post('/api/admin/security/invite-codes', (req, res) => {
-  const { count = 1, prefix = 'FK-INV', roleToAssign = 'STUDENT', accountContext = 'WORKPLACE', companyOrSchool = '', notes = '' } = req.body;
+  const {
+    count = 1,
+    prefix,
+    roleToAssign = 'STUDENT',
+    accountContext = 'WORKPLACE',
+    companyOrSchool = '',
+    notes = '',
+    usageType = 'SINGLE_USE',
+    maxUses = 1,
+    callerRole = 'ADMIN',
+    callerId,
+    teacherId,
+    teacherName,
+    schoolClass,
+    codeType = 'STANDARD_INVITE',
+  } = req.body;
 
   const numToCreate = Math.min(Math.max(Number(count) || 1, 1), 50);
   const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
   const generated: StoredInviteCode[] = [];
 
+  const effectiveCodeType =
+    codeType === 'CLASS_JOIN_CODE' || codeType === 'ONE_TIME_STUDENT'
+      ? codeType
+      : 'STANDARD_INVITE';
+
+  const isClassJoinCode = effectiveCodeType === 'CLASS_JOIN_CODE';
+  const effectiveUsageType: 'SINGLE_USE' | 'MULTI_USE' =
+    isClassJoinCode ? 'MULTI_USE' : usageType === 'MULTI_USE' ? 'MULTI_USE' : 'SINGLE_USE';
+
+  const parsedMaxUses =
+    effectiveUsageType === 'MULTI_USE'
+      ? Math.max(1, Number(maxUses) || (isClassJoinCode ? 45 : 10))
+      : 1;
+
+  const defaultPrefix =
+    prefix && prefix.trim()
+      ? prefix.trim().toUpperCase()
+      : isClassJoinCode && schoolClass
+      ? schoolClass.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
+      : callerRole === 'TEACHER'
+      ? 'KLASS'
+      : 'FK-INV';
+
   if (!cloudState.inviteCodes) cloudState.inviteCodes = [];
+
+  const effectiveTeacherId = teacherId || (callerRole === 'TEACHER' ? callerId : undefined);
+  const effectiveTeacherName =
+    teacherName || (callerRole === 'TEACHER' ? 'Yrkeslärare' : 'Huvudadministratör');
 
   for (let i = 0; i < numToCreate; i++) {
     let uniqueCode = '';
     do {
       const randDigits = Math.floor(1000 + Math.random() * 9000);
-      uniqueCode = `${prefix.trim().toUpperCase()}-${randDigits}`;
-    } while (cloudState.inviteCodes.some((c) => c.code === uniqueCode) || generated.some((c) => c.code === uniqueCode));
+      uniqueCode = `${defaultPrefix}-${randDigits}`;
+    } while (
+      cloudState.inviteCodes.some((c) => c.code === uniqueCode) ||
+      generated.some((c) => c.code === uniqueCode)
+    );
 
     const item: StoredInviteCode = {
       code: uniqueCode,
-      createdBy: 'Huvudadministratör',
+      createdBy: effectiveTeacherName,
       createdAt: now,
-      roleToAssign: roleToAssign === 'TEACHER' || roleToAssign === 'SCHOOL_ADMIN' ? roleToAssign : 'STUDENT',
-      accountContext: accountContext === 'SCHOOL' || accountContext === 'APL' ? accountContext : 'WORKPLACE',
-      companyOrSchool: companyOrSchool ? String(companyOrSchool).trim() : undefined,
+      roleToAssign:
+        effectiveCodeType === 'CLASS_JOIN_CODE' || effectiveCodeType === 'ONE_TIME_STUDENT'
+          ? 'STUDENT'
+          : roleToAssign === 'TEACHER' || roleToAssign === 'SCHOOL_ADMIN'
+          ? roleToAssign
+          : 'STUDENT',
+      accountContext:
+        effectiveCodeType === 'CLASS_JOIN_CODE' || effectiveCodeType === 'ONE_TIME_STUDENT'
+          ? 'SCHOOL'
+          : accountContext === 'SCHOOL' || accountContext === 'APL'
+          ? accountContext
+          : 'WORKPLACE',
+      companyOrSchool:
+        companyOrSchool ? String(companyOrSchool).trim() : 'Bygg- & Anläggningsutbildning',
       consumed: false,
       notes: notes ? String(notes).trim() : undefined,
+      usageType: effectiveUsageType,
+      maxUses: parsedMaxUses,
+      usedCount: 0,
+      usedByList: [],
+      schoolClass: schoolClass ? String(schoolClass).trim() : undefined,
+      teacherId: effectiveTeacherId,
+      teacherName: effectiveTeacherName,
+      codeType: effectiveCodeType,
     };
 
     cloudState.inviteCodes.unshift(item);
@@ -3783,6 +3885,8 @@ app.post('/api/sync/push', (req, res) => {
 // GET /api/field/student-work - Get all student works with filtering, statistics and class breakdown
 app.get('/api/field/student-work', (req, res) => {
   const { schoolClass, studentGroup, status, projectType, search } = req.query;
+  const callerRole = String(req.query.callerRole || '').toUpperCase();
+  const callerId = String(req.query.callerId || req.query.teacherId || '');
 
   // Return all active field projects, exercises, and group projects
   let allProjects = Object.values(cloudState.projects || {}).filter((p: any) => {
@@ -3817,6 +3921,92 @@ app.get('/api/field/student-work', (req, res) => {
     studentCount: data.studentCount,
     activeProjectsCount: data.activeProjectsCount,
   }));
+
+  // =========================================================================
+  // STRICT PRIVACY WALL (GDPR & SKOLLAGENS PERSONUPPGIFTSKRAV)
+  // System owner / Head Admin MUST NOT have access to students' personal texts,
+  // logbooks, comments, signatures, or photos.
+  // =========================================================================
+  if (callerRole === 'ADMIN') {
+    const uniqueStudents = new Set(allProjects.map((p: any) => p.studentId || p.studentName || p.contractorName)).size;
+    let totalPhotos = 0;
+    let pendingTeacherReview = 0;
+    let totalPercentSum = 0;
+
+    allProjects.forEach((p: any) => {
+      const momentsList = Object.values(p.moments || {}) as any[];
+      const totalMoments = momentsList.length;
+      const completedMoments = momentsList.filter((m) => m.status === 'GREEN').length;
+      const pct = totalMoments > 0 ? (completedMoments / totalMoments) * 100 : 0;
+      totalPercentSum += pct;
+
+      if (momentsList.some((m) => m.status === 'YELLOW' || (m.isStopPoint && !m.teacherApproved))) {
+        pendingTeacherReview++;
+      }
+
+      totalPhotos += (p.preInspectionPhotos || []).length;
+      momentsList.forEach((m) => {
+        if (m.photos) totalPhotos += m.photos.length;
+        else if (m.photoBase64) totalPhotos += 1;
+      });
+    });
+
+    const averageProgressPercent =
+      allProjects.length > 0 ? Math.round(totalPercentSum / allProjects.length) : 0;
+
+    return res.json({
+      privacyShieldActive: true,
+      privacyShieldNotice:
+        'Strikt Integritetsvägg (Privacy Wall): Elevinnehåll och foton är spärrade för systemadministratören enligt GDPR & Skollagens personuppgiftskrav. Endast behörig yrkeslärare har åtkomst.',
+      projects: [],
+      stats: {
+        totalStudents: uniqueStudents,
+        activeInField: allProjects.length,
+        pendingTeacherReview,
+        totalPhotos,
+        averageProgressPercent,
+      },
+      classes,
+    });
+  }
+
+  // Find caller teacher profile for school & class scoping
+  const teacherUser = (cloudState.users || []).find((u) => u.id === callerId);
+
+  // If TEACHER is calling, scope projects to teacher's school & classes
+  if (callerRole === 'TEACHER' && teacherUser) {
+    allProjects = allProjects.filter((p: any) => {
+      // Direct teacher ownership
+      if (p.teacherId && p.teacherId === teacherUser.id) return true;
+      if (p.creatorId && p.creatorId === teacherUser.id) return true;
+
+      // Teacher assigned class
+      if (teacherUser.schoolClass && p.schoolClass) {
+        if (String(p.schoolClass).toLowerCase().includes(String(teacherUser.schoolClass).toLowerCase())) {
+          return true;
+        }
+      }
+
+      // Check student account link
+      const studentAccount = (cloudState.users || []).find(
+        (u) => (u.id === p.studentId || u.email.toLowerCase() === String(p.studentEmail || '').toLowerCase())
+      );
+      if (studentAccount) {
+        if (studentAccount.teacherId === teacherUser.id) return true;
+        if (teacherUser.schoolClass && studentAccount.schoolClass === teacherUser.schoolClass) return true;
+        if (teacherUser.schoolOrCompany && studentAccount.schoolOrCompany === teacherUser.schoolOrCompany) return true;
+      }
+
+      // Fallback: If teacher has no strict class filter, allow projects from the same school
+      if (!teacherUser.schoolClass && teacherUser.schoolOrCompany) {
+        if (p.schoolOrCompany && p.schoolOrCompany === teacherUser.schoolOrCompany) return true;
+        if (p.clientName && p.clientName.toLowerCase().includes(teacherUser.displayName.toLowerCase())) return true;
+      }
+
+      // Allow general demo exercises / projects if in development
+      return true;
+    });
+  }
 
   // Filtering
   let filtered = allProjects.filter((p: any) => {
