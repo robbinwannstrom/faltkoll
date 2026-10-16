@@ -1,0 +1,6 @@
+{
+  "summary":  "Plan för att implementera strikt integritetsvägg (Privacy Wall) och klasskoder i appen för att uppfylla GDPR och skolans krav på dataskydd:\n1. Integritetsvägg som spärrar huvudadministratörens insyn i elevers texter, loggböcker och foton.\n2. Klass- och lärarkoder vid elevregistrering så elever automatiskt kopplas till rätt lärare och klass.\n3. Behörighetsisolering mellan olika lärare och skolor (endast behörig lärare ser sin klass).\n4. GDPR- och skolintyg i appen som lärare kan visa för rektor/IT-ansvarig.",
+  "updatedAt":  "2026-10-08T13:37:54.102514067Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
