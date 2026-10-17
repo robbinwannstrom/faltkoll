@@ -84,9 +84,12 @@ function sanitizeForFirestore(obj: any): any {
   return clean;
 }
 
+import { enqueuePhotoForSync } from './offlineQueueService';
+
 /**
  * Dedicated helper to immediately upload a single high-resolution photo to both
  * Express photo storage (/api/sync/photos) and Firestore subcollection (/projects/{id}/photos/{photoId})
+ * Automatically caches in IndexedDB and adds to persistent queue so photos can NEVER be lost.
  */
 export async function uploadPhotoToDedicatedCloud(
   photo: MomentPhoto,
@@ -95,11 +98,14 @@ export async function uploadPhotoToDedicatedCloud(
 ): Promise<void> {
   if (!photo || !photo.id || !photo.dataUrl) return;
 
+  // 1. Immediately guarantee local offline cache and persistent background queue in IndexedDB
+  enqueuePhotoForSync(photo, projectId, momentId).catch(() => {});
+
   const serverPromise = safeFetchJson('/api/sync/photos', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ photo, projectId, momentId }),
-    timeoutMs: 4000,
+    timeoutMs: 5000,
   }).catch(() => {});
 
   let firestorePromise: Promise<any> = Promise.resolve();

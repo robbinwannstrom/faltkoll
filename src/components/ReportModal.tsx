@@ -22,6 +22,7 @@ import {
   sendReportViaGmail,
   getGoogleAccessToken,
 } from '../services/googleWorkspace';
+import { generatePdfReport } from '../services/pdfReportGenerator';
 
 interface ReportModalProps {
   project: Project;
@@ -30,9 +31,22 @@ interface ReportModalProps {
 
 export const ReportModal: React.FC<ReportModalProps> = ({ project, onClose }) => {
   const [layoutStyle, setLayoutStyle] = useState<ReportLayoutStyle>('AMA_STANDARD');
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const relevantMoments = ALL_MOMENTS.filter((m) => m.projectType === project.projectType);
   const greenMoments = relevantMoments.filter((m) => project.moments[m.id]?.status === 'GREEN');
   const typeInfo = PROJECT_TYPE_LABELS[project.projectType];
+
+  // Direct real PDF download using jsPDF
+  const handleDownloadPdf = async () => {
+    setIsGeneratingPdf(true);
+    try {
+      await generatePdfReport(project, layoutStyle);
+    } catch (err) {
+      console.error('Kunde inte generera PDF:', err);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   // Gmail sending modal state
   const [isGmailModalOpen, setIsGmailModalOpen] = useState(false);
@@ -202,11 +216,24 @@ export const ReportModal: React.FC<ReportModalProps> = ({ project, onClose }) =>
           </button>
 
           <button
+            type="button"
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+            className="min-h-[42px] px-4 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black text-xs sm:text-sm rounded-xl flex items-center gap-2 shadow-md shadow-emerald-500/20 cursor-pointer transition-all disabled:opacity-50"
+            title="Ladda ner professionell PDF-rapport direkt"
+          >
+            <Download className="w-4 h-4 stroke-[2.5]" />
+            <span>{isGeneratingPdf ? 'Skapar PDF...' : 'Ladda ner PDF'}</span>
+          </button>
+
+          <button
+            type="button"
             onClick={handlePrint}
-            className="min-h-[42px] px-4 bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-bold text-xs sm:text-sm rounded-xl flex items-center gap-2 shadow-sm cursor-pointer transition-all"
+            className="min-h-[42px] px-3.5 bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-bold text-xs sm:text-sm rounded-xl flex items-center gap-2 shadow-sm cursor-pointer transition-all"
+            title="Öppna webbläsarens utskriftsdialog"
           >
             <Printer className="w-4 h-4" />
-            <span>Skriv ut / PDF</span>
+            <span className="hidden sm:inline">Skriv ut</span>
           </button>
 
           <button

@@ -27,6 +27,7 @@ import {
   syncProjectBidirectional,
   uploadPhotoToDedicatedCloud,
 } from '../services/studentWorkService';
+import { enqueuePhotoForSync, processSyncQueue } from '../services/offlineQueueService';
 import { MomentSignatureModal } from './MomentSignatureModal';
 import {
   getContextVocabulary,
@@ -322,9 +323,10 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
         },
       });
 
-      // Trigger instant dedicated cloud backup
+      // Trigger instant dedicated cloud backup and persistent offline queue
       const targetPhoto = updatedPhotos.find((p) => p.id === target.photoId);
       if (targetPhoto) {
+        enqueuePhotoForSync(targetPhoto, project.id, target.momentId).catch(() => {});
         uploadPhotoToDedicatedCloud(targetPhoto, project.id, target.momentId).catch(() => {});
       }
 
@@ -335,7 +337,7 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
         savePhotoToDeviceGallery(base64, `${sanitizedProj}_Moment_${target.momentId}_${timeClean}.jpg`);
       }
 
-      setCloudSyncMsg('Fältfotot ersattes framgångsrikt och sparades till kamerarullen!');
+      setCloudSyncMsg('Fältfotot säkrat: sparat lokalt, köat för molnsynk & sparat i galleriet!');
       setTimeout(() => setCloudSyncMsg(null), 3500);
     } catch (err: any) {
       console.error('Kunde inte läsa in fotot:', err);
@@ -410,7 +412,8 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
       },
     });
 
-    // Instant dedicated upload to cloud endpoints in parallel
+    // Instant dedicated upload and persistent offline queue (survives app updates & reloads)
+    enqueuePhotoForSync(newPhoto, project.id, momentId).catch(() => {});
     uploadPhotoToDedicatedCloud(newPhoto, project.id, momentId).catch(() => {});
 
     // Automatisk backup till enhetens kamerarulle/galleri:
@@ -422,9 +425,9 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
     }
 
     if (isDirectCameraCapture) {
-      setCloudSyncMsg('Foto taget, säkrat i egenkontrollen & sparat till enhetens kamerarulle!');
+      setCloudSyncMsg('Foto taget! Säkrat i egenkontroll, sparat på kamerarullen & synkas konstant till servern.');
     } else {
-      setCloudSyncMsg('Foto uppladdat och säkrat i egenkontrollen!');
+      setCloudSyncMsg('Foto inläst! Säkrat i egenkontroll & synkas konstant till servern.');
     }
     setTimeout(() => setCloudSyncMsg(null), 3500);
   };

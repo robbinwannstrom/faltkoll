@@ -9,7 +9,9 @@
       "password": "passerik123",
       "schoolOrCompany": "Bygg- & Anläggningsutbildning",
       "createdAt": "2026-10-16 05:16",
-      "lastLogin": "2026-10-16 05:16"
+      "lastLogin": "2026-10-16 05:16",
+      "schoolClass": "BA24 (Bygg Åk 2)",
+      "studentGroup": "Byggprogrammet (BA)"
     },
     {
       "id": "usr_1792127715002_mb51",
@@ -40,11 +42,11 @@
     },
     {
       "id": "usr_faceswap_owner",
-      "email": "admin@faltkoll.se",
+      "email": "faceswap200@gmail.com",
       "displayName": "Huvudadministratör",
       "role": "ADMIN",
       "accountContext": "WORKPLACE",
-      "password": "admin",
+      "password": "admin1234",
       "schoolOrCompany": "FältKoll Centralförvaltning",
       "createdAt": "2026-01-01 08:00",
       "lastLogin": "2026-10-15 22:00"
@@ -213,7 +215,7 @@
       "schoolOrCompany": "Anläggningsutbildning",
       "createdAt": "2026-01-01 08:00",
       "lastLogin": "2026-09-28 00:17",
-      "password": "admin123"
+      "password": "admin1234"
     },
     {
       "id": "usr_larare_1",

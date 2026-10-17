@@ -1,0 +1,6 @@
+{
+  "summary": "Reviderad implementeringsplan med exakt mekanik för konstant fotosynkning till servern, skydd mot appuppdateringar och cache-tömning, offline-kö, direkt nedladdningsbar PDF och yrkesskoleoptimeringar.",
+  "updatedAt": "2026-10-17T13:54:30.265027775Z",
+  "requestFeedback": true,
+  "userFacing": true
+}

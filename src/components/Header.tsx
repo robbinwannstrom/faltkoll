@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Menu,
   ArrowLeft,
@@ -13,6 +13,9 @@ import {
   Compass,
   Camera,
   Sliders,
+  CheckCircle2,
+  CloudOff,
+  RefreshCw,
 } from 'lucide-react';
 import { ViewState, UserAccount, UserSettings } from '../types';
 import {
@@ -21,6 +24,7 @@ import {
 } from '../utils/contextLabels';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { useAppVersion } from '../hooks/useAppVersion';
+import { subscribeSyncStatus, processSyncQueue, SyncStatus } from '../services/offlineQueueService';
 
 interface HeaderProps {
   currentView: ViewState;
@@ -65,6 +69,13 @@ export const Header: React.FC<HeaderProps> = ({
   const vocab = getContextVocabulary(contextMode);
   const { isInstallable, install } = usePWAInstall();
   const appVersion = useAppVersion(userSettings);
+
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
+
+  useEffect(() => {
+    const unsub = subscribeSyncStatus((s) => setSyncStatus(s));
+    return unsub;
+  }, []);
 
   const handleInstallClick = async () => {
     if (isInstallable) {
@@ -194,6 +205,54 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right: Actions + User Profile */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Constant Photo & Cloud Sync Status Pill */}
+          {syncStatus && (
+            <button
+              type="button"
+              onClick={() => processSyncQueue().catch(() => {})}
+              className={`min-h-[34px] sm:min-h-[38px] px-2 sm:px-2.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all ${
+                syncStatus.isSyncing
+                  ? 'bg-sky-950/70 border-sky-500/50 text-sky-300'
+                  : !syncStatus.isOnline
+                  ? 'bg-amber-950/70 border-amber-500/50 text-amber-300'
+                  : syncStatus.pendingCount > 0
+                  ? 'bg-amber-950/70 border-amber-500/50 text-amber-300'
+                  : 'bg-[#181818] hover:bg-[#202020] border-[#2b2b2b] text-emerald-400'
+              }`}
+              title={
+                syncStatus.isSyncing
+                  ? 'Synkar foton till servern...'
+                  : !syncStatus.isOnline
+                  ? `Offline: ${syncStatus.pendingCount} foton sparade lokalt. Synkas automatiskt vid anslutning.`
+                  : syncStatus.pendingCount > 0
+                  ? `${syncStatus.pendingCount} foto i kö. Klicka för att synka nu.`
+                  : '100% säkrat på serverdisk. Klicka för att kontrollera.'
+              }
+            >
+              {syncStatus.isSyncing ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-sky-400" />
+                  <span className="hidden md:inline">Synkar...</span>
+                </>
+              ) : !syncStatus.isOnline ? (
+                <>
+                  <CloudOff className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden md:inline">Offline ({syncStatus.pendingCount})</span>
+                </>
+              ) : syncStatus.pendingCount > 0 ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden md:inline">Kö: {syncStatus.pendingCount}</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="hidden lg:inline text-slate-300 font-medium">Molnsäkrad</span>
+                </>
+              )}
+            </button>
+          )}
+
           {currentUser?.role === 'TEACHER' && (
             <button
               type="button"

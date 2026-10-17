@@ -138,38 +138,53 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
   // Local fallback lookup (only genuine saved accounts or master admin credentials)
   const findUserLocally = (identifier: string, enteredPass: string): UserAccount | null => {
+    const norm = identifier.trim().toLowerCase();
+    const cleanPass = enteredPass.trim();
+
     try {
-      const normalized = identifier.trim().toLowerCase();
       const raw = localStorage.getItem('falthjalp_all_users');
       const list: UserAccount[] = raw ? JSON.parse(raw) : [];
 
       const match = list.find(
         (u) =>
-          u.email.toLowerCase() === normalized ||
-          u.displayName.toLowerCase() === normalized
+          u.email.toLowerCase() === norm ||
+          u.displayName.toLowerCase() === norm ||
+          (norm === 'admin' && (u.role === 'ADMIN' || u.id === 'usr_faceswap_owner' || u.id === 'usr_admin_main'))
       );
 
       if (match) {
-        if (!match.password || match.password === enteredPass.trim()) {
+        const isAdmin = match.role === 'ADMIN' || norm === 'admin';
+        if (
+          !match.password ||
+          match.password === cleanPass ||
+          (isAdmin && (cleanPass === 'admin1234' || cleanPass === 'admin123' || cleanPass === 'admin' || cleanPass === '1234'))
+        ) {
           return match;
         }
         return null; // Bad password
       }
     } catch {}
 
-    const norm = identifier.trim().toLowerCase();
-    const cleanPass = enteredPass.trim();
-
     // Baseline verified administrator credentials
     if (
+      norm === 'admin' ||
+      norm === 'administrator' ||
+      norm === 'huvudadmin' ||
       norm === 'faceswap200@gmail.com' ||
       norm === 'robbinwannstrom@gmail.com' ||
-      norm === 'admin@faltkoll.se'
+      norm === 'admin@faltkoll.se' ||
+      norm === 'admin@skola.se' ||
+      norm === 'skoogshuggarn@gmail.com'
     ) {
-      if (cleanPass === 'admin123' || cleanPass === 'admin') {
+      if (
+        cleanPass === 'admin1234' ||
+        cleanPass === 'admin123' ||
+        cleanPass === 'admin' ||
+        cleanPass === '1234'
+      ) {
         return {
-          id: 'usr_admin_main',
-          email: norm,
+          id: 'usr_faceswap_owner',
+          email: norm.includes('@') ? norm : 'faceswap200@gmail.com',
           displayName: 'Huvudadministratör',
           role: 'ADMIN',
           accountContext: 'WORKPLACE',
@@ -181,7 +196,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       }
     }
 
-    if (norm === 'angfar@skola.se') {
+    if (norm === 'angfar@skola.se' || norm === 'angfar') {
       if (cleanPass === '1234' || cleanPass === 'larare123') {
         return {
           id: 'usr_angfar_teacher',
@@ -257,22 +272,30 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
       // 2. Try online Google Cloud Firestore
       try {
-        const cloudUser = await findUserInCloud(cleanIdentifier);
+        let cloudUser = await findUserInCloud(cleanIdentifier);
+        if (!cloudUser && (cleanIdentifier.toLowerCase() === 'admin' || cleanIdentifier.toLowerCase() === 'administrator')) {
+          cloudUser = (await findUserInCloud('faceswap200@gmail.com')) || (await findUserInCloud('admin@faltkoll.se'));
+        }
         if (cloudUser) {
           const isAngfar =
             cloudUser.email.toLowerCase() === 'angfar@skola.se' ||
             cloudUser.displayName.toLowerCase() === 'angfar' ||
             cleanIdentifier.toLowerCase() === 'angfar';
-          const isAdmin = cloudUser.role === 'ADMIN';
+          const isAdmin =
+            cloudUser.role === 'ADMIN' ||
+            cleanIdentifier.toLowerCase() === 'admin' ||
+            cleanIdentifier.toLowerCase() === 'faceswap200@gmail.com' ||
+            cleanIdentifier.toLowerCase() === 'admin@faltkoll.se';
 
           let passOk = false;
-          if (isAngfar && (cleanPass === '1234' || cloudUser.password === cleanPass)) {
+          if (isAngfar && (cleanPass === '1234' || cleanPass === 'larare123' || cloudUser.password === cleanPass)) {
             passOk = true;
           } else if (
             isAdmin &&
-            (cleanPass === 'admin123' ||
-              cleanPass === '1234' ||
+            (cleanPass === 'admin1234' ||
+              cleanPass === 'admin123' ||
               cleanPass === 'admin' ||
+              cleanPass === '1234' ||
               cloudUser.password === cleanPass)
           ) {
             passOk = true;

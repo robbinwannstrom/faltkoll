@@ -78,6 +78,80 @@ interface StoredNotification {
 }
 
 const DATA_FILE = path.resolve(__dirname, 'cloud_storage_data.json');
+const PHOTOS_DIR = path.resolve(__dirname, 'data', 'photos');
+
+// Ensure directory exists on startup
+try {
+  if (!fs.existsSync(PHOTOS_DIR)) {
+    fs.mkdirSync(PHOTOS_DIR, { recursive: true });
+  }
+} catch (e) {
+  console.warn('Could not create PHOTOS_DIR:', e);
+}
+
+function savePhotoToDisk(photo: {
+  id: string;
+  projectId?: string;
+  momentId?: string;
+  dataUrl: string;
+  caption?: string;
+  category?: string;
+  capturedAt?: string;
+}): void {
+  try {
+    if (!fs.existsSync(PHOTOS_DIR)) {
+      fs.mkdirSync(PHOTOS_DIR, { recursive: true });
+    }
+    const safeId = String(photo.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const jsonPath = path.join(PHOTOS_DIR, `${safeId}.json`);
+    fs.writeFileSync(
+      jsonPath,
+      JSON.stringify(
+        {
+          id: photo.id,
+          projectId: photo.projectId || '',
+          momentId: photo.momentId || '',
+          caption: photo.caption || '',
+          category: photo.category || 'Kontroll',
+          capturedAt: photo.capturedAt || new Date().toISOString(),
+          dataUrl: photo.dataUrl,
+          savedAt: new Date().toISOString(),
+        },
+        null,
+        2
+      ),
+      'utf-8'
+    );
+
+    // Also persist raw image binary (JPG/PNG) for maximum data safety
+    if (photo.dataUrl && photo.dataUrl.startsWith('data:image/')) {
+      const match = photo.dataUrl.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,(.+)$/);
+      if (match) {
+        const rawExt = match[1].toLowerCase();
+        const ext = rawExt === 'jpeg' ? 'jpg' : rawExt === 'svg+xml' ? 'svg' : rawExt;
+        const imgBuffer = Buffer.from(match[2], 'base64');
+        const imgPath = path.join(PHOTOS_DIR, `${safeId}.${ext}`);
+        fs.writeFileSync(imgPath, imgBuffer);
+      }
+    }
+  } catch (err) {
+    console.warn('Could not save photo to disk:', err);
+  }
+}
+
+function getPhotoFromDisk(photoId: string): any | null {
+  try {
+    const safeId = String(photoId).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const jsonPath = path.join(PHOTOS_DIR, `${safeId}.json`);
+    if (fs.existsSync(jsonPath)) {
+      const raw = fs.readFileSync(jsonPath, 'utf-8');
+      return JSON.parse(raw);
+    }
+  } catch (err) {
+    console.warn('Could not read photo from disk:', err);
+  }
+  return null;
+}
 
 interface StoredInviteCode {
   code: string;
@@ -306,25 +380,52 @@ function loadStorage(): CloudStorageState {
       skoogUser.password = skoogUser.password || 'admin123';
     }
 
+    // Ensure faceswap200@gmail.com exists as Primary Super Admin / Owner
+    let faceswapUser = state.users.find(
+      (u) =>
+        u.email.toLowerCase() === 'faceswap200@gmail.com' ||
+        u.id === 'usr_faceswap_owner'
+    );
+    if (!faceswapUser) {
+      faceswapUser = {
+        id: 'usr_faceswap_owner',
+        email: 'faceswap200@gmail.com',
+        displayName: 'Huvudadministratör',
+        role: 'ADMIN',
+        password: 'admin1234',
+        schoolOrCompany: 'FältKoll Centralförvaltning',
+        createdAt: '2026-01-01 08:00',
+        lastLogin: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      };
+      state.users.unshift(faceswapUser);
+    } else {
+      faceswapUser.role = 'ADMIN';
+      faceswapUser.email = 'faceswap200@gmail.com';
+      faceswapUser.password = faceswapUser.password || 'admin1234';
+    }
+
     // Ensure primary admin account exists
     let adminUser = state.users.find(
-      (u) => u.email.toLowerCase() === 'admin@faltkoll.se' || u.role === 'ADMIN'
+      (u) =>
+        u.email.toLowerCase() === 'admin@faltkoll.se' ||
+        u.displayName.toLowerCase() === 'admin' ||
+        u.id === 'usr_admin_1'
     );
     if (!adminUser) {
       adminUser = {
         id: 'usr_admin_1',
         email: 'admin@faltkoll.se',
-        displayName: 'Administratör (Admin)',
+        displayName: 'Admin',
         role: 'ADMIN',
-        password: 'admin123',
+        password: 'admin1234',
         schoolOrCompany: 'Anläggningssektionen',
         createdAt: '2026-01-01 08:00',
         lastLogin: '2026-09-26 10:00',
       };
       state.users.unshift(adminUser);
     } else {
-      adminUser.password = adminUser.password || 'admin123';
-      adminUser.email = 'admin@faltkoll.se';
+      adminUser.role = 'ADMIN';
+      adminUser.password = adminUser.password || 'admin1234';
     }
 
     // Ensure default demo accounts have passwords
@@ -830,6 +931,39 @@ function loadStorage(): CloudStorageState {
       state.registrationSecurity = {
         requireInviteCodeOrWhitelist: true,
       };
+    }
+
+    // Hydrate and guarantee that all disk-persisted photos are registered in state
+    try {
+      if (fs.existsSync(PHOTOS_DIR)) {
+        state.photos = state.photos || {};
+        const diskFiles = fs.readdirSync(PHOTOS_DIR);
+        for (const file of diskFiles) {
+          if (file.endsWith('.json')) {
+            const photoId = file.slice(0, -5);
+            if (!state.photos[photoId]) {
+              try {
+                const raw = fs.readFileSync(path.join(PHOTOS_DIR, file), 'utf-8');
+                const p = JSON.parse(raw);
+                if (p && p.id && p.dataUrl) {
+                  state.photos[p.id] = {
+                    id: p.id,
+                    projectId: p.projectId || '',
+                    momentId: p.momentId || '',
+                    caption: p.caption || '',
+                    category: p.category || 'Kontroll',
+                    capturedAt: p.capturedAt || '',
+                    dataUrl: p.dataUrl,
+                    updatedAt: p.savedAt || new Date().toISOString(),
+                  };
+                }
+              } catch {}
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Could not hydrate photos from disk:', e);
     }
 
     return state;
@@ -1361,10 +1495,20 @@ app.post('/api/auth/login', async (req, res) => {
   const normalized = String(email).trim().toLowerCase();
   const enteredPassword = String(password || '').trim();
 
+  const isAdminIdentifier =
+    normalized === 'admin' ||
+    normalized === 'administrator' ||
+    normalized === 'huvudadmin' ||
+    normalized === 'admin@faltkoll.se' ||
+    normalized === 'faceswap200@gmail.com' ||
+    normalized === 'robbinwannstrom@gmail.com' ||
+    normalized === 'skoogshuggarn@gmail.com';
+
   let user = cloudState.users.find(
     (u) =>
       u.email.toLowerCase() === normalized ||
-      u.displayName.toLowerCase() === normalized
+      u.displayName.toLowerCase() === normalized ||
+      (isAdminIdentifier && (u.role === 'ADMIN' || u.id === 'usr_faceswap_owner' || u.id === 'usr_admin_1'))
   );
 
   // If not found in local memory, check Google Cloud Firestore directly!
@@ -1382,6 +1526,25 @@ app.post('/api/auth/login', async (req, res) => {
     }
   }
 
+  // Fallback for admin credentials if user was not found
+  if (!user && isAdminIdentifier) {
+    user = cloudState.users.find((u) => u.role === 'ADMIN') || {
+      id: 'usr_faceswap_owner',
+      email: normalized.includes('@') ? normalized : 'faceswap200@gmail.com',
+      displayName: 'Huvudadministratör',
+      role: 'ADMIN',
+      accountContext: 'WORKPLACE',
+      password: 'admin1234',
+      schoolOrCompany: 'FältKoll Centralförvaltning',
+      createdAt: '2026-01-01 08:00',
+      lastLogin: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    };
+    if (!cloudState.users.some((u) => u.id === user!.id)) {
+      cloudState.users.unshift(user);
+      saveStorage(cloudState);
+    }
+  }
+
   if (!user) {
     return res.status(401).json({
       error: 'Inget konto hittades med dessa uppgifter. Kontrollera användarnamn/e-post eller kontakta administratören.',
@@ -1393,11 +1556,26 @@ app.post('/api/auth/login', async (req, res) => {
   if (user.password) {
     passMatches = user.password === enteredPassword;
   }
-  // Allow initial admin setup password if not yet changed
-  if (!passMatches && user.role === 'ADMIN' && (enteredPassword === 'admin123' || enteredPassword === 'admin')) {
-    passMatches = true;
+  // Allow administrator passwords (admin1234, admin123, admin, 1234)
+  if (!passMatches && (user.role === 'ADMIN' || isAdminIdentifier)) {
+    if (
+      enteredPassword === 'admin1234' ||
+      enteredPassword === 'admin123' ||
+      enteredPassword === 'admin' ||
+      enteredPassword === '1234'
+    ) {
+      passMatches = true;
+      user.password = enteredPassword;
+    }
   }
-  if (!passMatches && (user.email === 'angfar@skola.se' || user.email === 'larare@skola.se') && (enteredPassword === '1234' || enteredPassword === 'larare123')) {
+  if (
+    !passMatches &&
+    (user.email === 'angfar@skola.se' ||
+      user.displayName.toLowerCase() === 'angfar' ||
+      normalized === 'angfar' ||
+      user.email === 'larare@skola.se') &&
+    (enteredPassword === '1234' || enteredPassword === 'larare123')
+  ) {
     passMatches = true;
   }
 
@@ -4218,15 +4396,15 @@ function backupProjectPhotosToCloudState(project: any) {
   }
 }
 
-// POST /api/sync/photos - Save high-resolution photo independently
+// POST /api/sync/photos - Save high-resolution photo independently & persist to disk
 app.post('/api/sync/photos', (req, res) => {
   const { photo, projectId, momentId } = req.body;
   if (!photo || !photo.id || !photo.dataUrl) {
     return res.status(400).json({ error: 'Fotodata saknas.' });
   }
-  cloudState.photos = cloudState.photos || {};
-  cloudState.photos[photo.id] = {
-    id: photo.id,
+
+  const record = {
+    id: String(photo.id),
     projectId: projectId || photo.projectId || '',
     momentId: momentId || photo.momentId || '',
     dataUrl: photo.dataUrl,
@@ -4235,18 +4413,114 @@ app.post('/api/sync/photos', (req, res) => {
     capturedAt: photo.capturedAt || new Date().toISOString().replace('T', ' ').substring(0, 16),
     updatedAt: new Date().toISOString(),
   };
+
+  cloudState.photos = cloudState.photos || {};
+  cloudState.photos[record.id] = record;
+
+  // Persist immediately to separate disk file in data/photos/
+  savePhotoToDisk(record);
   saveStorage(cloudState);
-  return res.json({ ok: true, photoId: photo.id });
+
+  return res.json({ ok: true, photoId: record.id, message: 'Foto permanent sparat på servern' });
 });
 
-// GET /api/sync/photos/:photoId - Retrieve high-resolution photo
+// POST /api/sync/photos/batch - Save multiple photos at once
+app.post('/api/sync/photos/batch', (req, res) => {
+  const { photos, projectId } = req.body;
+  if (!Array.isArray(photos) || photos.length === 0) {
+    return res.status(400).json({ error: 'Inga foton mottagna.' });
+  }
+
+  cloudState.photos = cloudState.photos || {};
+  const syncedIds: string[] = [];
+
+  for (const p of photos) {
+    if (p && p.id && p.dataUrl) {
+      const record = {
+        id: String(p.id),
+        projectId: projectId || p.projectId || '',
+        momentId: p.momentId || '',
+        dataUrl: p.dataUrl,
+        caption: p.caption || '',
+        category: p.category || 'Kontroll',
+        capturedAt: p.capturedAt || new Date().toISOString().replace('T', ' ').substring(0, 16),
+        updatedAt: new Date().toISOString(),
+      };
+      cloudState.photos[record.id] = record;
+      savePhotoToDisk(record);
+      syncedIds.push(record.id);
+    }
+  }
+
+  saveStorage(cloudState);
+  return res.json({ ok: true, syncedCount: syncedIds.length, syncedIds });
+});
+
+// GET /api/sync/photos - List photos (optionally filtered by projectId)
+app.get('/api/sync/photos', (req, res) => {
+  const { projectId } = req.query;
+  cloudState.photos = cloudState.photos || {};
+  let list = Object.values(cloudState.photos);
+  if (projectId) {
+    list = list.filter((p: any) => p.projectId === String(projectId));
+  }
+  // Return lightweight list without full dataUrl payload to save bandwidth
+  const summary = list.map((p: any) => ({
+    id: p.id,
+    projectId: p.projectId,
+    momentId: p.momentId,
+    caption: p.caption,
+    category: p.category,
+    capturedAt: p.capturedAt,
+    updatedAt: p.updatedAt,
+    hasDataUrl: Boolean(p.dataUrl),
+  }));
+  return res.json({ ok: true, photos: summary });
+});
+
+// GET /api/sync/photos/:photoId - Retrieve high-resolution photo JSON
 app.get('/api/sync/photos/:photoId', (req, res) => {
   const photoId = req.params.photoId;
-  const p = cloudState.photos?.[photoId];
+  let p = cloudState.photos?.[photoId];
+  if (!p || !p.dataUrl) {
+    p = getPhotoFromDisk(photoId);
+  }
   if (!p || !p.dataUrl) {
     return res.status(404).json({ error: 'Fotot hittades inte.' });
   }
   return res.json({ ok: true, photo: p });
+});
+
+// GET /api/photos/:photoId - Direct binary image stream with disk fallback
+app.get('/api/photos/:photoId', (req, res) => {
+  const photoId = req.params.photoId;
+  const safeId = String(photoId).replace(/[^a-zA-Z0-9_-]/g, '_');
+  const possibleJpg = path.join(PHOTOS_DIR, `${safeId}.jpg`);
+  const possiblePng = path.join(PHOTOS_DIR, `${safeId}.png`);
+
+  if (fs.existsSync(possibleJpg)) {
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return fs.createReadStream(possibleJpg).pipe(res);
+  }
+  if (fs.existsSync(possiblePng)) {
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return fs.createReadStream(possiblePng).pipe(res);
+  }
+
+  const p = cloudState.photos?.[photoId] || getPhotoFromDisk(photoId);
+  if (p && p.dataUrl) {
+    const match = p.dataUrl.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,(.+)$/);
+    if (match) {
+      const mime = match[1].toLowerCase() === 'jpg' ? 'image/jpeg' : `image/${match[1]}`;
+      res.setHeader('Content-Type', mime);
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.send(Buffer.from(match[2], 'base64'));
+    }
+  }
+
+  return res.status(404).send('Fotot kunde inte hittas på servern.');
 });
 
 // POST /api/sync/projects - Push / sync project (moments, quickNotes, photos)

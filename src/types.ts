@@ -106,6 +106,7 @@ export interface Project {
   applicableDocs?: string;     // Gällande handlingar (t.ex. Bygghandling M30, AMA Anläggning)
   createdAt: string;
   updatedAt: string;
+  weather?: WeatherType;
   notes?: string;
   quickNotes?: QuickNote[];
   moments: Record<string, MomentRecord>;
