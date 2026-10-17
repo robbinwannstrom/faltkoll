@@ -1,5 +1,5 @@
 // FältKoll Service Worker - Network First with Safe Fallback
-const CACHE_NAME = 'falthjalp-cache-v3';
+const CACHE_NAME = 'falthjalp-cache-v4';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

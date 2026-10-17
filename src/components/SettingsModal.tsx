@@ -1878,7 +1878,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <p>
                     Appen analyserar automatiskt projektnamnet och identifierar versionsmönster som{' '}
                     <code className="px-1.5 py-0.5 bg-[#222] text-slate-200 rounded font-mono text-[11px]">
-                      v0.55
+                      v0.57
                     </code>
                     . Det extraherade värdet sätts som appens officiella versionsstämpel (just nu{' '}
                     <span className="font-mono text-orange-400 font-bold">{appVersion.detectedVersion}</span>).

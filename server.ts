@@ -3918,10 +3918,10 @@ app.get('/api/system/version', (_req, res) => {
       } catch {}
     }
 
-    const projectName = metadata.name || 'Remix Remix FältKoll || Anläggning & Egenkontroll v0.55';
-    // Pattern match version like "v0.55", "v1.2", etc.
+    const projectName = metadata.name || 'FältKoll v0.57';
+    // Pattern match version like "v0.57", "v1.2", etc.
     const vMatch = projectName.match(/(?:v|ver|version)[\s\.\-_]*(\d+(?:\.\d+)*(?:-[\w\.]+)?)/i);
-    const detectedVersion = vMatch ? `v${vMatch[1]}` : 'v0.55';
+    const detectedVersion = vMatch ? `v${vMatch[1]}` : 'v0.57';
 
     return res.json({
       success: true,

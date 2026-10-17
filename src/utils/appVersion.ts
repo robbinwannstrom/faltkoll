@@ -15,23 +15,23 @@ export interface AppVersionInfo {
 }
 
 // Fallback values if metadata cannot be reached
-export const FALLBACK_PROJECT_NAME = 'Remix Remix FältKoll || Anläggning & Egenkontroll v0.55';
-export const FALLBACK_VERSION = 'v0.55';
+export const FALLBACK_PROJECT_NAME = 'FältKoll v0.57';
+export const FALLBACK_VERSION = 'v0.57';
 export const FALLBACK_APP_NAME = 'FältKoll';
 
 /**
- * Extracts a version number like "v0.55" or "0.55" from a project name or string.
+ * Extracts a version number like "v0.57" or "0.57" from a project name or string.
  */
 export function extractVersionFromText(text: string): string {
   if (!text) return FALLBACK_VERSION;
 
-  // Search for patterns like "v0.55", "v1.2.3", "version 0.55", "v0.55-beta"
+  // Search for patterns like "v0.57", "v1.2.3", "version 0.57", "v0.57-beta"
   const vMatch = text.match(/(?:v|ver|version)[\s\.\-_]*(\d+(?:\.\d+)*(?:-[\w\.]+)?)/i);
   if (vMatch && vMatch[1]) {
     return `v${vMatch[1]}`;
   }
 
-  // Search for raw semver numbers like "0.55" or "1.0.4"
+  // Search for raw semver numbers like "0.57" or "1.0.4"
   const numMatch = text.match(/\b(\d+\.\d+(?:\.\d+)?)\b/);
   if (numMatch && numMatch[1]) {
     return `v${numMatch[1]}`;
@@ -68,20 +68,38 @@ export function getAppVersionInfo(userSettings?: UserSettings): AppVersionInfo {
   const customVersionFromSettings = userSettings?.customAppVersion?.trim();
   const customNameFromSettings = userSettings?.customAppName?.trim();
 
-  // Check localStorage for any overrides
+  // Check localStorage for any overrides or cached server values
   let localVersion = '';
   let localName = '';
+  let lastKnownServerVersion = '';
+  let lastKnownServerName = '';
   try {
     localVersion = (localStorage.getItem('faltkoll_custom_version') || '').trim();
     localName = (localStorage.getItem('faltkoll_custom_app_name') || '').trim();
+    lastKnownServerVersion = (localStorage.getItem('faltkoll_last_server_version') || '').trim();
+    lastKnownServerName = (localStorage.getItem('faltkoll_last_server_app_name') || '').trim();
+
+    // Automatically clean up stale legacy test overrides (v0.55 / v0.56)
+    if (
+      localVersion === 'v0.55' ||
+      localVersion === '0.55' ||
+      localVersion === 'v0.56' ||
+      localVersion === '0.56'
+    ) {
+      localStorage.removeItem('faltkoll_custom_version');
+      localVersion = '';
+    }
   } catch {}
 
   const activeCustomVersion = customVersionFromSettings || localVersion;
   const activeCustomName = customNameFromSettings || localName;
 
-  const rawProjectName = cachedServerInfo?.projectName || FALLBACK_PROJECT_NAME;
+  const rawProjectName =
+    cachedServerInfo?.projectName || lastKnownServerName || FALLBACK_PROJECT_NAME;
   const detectedVersion =
-    cachedServerInfo?.detectedVersion || extractVersionFromText(rawProjectName);
+    cachedServerInfo?.detectedVersion ||
+    lastKnownServerVersion ||
+    extractVersionFromText(rawProjectName);
   const packageVersion = cachedServerInfo?.packageVersion || '0.0.0';
 
   const isCustom = Boolean(activeCustomVersion || activeCustomName);
@@ -117,6 +135,16 @@ export async function fetchServerAppInfo(): Promise<AppVersionInfo> {
           description: data.description,
           lastUpdated: data.timestamp,
         };
+
+        // Cache for instant synchronous retrieval on mobile cold starts
+        try {
+          if (cachedServerInfo.detectedVersion) {
+            localStorage.setItem('faltkoll_last_server_version', cachedServerInfo.detectedVersion);
+          }
+          if (cachedServerInfo.projectName) {
+            localStorage.setItem('faltkoll_last_server_app_name', cachedServerInfo.projectName);
+          }
+        } catch {}
 
         // If server stored a custom global version, sync if not locally overridden
         if (data.customAppVersion) {
