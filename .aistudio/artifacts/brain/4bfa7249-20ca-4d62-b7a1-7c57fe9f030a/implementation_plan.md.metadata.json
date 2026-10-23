@@ -1,0 +1,6 @@
+{
+  "summary": "Arkitektur- och genomförandeplan för automatisk SHA-256 kryptografisk hash-verifiering av samtliga foton, projektversioner och säkerhetskopior. Garanterar 100% dataintegritet, förhindrar korrupt överföring i fält, möjliggör smart deduplicering och ger full juridisk beviskraft vid besiktning och egenkontroll.",
+  "updatedAt": "2026-10-19T21:04:05.408438479Z",
+  "requestFeedback": true,
+  "userFacing": true
+}

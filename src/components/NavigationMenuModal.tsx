@@ -1,0 +1,1127 @@
+import React, { useState } from 'react';
+import { UserSettings, Project, UserAccount, AppLayoutMode } from '../types';
+import {
+  getContextVocabulary,
+  getContextualRoleLabel,
+  resolveAppContextMode,
+} from '../utils/contextLabels';
+import { StorageStatusWidget } from './StorageStatusWidget';
+import { useAppVersion } from '../hooks/useAppVersion';
+import {
+  X,
+  Search,
+  FolderKanban,
+  PlusCircle,
+  Compass,
+  Camera,
+  FileText,
+  BookOpen,
+  ShieldCheck,
+  Share2,
+  History,
+  Trash2,
+  Sliders,
+  Bell,
+  Users,
+  Smartphone,
+  Database,
+  LogOut,
+  ChevronRight,
+  HardHat,
+  Info,
+  Layers,
+  HelpCircle,
+  List,
+  Table,
+  LayoutGrid,
+  ListOrdered,
+  Check,
+  Sparkles,
+  Calculator,
+  AlertTriangle,
+} from 'lucide-react';
+
+interface NavigationMenuModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  userSettings: UserSettings;
+  onUpdateUserSettings: (newSettings: UserSettings) => void;
+  onOpenSettings: () => void;
+  onOpenTrashBin: () => void;
+  onOpenNotices: () => void;
+  onOpenAccounts: () => void;
+  onOpenExerciseCreator?: () => void;
+  onOpenAPKExport?: () => void;
+  onOpenQRCodeModal?: () => void;
+  onOpenRevisions?: () => void;
+  onOpenTutorial: () => void;
+  onOpenAppTutorial?: () => void;
+  onOpenPhotoArchive: () => void;
+  onOpenCollaboration: () => void;
+  onOpenBackup: () => void;
+  onOpenGdprModal?: () => void;
+  onOpenCrossMeasure?: () => void;
+  onOpenQuickNotes?: () => void;
+  onOpenFieldHelper?: () => void;
+  onOpenFieldMonitor?: () => void;
+  onOpenMaterialCalculator?: () => void;
+  onOpenAtaModal?: () => void;
+  onNavigateToDashboard?: () => void;
+  onNavigateToCreate?: () => void;
+  onOpenLogin?: () => void;
+  onLogout?: () => void;
+  activeProject?: Project;
+  currentUser?: UserAccount | null;
+  unreadNoticesCount?: number;
+}
+
+export type MenuCategoryKey = 'CORE' | 'LAYOUT' | 'COLLAB' | 'SYSTEM';
+
+interface MenuItem {
+  id: string;
+  category: MenuCategoryKey;
+  categoryLabel: string;
+  title: string;
+  subtitle: string;
+  keywords: string;
+  icon: React.ReactNode;
+  badge?: string;
+  badgeColor?: string;
+  action: () => void;
+  accentClass: string;
+}
+
+interface CategoryConfig {
+  key: MenuCategoryKey;
+  label: string;
+  subtitle: string;
+  icon: React.ReactNode;
+  badge: string;
+  headerAccent: string;
+  badgeStyle: string;
+  iconBoxStyle: string;
+  containerBorder: string;
+  activePillStyle: string;
+}
+
+export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
+  isOpen,
+  onClose,
+  userSettings,
+  onUpdateUserSettings,
+  onOpenSettings,
+  onOpenTrashBin,
+  onOpenNotices,
+  onOpenAccounts,
+  onOpenExerciseCreator,
+  onOpenQRCodeModal,
+  onOpenRevisions,
+  onOpenTutorial,
+  onOpenAppTutorial,
+  onOpenPhotoArchive,
+  onOpenCollaboration,
+  onOpenBackup,
+  onOpenGdprModal,
+  onOpenCrossMeasure,
+  onOpenQuickNotes,
+  onOpenFieldHelper,
+  onOpenFieldMonitor,
+  onOpenMaterialCalculator,
+  onOpenAtaModal,
+  onNavigateToDashboard,
+  onNavigateToCreate,
+  onOpenLogin,
+  onLogout,
+  activeProject,
+  currentUser,
+  unreadNoticesCount = 0,
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategoryTab, setActiveCategoryTab] = useState<MenuCategoryKey | 'ALL'>('ALL');
+  const appVersion = useAppVersion(userSettings);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Reset search and tab when opened
+  React.useEffect(() => {
+    if (isOpen) {
+      setSearchQuery('');
+      setActiveCategoryTab('ALL');
+    }
+  }, [isOpen]);
+
+  const activeContextMode = resolveAppContextMode(userSettings, currentUser);
+  const vocab = getContextVocabulary(activeContextMode);
+
+  const currentLayoutId = userSettings.appLayoutMode || 'SIMPLE_LIST';
+
+  const layoutCards: {
+    id: AppLayoutMode;
+    label: string;
+    sublabel: string;
+    icon: React.ReactNode;
+  }[] = [
+    {
+      id: 'SIMPLE_LIST',
+      label: 'Enkel lista',
+      sublabel: 'Klassisk & snabb checklista',
+      icon: <List className="w-4 h-4" />,
+    },
+    {
+      id: 'COMPACT',
+      label: 'Tabellvy',
+      sublabel: 'Kompakt för snabb överblick',
+      icon: <Table className="w-4 h-4" />,
+    },
+    {
+      id: 'FIELD_CLEAR',
+      label: 'Stora fältkort',
+      sublabel: 'Stora tryckytor för gropen',
+      icon: <LayoutGrid className="w-4 h-4" />,
+    },
+    {
+      id: 'GUIDED_STEP',
+      label: 'Steg-vy',
+      sublabel: 'Guidad, ett moment i taget',
+      icon: <ListOrdered className="w-4 h-4" />,
+    },
+  ];
+
+  // Helper to trigger and close
+  const trigger = (fn?: () => void) => {
+    if (fn) {
+      onClose();
+      fn();
+    }
+  };
+
+  // Build clean catalog of all menu items
+  const allMenuItems: MenuItem[] = [
+    // --- 1. HUVUDFUNKTIONER (Projekt & Egenkontroller) ---
+    {
+      id: 'projects',
+      category: 'CORE',
+      categoryLabel: 'Huvudfunktioner',
+      title: `${vocab.projectsHeading} (Översikt)`,
+      subtitle: `Se alla aktiva byggen och ${vocab.projectNounPlural.toLowerCase()}`,
+      keywords: 'projekt byggen översikt start hem lista alla mina projekt',
+      icon: <FolderKanban className="w-5 h-5" />,
+      action: () => trigger(onNavigateToDashboard),
+      accentClass: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+    },
+    {
+      id: 'create_project',
+      category: 'CORE',
+      categoryLabel: 'Huvudfunktioner',
+      title: vocab.createProjectButton,
+      subtitle: 'Starta en ny egenkontroll (husgrund, altan, schakt, avlopp)',
+      keywords: 'skapa nytt bygge egenkontroll starta lägg till husgrund altan schakt avlopp',
+      icon: <PlusCircle className="w-5 h-5 stroke-[2.2]" />,
+      action: () => trigger(onNavigateToCreate),
+      accentClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+    },
+
+    // --- 2. SAMARBETE & SKOLA (Arbetslag, Lärare & Elever) ---
+    {
+      id: 'collab',
+      category: 'COLLAB',
+      categoryLabel: 'Samarbete & Övningar',
+      title: activeContextMode === 'WORKPLACE'
+        ? 'Arbetslag & Molnsynk'
+        : activeContextMode === 'APL'
+        ? 'APL-delning & Molnsynk'
+        : 'Grupparbete & Molnsynk',
+      subtitle: 'Dela projekt med fältkod eller QR och samarbeta i realtid',
+      keywords: 'dela kod grupp samarbete moln synk länk anslut team arbetslag',
+      icon: <Share2 className="w-5 h-5" />,
+      badge: 'Realtidssynk',
+      badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+      action: () => trigger(onOpenCollaboration),
+      accentClass: 'text-sky-400 bg-sky-500/10 border-sky-500/30',
+    },
+    ...(currentUser?.role === 'TEACHER' && onOpenFieldMonitor
+      ? [
+          {
+            id: 'field_monitor',
+            category: 'COLLAB' as const,
+            categoryLabel: 'Samarbete & Övningar',
+            title: 'Fältöversikt & Elevinspektion',
+            subtitle: 'Se elever i fält, granska kontrollfoton och ge direkt återkoppling',
+            keywords: 'lärare elever inspektion fältöversikt skola klass bedömning återkoppling',
+            icon: <Users className="w-5 h-5 stroke-[2.2]" />,
+            badge: 'Yrkeslärare',
+            badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+            action: () => trigger(onOpenFieldMonitor),
+            accentClass: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+          },
+        ]
+      : []),
+    ...(currentUser?.role !== 'STUDENT' && onOpenExerciseCreator
+      ? [
+          {
+            id: 'exercise_creator',
+            category: 'COLLAB' as const,
+            categoryLabel: 'Samarbete & Övningar',
+            title: vocab.creatorPanelTitle,
+            subtitle: `Skapa och tilldela mallar och övningar till ${vocab.groupLabelPlural.toLowerCase()}`,
+            keywords: 'mall mallbyggare övning uppgift tilldela skapa kontrollmoment skola',
+            icon: <BookOpen className="w-5 h-5" />,
+            action: () => trigger(onOpenExerciseCreator),
+            accentClass: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+          },
+        ]
+      : []),
+    {
+      id: 'revisions',
+      category: 'COLLAB',
+      categoryLabel: 'Samarbete & Övningar',
+      title: 'Versionshistorik (Tidsmaskin)',
+      subtitle: 'Granska tidigare sparade ändringar och återskapa vid behov',
+      keywords: 'historik versioner ändringar återställ backup tidsmaskin logg sparad',
+      icon: <History className="w-5 h-5" />,
+      action: () => trigger(onOpenRevisions),
+      accentClass: 'text-slate-300 bg-slate-800 border-slate-700',
+    },
+    {
+      id: 'trash',
+      category: 'COLLAB',
+      categoryLabel: 'Samarbete & Övningar',
+      title: 'Papperskorg',
+      subtitle: `Återställ eller töm raderade ${vocab.projectNounPlural.toLowerCase()}`,
+      keywords: 'papperskorg raderade borttagna återställ töm ta bort',
+      icon: <Trash2 className="w-5 h-5" />,
+      action: () => trigger(onOpenTrashBin),
+      accentClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+    },
+
+    // --- 4. INSTÄLLNINGAR & SYSTEM ---
+    {
+      id: 'settings',
+      category: 'SYSTEM',
+      categoryLabel: 'Inställningar & System',
+      title: 'Inställningar & Anpassning',
+      subtitle: 'AMA-krav, färgteman, företagsnamn och funktioner',
+      keywords: 'inställningar layout färger utseende konfiguration preferenser ama',
+      icon: <Sliders className="w-5 h-5" />,
+      action: () => trigger(onOpenSettings),
+      accentClass: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+    },
+    {
+      id: 'accounts',
+      category: 'SYSTEM',
+      categoryLabel: 'Inställningar & System',
+      title: currentUser?.role === 'STUDENT' ? vocab.myAccountButton : vocab.accountsViewTitle,
+      subtitle: currentUser?.role === 'STUDENT'
+        ? `Se din profil, ${vocab.groupLabel.toLowerCase()} och behörighet`
+        : `Hantera användare, koder och ${vocab.groupLabelPlural.toLowerCase()}`,
+      keywords: 'konto profil användare elever lärare behörighet klasser roller inloggning',
+      icon: <Users className="w-5 h-5" />,
+      action: () => trigger(onOpenAccounts),
+      accentClass: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
+    },
+    {
+      id: 'install_app',
+      category: 'SYSTEM',
+      categoryLabel: 'Inställningar & System',
+      title: 'Installera på mobilen / QR-kod',
+      subtitle: 'Öppna på mobilen eller spara som appikon på hemskärmen (PWA)',
+      keywords: 'installera app qr mobil hemskärm pwa länk spara telefon',
+      icon: <Smartphone className="w-5 h-5" />,
+      action: () => trigger(onOpenQRCodeModal),
+      accentClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+    },
+    {
+      id: 'backup',
+      category: 'SYSTEM',
+      categoryLabel: 'Inställningar & System',
+      title: 'Säkerhetskopia (Export & Import)',
+      subtitle: 'Spara offline-backup som JSON eller återställ sparad data',
+      keywords: 'backup säkerhetskopia export import json spara fil data återställning',
+      icon: <Database className="w-5 h-5" />,
+      action: () => trigger(onOpenBackup),
+      accentClass: 'text-slate-300 bg-slate-800 border-slate-700',
+    },
+    {
+      id: 'gdpr',
+      category: 'SYSTEM',
+      categoryLabel: 'Inställningar & System',
+      title: 'GDPR & Skolsekretess',
+      subtitle: 'Fotoregler, elevsekretess och lokal datalagring',
+      keywords: 'gdpr integritet sekretess lagring foto skola regler pub dataskydd',
+      icon: <ShieldCheck className="w-5 h-5" />,
+      action: () => trigger(onOpenGdprModal),
+      accentClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+    },
+    {
+      id: 'notices',
+      category: 'SYSTEM',
+      categoryLabel: 'Inställningar & System',
+      title: vocab.noticesTitle,
+      subtitle: 'Systemmeddelanden och aviseringar från administratör',
+      keywords: 'notiser meddelanden aviseringar larm info uppdatering',
+      icon: <Bell className="w-5 h-5" />,
+      badge: unreadNoticesCount > 0 ? `${unreadNoticesCount} nya` : undefined,
+      badgeColor: 'bg-rose-500 text-white border-transparent',
+      action: () => trigger(onOpenNotices),
+      accentClass: 'text-sky-400 bg-sky-500/10 border-sky-500/30',
+    },
+  ];
+
+  // Snabbverktygens katalog för global sökning (så man fortfarande kan söka upp verktygen i sökrutan)
+  const quickToolMenuItems: MenuItem[] = [
+    {
+      id: 'field_helper',
+      category: 'CORE',
+      categoryLabel: 'Snabbval',
+      title: 'AI Bygghjälp & Problemlösare (AMA)',
+      subtitle: 'Fackstöd om bärlager, stenmjöl, fall, sättningar och toleranser',
+      keywords: 'ama bygghjälp ai fackstöd råd toleranser lösningar mark problem hjälp regler bärlager duk',
+      icon: <Sparkles className="w-5 h-5" />,
+      badge: 'Snabbval',
+      badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+      action: () => trigger(onOpenFieldHelper),
+      accentClass: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+    },
+    {
+      id: 'field_notes',
+      category: 'CORE',
+      categoryLabel: 'Snabbval',
+      title: 'Fältblocket (Mått & Anteckningar)',
+      subtitle: 'Spara måttnoteringar, laserhöjder, rörfall, leveranser och minne',
+      keywords: 'fältbok fältblock anteckningar mått noteringar minne laser höjd fall leverans block',
+      icon: <FileText className="w-5 h-5" />,
+      badge: 'Snabbval',
+      badgeColor: 'bg-teal-500/20 text-teal-300 border-teal-500/40',
+      action: () => trigger(onOpenQuickNotes),
+      accentClass: 'text-teal-400 bg-teal-500/10 border-teal-500/30',
+    },
+    {
+      id: 'cross_measure',
+      category: 'CORE',
+      categoryLabel: 'Snabbval',
+      title: 'Kryssmått & Pythagoras (3-4-5)',
+      subtitle: 'Räkna ut 90°-vinklar och exakta diagonaler direkt på bygget',
+      keywords: 'kryssmått diagonal vinkel 3-4-5 pythagoras mått räknare laser fält geometri',
+      icon: <Compass className="w-5 h-5 stroke-[2.2]" />,
+      badge: 'Snabbval',
+      badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+      action: () => trigger(onOpenCrossMeasure),
+      accentClass: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+    },
+    {
+      id: 'photos',
+      category: 'CORE',
+      categoryLabel: 'Snabbval',
+      title: 'Fotopärm & Galleri',
+      subtitle: 'Tidsstämplade kontrollfoton sorterade per moment och fas',
+      keywords: 'foton fotopärm galleri bilder kamera bevis tidsstämpel kontroll dokumentation',
+      icon: <Camera className="w-5 h-5" />,
+      badge: 'Snabbval',
+      badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+      action: () => trigger(onOpenPhotoArchive),
+      accentClass: 'text-sky-400 bg-sky-500/10 border-sky-500/30',
+    },
+    {
+      id: 'material_calc',
+      category: 'CORE',
+      categoryLabel: 'Snabbval',
+      title: 'Materialberäknare & Krossmassor',
+      subtitle: 'Räkna ut bärlager, sättsand, marksten, spill, ton & lastbilsflak',
+      keywords: 'material kalkyl kross bärlager makadam sättsand sten mjöl ton volym flak lastbil marksten plattor beräknare spill schakt',
+      icon: <Calculator className="w-5 h-5 stroke-[2.2]" />,
+      badge: 'Snabbval',
+      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      action: () => trigger(onOpenMaterialCalculator),
+      accentClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+    },
+    {
+      id: 'ata_manager',
+      category: 'CORE',
+      categoryLabel: 'Snabbval',
+      title: 'ÄTA-hantering i fält (AB 04 / ABT 06)',
+      subtitle: 'Skapa ÄTA för oväntat berg, kablar, beställarändring med fotobevis & signatur',
+      keywords: 'äta ändring tillägg avgående berg kabel ledning beställare kostnad taxa signatur godkänd ab04 abt06',
+      icon: <AlertTriangle className="w-5 h-5 stroke-[2.2]" />,
+      badge: 'Snabbval',
+      badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
+      action: () => trigger(onOpenAtaModal),
+      accentClass: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+    },
+    {
+      id: 'pre_inspection',
+      category: 'CORE',
+      categoryLabel: 'Snabbval',
+      title: 'Försyn & Skadeguide',
+      subtitle: 'Fotoguide för fasad, sockel & staket före schakt och grävning',
+      keywords: 'försyn besiktning skador fasad sprickor sockel guide förbesiktning grävning',
+      icon: <ShieldCheck className="w-5 h-5" />,
+      badge: 'Snabbval',
+      badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40',
+      action: () => trigger(onOpenTutorial),
+      accentClass: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30',
+    },
+    {
+      id: 'app_tutorial',
+      category: 'CORE',
+      categoryLabel: 'Snabbval',
+      title: 'App-guide & Tutorial',
+      subtitle: 'Kryssmått, fältblocket, lärare, molnsynk, finger-signering & alla finesser',
+      keywords: 'tutorial guide hjälp introduktion genomgång bilder kryssmått pythagoras fältblock fältbok lärare skola synk samarbete signera',
+      icon: <HelpCircle className="w-5 h-5 stroke-[2.2]" />,
+      badge: 'Snabbval',
+      badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
+      action: () => trigger(onOpenAppTutorial || onOpenTutorial),
+      accentClass: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+    },
+  ];
+
+  // Search filter - söker i både menyval och snabbverktyg
+  const q = searchQuery.toLowerCase().trim();
+  const searchCatalog = [...allMenuItems, ...quickToolMenuItems];
+  const filteredItems = !q
+    ? allMenuItems
+    : searchCatalog.filter((item) => {
+        return (
+          item.title.toLowerCase().includes(q) ||
+          item.subtitle.toLowerCase().includes(q) ||
+          item.keywords.toLowerCase().includes(q) ||
+          item.categoryLabel.toLowerCase().includes(q)
+        );
+      });
+
+  // Tydliga kategoridefinitioner (Huvudfunktioner, Vy & Layout, Samarbete, Inställningar)
+  const categoryConfigs: CategoryConfig[] = [
+    {
+      key: 'CORE',
+      label: 'Huvudfunktioner',
+      subtitle: 'Projekt, byggen & översikt',
+      icon: <FolderKanban className="w-4 h-4 text-orange-400" />,
+      badge: `${activeProject ? 'Projekt aktivt' : 'Översikt'}`,
+      headerAccent: 'text-orange-400',
+      badgeStyle: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
+      iconBoxStyle: 'bg-orange-500/20 border-orange-500/40 text-orange-400',
+      containerBorder: 'border-orange-500/30 bg-[#161616]',
+      activePillStyle: 'bg-orange-500 text-black border-orange-400 shadow-orange-500/20 ring-orange-400/50',
+    },
+    {
+      key: 'LAYOUT',
+      label: 'Vy och Layout',
+      subtitle: 'Välj skärmvisning för gropen eller kontoret',
+      icon: <Layers className="w-4 h-4 text-indigo-400" />,
+      badge: `Aktiv: ${layoutCards.find((l) => l.id === currentLayoutId)?.label || 'Lista'}`,
+      headerAccent: 'text-indigo-400',
+      badgeStyle: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40',
+      iconBoxStyle: 'bg-indigo-500/20 border-indigo-500/40 text-indigo-400',
+      containerBorder: 'border-indigo-500/30 bg-[#161616]',
+      activePillStyle: 'bg-indigo-500 text-white border-indigo-400 shadow-indigo-500/20 ring-indigo-400/50',
+    },
+    {
+      key: 'COLLAB',
+      label: 'Samarbete & Övningar',
+      subtitle: 'Arbetslag, yrkeslärare, elever & molnsynk',
+      icon: <Users className="w-4 h-4 text-sky-400" />,
+      badge: 'Realtidssynk',
+      headerAccent: 'text-sky-400',
+      badgeStyle: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+      iconBoxStyle: 'bg-sky-500/20 border-sky-500/40 text-sky-400',
+      containerBorder: 'border-sky-500/30 bg-[#161616]',
+      activePillStyle: 'bg-sky-500 text-black border-sky-400 shadow-sky-500/20 ring-sky-400/50',
+    },
+    {
+      key: 'SYSTEM',
+      label: 'Inställningar & System',
+      subtitle: 'Konto, säkerhetskopia & GDPR',
+      icon: <Sliders className="w-4 h-4 text-emerald-400" />,
+      badge: `v${appVersion.effectiveVersion}`,
+      headerAccent: 'text-emerald-400',
+      badgeStyle: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      iconBoxStyle: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400',
+      containerBorder: 'border-emerald-500/30 bg-[#161616]',
+      activePillStyle: 'bg-emerald-500 text-black border-emerald-400 shadow-emerald-500/20 ring-emerald-400/50',
+    },
+  ];
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-stretch justify-start bg-black/85 backdrop-blur-xs animate-in fade-in duration-150 font-sans"
+      onClick={onClose}
+    >
+      <div
+        className="bg-[#121212] border-r-2 border-[#2b2b2b] w-full max-w-sm sm:max-w-md h-full flex flex-col shadow-2xl text-slate-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Top Header */}
+        <div className="px-4 py-3.5 border-b border-[#242424] flex items-center justify-between bg-[#171717] shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center font-bold">
+              <HardHat className="w-5 h-5 stroke-[2.2]" />
+            </div>
+            <div>
+              <h2 className="font-black text-white text-sm sm:text-base tracking-tight leading-tight flex items-center gap-2">
+                <span>{appVersion.effectiveAppName}</span>
+                <span className="font-mono text-[10px] text-orange-400 font-bold bg-[#222] px-1.5 py-0.2 rounded border border-[#333]">
+                  {appVersion.effectiveVersion}
+                </span>
+              </h2>
+              <p className="text-[11px] text-slate-400">
+                {vocab.modeTitle} • Huvudmeny (☰)
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-9 h-9 rounded-xl bg-[#222] hover:bg-[#2c2c2c] text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+            title="Stäng meny"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Direkt sökfält i menyn */}
+        <div className="p-3 bg-[#151515] border-b border-[#222] shrink-0">
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Sök funktion (kryssmått, fältblock, foto, lärare, vy)..."
+              className="w-full min-h-[40px] pl-9 pr-8 bg-[#1e1e1e] border border-[#2e2e2e] focus:border-orange-500 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none transition-colors"
+              autoFocus={false}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="w-6 h-6 rounded-full hover:bg-[#2a2a2a] text-slate-400 hover:text-white flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
+                title="Rensa sökning"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Snabbverktyg i toppen (6 praktiska fältverktyg direkt klickbara) */}
+        {!searchQuery && (
+          <div className="p-3 bg-[#131313] border-b border-[#202020] shrink-0 space-y-2.5">
+            <div className="flex items-center justify-between px-0.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Snabbverktyg för fältet</span>
+              </span>
+              <span className="text-[10px] text-slate-500 font-bold">Direktåtkomst</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+              {/* 1. AI Fälthjälp */}
+              <button
+                type="button"
+                onClick={() => trigger(onOpenFieldHelper)}
+                className="p-2 sm:p-2.5 rounded-xl bg-[#181818] hover:bg-[#222222] border border-amber-500/30 hover:border-amber-400 flex flex-col items-center justify-center text-center gap-1 cursor-pointer transition-all group shadow-sm"
+                title="Ställ frågor om AMA, toleranser & råd"
+              >
+                <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Sparkles className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-black text-amber-300 group-hover:text-amber-200 truncate w-full">
+                  AI Hjälp
+                </span>
+                <span className="text-[9px] text-slate-400 truncate w-full hidden sm:block">
+                  AMA & råd
+                </span>
+              </button>
+
+              {/* 2. Fältblocket */}
+              <button
+                type="button"
+                onClick={() => trigger(onOpenQuickNotes)}
+                className="p-2 sm:p-2.5 rounded-xl bg-[#181818] hover:bg-[#222222] border border-teal-500/30 hover:border-teal-400 flex flex-col items-center justify-center text-center gap-1 cursor-pointer transition-all group shadow-sm"
+                title="Öppna fältblocket för mått & minne"
+              >
+                <div className="w-7 h-7 rounded-lg bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <FileText className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-black text-teal-300 group-hover:text-teal-200 truncate w-full">
+                  Fältblock
+                </span>
+                <span className="text-[9px] text-slate-400 truncate w-full hidden sm:block">
+                  Mått & minne
+                </span>
+              </button>
+
+              {/* 3. Kryssmått */}
+              <button
+                type="button"
+                onClick={() => trigger(onOpenCrossMeasure)}
+                className="p-2 sm:p-2.5 rounded-xl bg-[#181818] hover:bg-[#222222] border border-amber-500/30 hover:border-amber-400 flex flex-col items-center justify-center text-center gap-1 cursor-pointer transition-all group shadow-sm"
+                title="Öppna kryssmått & Pythagoras 3-4-5"
+              >
+                <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Compass className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-black text-amber-300 group-hover:text-amber-200 truncate w-full">
+                  Kryssmått
+                </span>
+                <span className="text-[9px] text-slate-400 truncate w-full hidden sm:block">
+                  3-4-5 vinklar
+                </span>
+              </button>
+
+              {/* 4. Fotopärm */}
+              <button
+                type="button"
+                onClick={() => trigger(onOpenPhotoArchive)}
+                className="p-2 sm:p-2.5 rounded-xl bg-[#181818] hover:bg-[#222222] border border-sky-500/30 hover:border-sky-400 flex flex-col items-center justify-center text-center gap-1 cursor-pointer transition-all group shadow-sm"
+                title="Öppna fotopärmen med kontrollbilder"
+              >
+                <div className="w-7 h-7 rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Camera className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-black text-sky-300 group-hover:text-sky-200 truncate w-full">
+                  Fotopärm
+                </span>
+                <span className="text-[9px] text-slate-400 truncate w-full hidden sm:block">
+                  Kontrollfoton
+                </span>
+              </button>
+
+              {/* 5. Materialkalkylator */}
+              <button
+                type="button"
+                onClick={() => trigger(onOpenMaterialCalculator)}
+                className="p-2 sm:p-2.5 rounded-xl bg-[#181818] hover:bg-[#222222] border border-emerald-500/30 hover:border-emerald-400 flex flex-col items-center justify-center text-center gap-1 cursor-pointer transition-all group shadow-sm"
+                title="Räkna ut bärlager, sättsand, marksten & ton"
+              >
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Calculator className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-black text-emerald-300 group-hover:text-emerald-200 truncate w-full">
+                  Kalkylator
+                </span>
+                <span className="text-[9px] text-slate-400 truncate w-full hidden sm:block">
+                  Volym & ton
+                </span>
+              </button>
+
+              {/* 6. ÄTA-hantering */}
+              <button
+                type="button"
+                onClick={() => trigger(onOpenAtaModal)}
+                className="p-2 sm:p-2.5 rounded-xl bg-[#181818] hover:bg-[#222222] border border-orange-500/30 hover:border-orange-400 flex flex-col items-center justify-center text-center gap-1 cursor-pointer transition-all group shadow-sm"
+                title="Hantera ÄTA för oväntat berg & ändringar"
+              >
+                <div className="w-7 h-7 rounded-lg bg-orange-500/15 border border-orange-500/30 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <AlertTriangle className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-black text-orange-300 group-hover:text-orange-200 truncate w-full">
+                  ÄTA i fält
+                </span>
+                <span className="text-[9px] text-slate-400 truncate w-full hidden sm:block">
+                  Tilläggsjobb
+                </span>
+              </button>
+            </div>
+
+            {/* Snabbknappar under rutnätet: App-guide & Försyn */}
+            <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+              <button
+                type="button"
+                onClick={() => trigger(onOpenAppTutorial || onOpenTutorial)}
+                className="p-2 sm:p-2.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 text-left flex items-center justify-between gap-1.5 text-xs transition-colors cursor-pointer group"
+                title="Starta interaktiv app-guide och introduktion"
+              >
+                <div className="flex items-center gap-1.5 text-orange-300 font-bold truncate">
+                  <HelpCircle className="w-4 h-4 text-orange-400 shrink-0" />
+                  <span className="truncate">App-guide</span>
+                </div>
+                <span className="text-[10px] text-orange-400 group-hover:translate-x-0.5 transition-transform font-bold shrink-0">
+                  Starta ➜
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => trigger(onOpenTutorial)}
+                className="p-2 sm:p-2.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-left flex items-center justify-between gap-1.5 text-xs transition-colors cursor-pointer group"
+                title="Fotoguide för fasad, sockel & staket före grävning"
+              >
+                <div className="flex items-center gap-1.5 text-indigo-300 font-bold truncate">
+                  <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0" />
+                  <span className="truncate">Försyn & Skador</span>
+                </div>
+                <span className="text-[10px] text-indigo-400 group-hover:translate-x-0.5 transition-transform font-bold shrink-0">
+                  Öppna ➜
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tydliga menyflikar (Category Tabs Bar) */}
+        {!searchQuery && (
+          <div className="px-3 py-2 bg-[#171717] border-b-2 border-[#2b2b2b] shrink-0">
+            <div className="flex items-center justify-between mb-1.5 px-0.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-orange-400" />
+                <span>Menyflikar (Välj sektion):</span>
+              </span>
+              <span className="text-[10px] font-bold text-orange-400">
+                {activeCategoryTab === 'ALL'
+                  ? 'Visar alla sektioner'
+                  : categoryConfigs.find((c) => c.key === activeCategoryTab)?.label}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              <button
+                type="button"
+                onClick={() => setActiveCategoryTab('ALL')}
+                className={`min-h-[34px] px-3 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
+                  activeCategoryTab === 'ALL'
+                    ? 'bg-orange-500 text-black border-orange-400 font-black shadow-md shadow-orange-500/20 ring-1 ring-orange-400/50'
+                    : 'bg-[#222222] hover:bg-[#2c2c2c] text-slate-300 border-[#333333] hover:text-white'
+                }`}
+              >
+                <span>Alla</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                    activeCategoryTab === 'ALL'
+                      ? 'bg-black/30 text-black font-black'
+                      : 'bg-[#2e2e2e] text-slate-400'
+                  }`}
+                >
+                  {allMenuItems.length + layoutCards.length}
+                </span>
+              </button>
+
+              {categoryConfigs.map((cat) => {
+                const isSelected = activeCategoryTab === cat.key;
+                const count =
+                  cat.key === 'LAYOUT'
+                    ? layoutCards.length
+                    : allMenuItems.filter((i) => i.category === cat.key).length;
+                return (
+                  <button
+                    key={cat.key}
+                    type="button"
+                    onClick={() => setActiveCategoryTab(cat.key)}
+                    className={`min-h-[34px] px-3 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer border ${
+                      isSelected
+                        ? `${cat.activePillStyle} font-black shadow-md ring-1`
+                        : 'bg-[#222222] hover:bg-[#2c2c2c] text-slate-300 border-[#333333] hover:text-white'
+                    }`}
+                  >
+                    {cat.icon}
+                    <span>{cat.label}</span>
+                    {count > 0 && (
+                      <span
+                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                          isSelected
+                            ? 'bg-black/30 text-current font-black'
+                            : 'bg-[#2e2e2e] text-slate-400'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Scrollable Body med stora tydliga sektioner och flikfilter */}
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-6">
+          {activeCategoryTab !== 'ALL' && !searchQuery && (
+            <div className="p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-between text-xs text-orange-200">
+              <span>
+                Flik vald: <strong>{categoryConfigs.find((c) => c.key === activeCategoryTab)?.label}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => setActiveCategoryTab('ALL')}
+                className="text-[11px] font-bold text-orange-400 hover:underline cursor-pointer"
+              >
+                Visa alla sektioner ➜
+              </button>
+            </div>
+          )}
+
+          {filteredItems.length === 0 ? (
+            <div className="text-center py-8 text-slate-500 space-y-2">
+              <Search className="w-8 h-8 mx-auto text-slate-600" />
+              <p className="text-xs">Ingen funktion matchade &quot;{searchQuery}&quot;</p>
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="text-xs text-orange-400 font-bold underline cursor-pointer"
+              >
+                Visa alla kategorier
+              </button>
+            </div>
+          ) : searchQuery ? (
+            /* Sökresultat vy */
+            <div className="space-y-2">
+              <div className="px-1 text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                Sökresultat ({filteredItems.length} träffar)
+              </div>
+              {filteredItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={item.action}
+                  className="w-full p-3 rounded-xl bg-[#181818] hover:bg-[#222] border border-[#2a2a2a] hover:border-orange-500/50 text-left flex items-center gap-3 transition-colors cursor-pointer group shadow-sm"
+                >
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${item.accentClass}`}
+                  >
+                    {item.icon}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-xs sm:text-sm text-white group-hover:text-orange-300">
+                        {item.title}
+                      </span>
+                      {item.badge && (
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded border ${
+                            item.badgeColor || 'bg-[#222] text-slate-300'
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-400 truncate">
+                      {item.subtitle}
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-orange-400 shrink-0" />
+                </button>
+              ))}
+            </div>
+          ) : (
+            /* STORA, TYDLIGA KATEGORIER SOM ÄR OMÖJLIGA ATT MISSA */
+            (activeCategoryTab === 'ALL'
+              ? categoryConfigs
+              : categoryConfigs.filter((c) => c.key === activeCategoryTab)
+            ).map((cat) => {
+              if (cat.key === 'LAYOUT') {
+                /* Specialrender för "Vy och Layout" med interaktiva kort */
+                return (
+                  <section
+                    key={cat.key}
+                    aria-label={cat.label}
+                    className={`rounded-2xl border-2 ${cat.containerBorder} overflow-hidden shadow-lg space-y-0`}
+                  >
+                    {/* Stor omisskännlig kategori-header */}
+                    <div className="px-3.5 py-3 bg-[#1d1d1d] border-b border-[#282828] flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={`w-8 h-8 rounded-xl flex items-center justify-center border font-black ${cat.iconBoxStyle}`}
+                        >
+                          {cat.icon}
+                        </div>
+                        <div>
+                          <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
+                            {cat.label}
+                          </h3>
+                          <p className="text-[10px] text-slate-400">
+                            {cat.subtitle}
+                          </p>
+                        </div>
+                      </div>
+
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${cat.badgeStyle}`}
+                      >
+                        {cat.badge}
+                      </span>
+                    </div>
+
+                    {/* Innehåll för Vy & Layout: 4 interaktiva visningskort */}
+                    <div className="p-3 space-y-2.5">
+                      <div className="grid grid-cols-2 gap-2">
+                        {layoutCards.map((opt) => {
+                          const isActive = currentLayoutId === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => {
+                                onUpdateUserSettings({
+                                  ...userSettings,
+                                  appLayoutMode: opt.id,
+                                });
+                              }}
+                              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between min-h-[72px] relative ${
+                                isActive
+                                  ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-md shadow-indigo-500/10 ring-1 ring-indigo-500/50'
+                                  : 'bg-[#1a1a1a] hover:bg-[#222] border-[#2c2c2c] text-slate-300 hover:text-white'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div
+                                  className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                                    isActive
+                                      ? 'bg-indigo-500 text-black font-black'
+                                      : 'bg-[#252525] text-slate-300'
+                                  }`}
+                                >
+                                  {opt.icon}
+                                </div>
+                                {isActive && (
+                                  <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider bg-indigo-500 text-black px-1.5 py-0.2 rounded font-mono">
+                                    <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                    Aktiv
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="pt-1">
+                                <div className="font-bold text-xs">
+                                  {opt.label}
+                                </div>
+                                <div className="text-[10px] text-slate-400 leading-tight">
+                                  {opt.sublabel}
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Länk till fullständiga utseendeinställningar */}
+                      <button
+                        type="button"
+                        onClick={() => trigger(onOpenSettings)}
+                        className="w-full py-2 px-3 rounded-xl bg-[#1c1c1c] hover:bg-[#252525] border border-[#2e2e2e] text-left flex items-center justify-between text-xs text-indigo-300 hover:text-indigo-200 transition-colors cursor-pointer group"
+                      >
+                        <span className="font-bold">
+                          Fler tema- & layoutinställningar
+                        </span>
+                        <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
+                    </div>
+                  </section>
+                );
+              }
+
+              // Övriga kategorier (Huvudfunktioner, Fältverktyg, Samarbete & Övningar, System)
+              const items = allMenuItems.filter((i) => i.category === cat.key);
+              if (items.length === 0) return null;
+
+              return (
+                <section
+                  key={cat.key}
+                  aria-label={cat.label}
+                  className={`rounded-2xl border-2 ${cat.containerBorder} overflow-hidden shadow-lg space-y-0`}
+                >
+                  {/* Stor omisskännlig kategori-header */}
+                  <div className="px-3.5 py-3 bg-[#1d1d1d] border-b border-[#282828] flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center border font-black ${cat.iconBoxStyle}`}
+                      >
+                        {cat.icon}
+                      </div>
+                      <div>
+                        <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
+                          {cat.label}
+                        </h3>
+                        <p className="text-[10px] text-slate-400">
+                          {cat.subtitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${cat.badgeStyle}`}
+                    >
+                      {cat.badge}
+                    </span>
+                  </div>
+
+                  {/* Kategori-innehåll / Lista med funktioner */}
+                  <div className="p-2 sm:p-2.5 space-y-1.5">
+                    {items.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={item.action}
+                        className="w-full p-2.5 sm:p-3 rounded-xl bg-[#191919] hover:bg-[#222] border border-[#272727] hover:border-orange-500/40 text-left flex items-center gap-3 transition-colors cursor-pointer group shadow-xs"
+                      >
+                        <div
+                          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 border ${item.accentClass}`}
+                        >
+                          {item.icon}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-xs sm:text-sm text-white group-hover:text-orange-300">
+                              {item.title}
+                            </span>
+                            {item.badge && (
+                              <span
+                                className={`text-[9px] font-bold px-1.5 py-0.2 rounded border ${
+                                  item.badgeColor || 'bg-[#222] text-slate-300'
+                                }`}
+                              >
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">
+                            {item.subtitle}
+                          </p>
+                        </div>
+
+                        <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-orange-400 shrink-0" />
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              );
+            })
+          )}
+        </div>
+
+        {/* Cloud Status Footer */}
+        <div className="px-3.5 py-2.5 bg-[#141414] border-t border-[#222] shrink-0">
+          <StorageStatusWidget compact />
+        </div>
+
+        {/* Utloggning */}
+        {currentUser && onLogout && (
+          <div className="p-3 border-t border-[#242424] bg-[#111] shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                setTimeout(() => onLogout(), 10);
+              }}
+              className="w-full min-h-[40px] px-3 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/40 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
+            >
+              <LogOut className="w-3.5 h-3.5 text-rose-400" />
+              <span>Logga ut ({currentUser.displayName || currentUser.email})</span>
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
