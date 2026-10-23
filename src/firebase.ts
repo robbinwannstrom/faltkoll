@@ -72,11 +72,6 @@ export function canWriteToFirestore(): boolean {
   return !isFirestoreQuotaExceeded();
 }
 
-// Mark quota as currently exceeded based on active system error
-if (typeof window !== 'undefined') {
-  markFirestoreQuotaExceeded(240);
-}
-
 // Validate connection to Firestore on startup (safe for offline fieldwork)
 async function testConnection() {
   if (!canWriteToFirestore()) return;

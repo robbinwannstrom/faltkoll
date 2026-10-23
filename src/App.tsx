@@ -54,6 +54,7 @@ import {
   fetchProjectsFromFirestore,
   fetchStudentFieldWorks,
   subscribeToFirestoreProjects,
+  hydrateProjectPhotos,
 } from './services/studentWorkService';
 import { mergeProjectSafely, isGoodPhotoData, logPhotoDiagnostic } from './utils/photoUtils';
 import { autoRecoverProjectPhotosFromCache, processSyncQueue, dequeuePhotoFromSync } from './services/offlineQueueService';
@@ -236,7 +237,9 @@ export default function App() {
         projectMap.set(p.id, merged);
       }
 
-      const mergedList = Array.from(projectMap.values());
+      const mergedList = await Promise.all(
+        Array.from(projectMap.values()).map((p) => hydrateProjectPhotos(p))
+      );
 
       if (mergedList.length > 0) {
         await saveProjectsBatch(mergedList);
@@ -311,10 +314,13 @@ export default function App() {
         const filteredCloud = cloudProjects.filter((cp) => !deletedIdSet.has(cp.id) && !cp.isDeleted);
         if (filteredCloud.length === 0) return;
         const localMap = new Map(localList.map((p) => [p.id, p]));
-        const mergedBatch: Project[] = filteredCloud.map((cp) => {
-          const loc = localMap.get(cp.id);
-          return mergeProjectSafely(loc, cp);
-        });
+        const mergedBatch: Project[] = await Promise.all(
+          filteredCloud.map(async (cp) => {
+            const loc = localMap.get(cp.id);
+            const m = mergeProjectSafely(loc, cp);
+            return await hydrateProjectPhotos(m);
+          })
+        );
         await saveProjectsBatch(mergedBatch);
         const updated = await getAllProjects();
         setProjects(updated);

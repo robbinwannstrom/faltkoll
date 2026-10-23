@@ -1323,10 +1323,15 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                   className="relative group rounded-2xl overflow-hidden border-2 border-[#333333] hover:border-orange-500 bg-[#0d0d0d] aspect-4/3 flex flex-col justify-end transition-all shadow-md"
                 >
                   <img
-                    src={normalizePhotoUrl(photo.dataUrl, `${moment.id} ${moment.title}`)}
+                    src={normalizePhotoUrl(photo.dataUrl, `${moment.id} ${moment.title}`, photo.id)}
                     alt="Kontrollfoto"
                     className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                     onError={(e) => {
+                      const currentSrc = e.currentTarget.src;
+                      if (photo.id && !currentSrc.includes(`/api/photos/${photo.id}`)) {
+                        e.currentTarget.src = `/api/photos/${photo.id}`;
+                        return;
+                      }
                       e.currentTarget.src = createPhotoPlaceholderSvg(
                         `${moment.id} ${moment.title}`,
                         'Kontrollfoto bevarat',
@@ -1336,7 +1341,7 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                     }}
                     onClick={() =>
                       setLightboxPhoto({
-                        url: normalizePhotoUrl(photo.dataUrl, `${moment.id} ${moment.title}`),
+                        url: normalizePhotoUrl(photo.dataUrl, `${moment.id} ${moment.title}`, photo.id),
                         title: `${moment.id} ${moment.title} (${photo.category || 'Kontroll'})`,
                         hash: photo.hash,
                         capturedAt: photo.capturedAt,

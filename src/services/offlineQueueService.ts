@@ -136,6 +136,8 @@ export async function getPhotoFromLocalCache(photoId: string): Promise<string | 
   }
 }
 
+export const getCachedPhoto = getPhotoFromLocalCache;
+
 /**
  * Add a photo to the persistent sync queue
  */

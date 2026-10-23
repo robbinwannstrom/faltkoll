@@ -173,7 +173,26 @@ function getPhotoFromDisk(photoId: string): any | null {
     const jsonPath = path.join(PHOTOS_DIR, `${safeId}.json`);
     if (fs.existsSync(jsonPath)) {
       const raw = fs.readFileSync(jsonPath, 'utf-8');
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.dataUrl && parsed.dataUrl.length > 500) {
+        return parsed;
+      }
+    }
+    const possiblePng = path.join(PHOTOS_DIR, `${safeId}.png`);
+    if (fs.existsSync(possiblePng)) {
+      const buf = fs.readFileSync(possiblePng);
+      return {
+        id: photoId,
+        dataUrl: `data:image/png;base64,${buf.toString('base64')}`,
+      };
+    }
+    const possibleJpg = path.join(PHOTOS_DIR, `${safeId}.jpg`);
+    if (fs.existsSync(possibleJpg)) {
+      const buf = fs.readFileSync(possibleJpg);
+      return {
+        id: photoId,
+        dataUrl: `data:image/jpeg;base64,${buf.toString('base64')}`,
+      };
     }
   } catch (err) {
     console.warn('Could not read photo from disk:', err);
@@ -4264,7 +4283,7 @@ app.get('/api/sync/projects', (req, res) => {
   const rawList = Object.values(cloudState.projects);
 
   if (isFull) {
-    return res.json({ projects: rawList });
+    return res.json({ projects: rawList.map((p: any) => hydrateServerProjectPhotos(p)) });
   }
   const list = rawList.map((p: any) => ({
     id: p.id,
@@ -4307,7 +4326,7 @@ app.get('/api/sync/projects/:id', (req, res) => {
     }
   }
 
-  return res.json({ project: proj });
+  return res.json({ project: hydrateServerProjectPhotos(proj) });
 });
 
 function isGoodServerPhoto(url?: string | null): boolean {
@@ -4317,7 +4336,45 @@ function isGoodServerPhoto(url?: string | null): boolean {
   if (clean.includes('[BILD_SPARAD')) return false;
   if (clean.startsWith('data:image/svg+xml')) return false;
   if (clean.startsWith('data:image/jpeg') && clean.length < 500) return false;
+  if (clean.startsWith('/api/photos/') || clean.startsWith('/api/sync/photos/')) return true;
   return clean.startsWith('data:image/') || clean.startsWith('http://') || clean.startsWith('https://');
+}
+
+function hydrateServerProjectPhotos(proj: any): any {
+  if (!proj || !proj.moments || typeof proj.moments !== 'object') return proj;
+  let changed = false;
+  const momentsCopy: Record<string, any> = { ...proj.moments };
+  for (const [mId, mom] of Object.entries(momentsCopy)) {
+    if (mom && Array.isArray(mom.photos)) {
+      let momPhotosChanged = false;
+      const hydratedPhotos = mom.photos.map((ph: any) => {
+        if (!ph || !ph.id) return ph;
+        if (isGoodServerPhoto(ph.dataUrl) && ph.dataUrl.length > 500) {
+          return ph;
+        }
+        const backedUp = cloudState.photos?.[ph.id] || getPhotoFromDisk(ph.id);
+        if (backedUp && isGoodServerPhoto(backedUp.dataUrl)) {
+          momPhotosChanged = true;
+          return { ...ph, dataUrl: backedUp.dataUrl, hash: backedUp.hash || ph.hash };
+        }
+        if (!ph.dataUrl || ph.dataUrl.trim() === '') {
+          momPhotosChanged = true;
+          return { ...ph, dataUrl: `/api/photos/${ph.id}` };
+        }
+        return ph;
+      });
+      if (momPhotosChanged) {
+        changed = true;
+        const goodP = hydratedPhotos.find((p: any) => isGoodServerPhoto(p.dataUrl) && p.dataUrl.length > 500);
+        momentsCopy[mId] = {
+          ...mom,
+          photos: hydratedPhotos,
+          photoBase64: goodP ? goodP.dataUrl : (hydratedPhotos[0]?.dataUrl || mom.photoBase64),
+        };
+      }
+    }
+  }
+  return changed ? { ...proj, moments: momentsCopy } : proj;
 }
 
 function mergeServerProjectSafely(existing: any, incoming: any): any {
@@ -4412,7 +4469,14 @@ function mergeServerProjectSafely(existing: any, incoming: any): any {
       const photoMap = new Map<string, any>();
       inPhotos.forEach((p) => {
         if (p && p.id && !momDeleted.has(p.id) && !finalDeletedIds.has(p.id) && !finalDeletedIds.has(`${mId}:${p.id}`)) {
-          photoMap.set(p.id, p);
+          let pData = p.dataUrl;
+          if (!isGoodServerPhoto(pData)) {
+            const backed = cloudState.photos?.[p.id]?.dataUrl || getPhotoFromDisk(p.id)?.dataUrl;
+            if (backed && isGoodServerPhoto(backed)) {
+              pData = backed;
+            }
+          }
+          photoMap.set(p.id, { ...p, dataUrl: pData });
         }
       });
 
@@ -4420,21 +4484,26 @@ function mergeServerProjectSafely(existing: any, incoming: any): any {
         if (!exP || !exP.id || momDeleted.has(exP.id) || finalDeletedIds.has(exP.id) || finalDeletedIds.has(`${mId}:${exP.id}`)) {
           return;
         }
+        let exUrl = exP.dataUrl;
+        if (!isGoodServerPhoto(exUrl)) {
+          const backed = cloudState.photos?.[exP.id]?.dataUrl || getPhotoFromDisk(exP.id)?.dataUrl;
+          if (backed && isGoodServerPhoto(backed)) {
+            exUrl = backed;
+          }
+        }
         const inP = photoMap.get(exP.id);
         if (!inP) {
-          if (isGoodServerPhoto(exP.dataUrl)) {
-            photoMap.set(exP.id, exP);
-          }
+          photoMap.set(exP.id, { ...exP, dataUrl: exUrl });
         } else {
-          const exGood = isGoodServerPhoto(exP.dataUrl);
+          const exGood = isGoodServerPhoto(exUrl);
           const inGood = isGoodServerPhoto(inP.dataUrl);
           if (exGood && !inGood) {
-            photoMap.set(exP.id, { ...inP, ...exP, dataUrl: exP.dataUrl });
+            photoMap.set(exP.id, { ...inP, ...exP, dataUrl: exUrl });
           } else if (!exGood && inGood) {
             photoMap.set(exP.id, { ...exP, ...inP, dataUrl: inP.dataUrl });
           } else if (exGood && inGood) {
-            const preferred = (exP.dataUrl?.length || 0) >= (inP.dataUrl?.length || 0) ? exP : inP;
-            photoMap.set(exP.id, { ...inP, dataUrl: preferred.dataUrl });
+            const preferred = (exUrl?.length || 0) >= (inP.dataUrl?.length || 0) ? exUrl : inP.dataUrl;
+            photoMap.set(exP.id, { ...inP, dataUrl: preferred });
           } else {
             photoMap.set(exP.id, inP);
           }
@@ -4529,7 +4598,7 @@ function backupProjectPhotosToCloudState(project: any) {
       if (Array.isArray(mom.photos)) {
         for (const ph of mom.photos) {
           if (ph && ph.id && !momDeletedSet.has(ph.id) && !momDeletedSet.has(`${mId}:${ph.id}`) && isGoodServerPhoto(ph.dataUrl)) {
-            cloudState.photos[ph.id] = {
+            const record = {
               id: ph.id,
               projectId: project.id,
               momentId: mId,
@@ -4538,7 +4607,10 @@ function backupProjectPhotosToCloudState(project: any) {
               category: ph.category || 'Kontroll',
               capturedAt: ph.capturedAt || '',
               updatedAt: new Date().toISOString(),
+              hash: ph.hash || '',
             };
+            cloudState.photos[ph.id] = record;
+            savePhotoToDisk(record);
           }
         }
       }
@@ -4640,17 +4712,62 @@ app.get('/api/sync/photos', (req, res) => {
   return res.json({ ok: true, photos: summary });
 });
 
-// GET /api/sync/photos/:photoId - Retrieve high-resolution photo JSON
+// GET /api/sync/photos/:photoId - Retrieve high-resolution photo JSON or direct image
 app.get('/api/sync/photos/:photoId', (req, res) => {
   const photoId = req.params.photoId;
+  const isImageRequest = req.headers.accept?.includes('image/') || req.query.raw === 'true';
   let p = cloudState.photos?.[photoId];
   if (!p || !p.dataUrl) {
     p = getPhotoFromDisk(photoId);
   }
   if (!p || !p.dataUrl) {
-    return res.status(404).json({ error: 'Fotot hittades inte.' });
+    return isImageRequest
+      ? res.status(404).send('Fotot hittades inte.')
+      : res.status(404).json({ error: 'Fotot hittades inte.' });
   }
+
+  if (isImageRequest) {
+    const match = p.dataUrl.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,(.+)$/);
+    if (match) {
+      const mime = match[1].toLowerCase() === 'jpg' ? 'image/jpeg' : `image/${match[1]}`;
+      res.setHeader('Content-Type', mime);
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.send(Buffer.from(match[2], 'base64'));
+    }
+  }
+
   return res.json({ ok: true, photo: p });
+});
+
+// GET /api/sync/photos/:photoId/raw - Dedicated direct raw binary stream
+app.get('/api/sync/photos/:photoId/raw', (req, res) => {
+  const photoId = req.params.photoId;
+  const safeId = String(photoId).replace(/[^a-zA-Z0-9_-]/g, '_');
+  const possibleJpg = path.join(PHOTOS_DIR, `${safeId}.jpg`);
+  const possiblePng = path.join(PHOTOS_DIR, `${safeId}.png`);
+
+  if (fs.existsSync(possibleJpg)) {
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return fs.createReadStream(possibleJpg).pipe(res);
+  }
+  if (fs.existsSync(possiblePng)) {
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return fs.createReadStream(possiblePng).pipe(res);
+  }
+
+  const p = cloudState.photos?.[photoId] || getPhotoFromDisk(photoId);
+  if (p && p.dataUrl) {
+    const match = p.dataUrl.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,(.+)$/);
+    if (match) {
+      const mime = match[1].toLowerCase() === 'jpg' ? 'image/jpeg' : `image/${match[1]}`;
+      res.setHeader('Content-Type', mime);
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.send(Buffer.from(match[2], 'base64'));
+    }
+  }
+  return res.status(404).send('Fotot kunde inte hittas på servern.');
 });
 
 // GET /api/photos/:photoId - Direct binary image stream with disk fallback
@@ -4867,7 +4984,7 @@ app.all(['/api/sync/join-code', '/api/sync/join-code/:code', '/api/sync/code/:co
     return res.status(404).json({ error: `Hittade inget aktivt projekt med kod "${normalized}".` });
   }
 
-  return res.json({ project: proj });
+  return res.json({ project: hydrateServerProjectPhotos(proj) });
 });
 
 // GET /api/sync/pull - Pull project by code or id (supports App.tsx background sync)
@@ -4910,7 +5027,7 @@ app.get('/api/sync/pull', (req, res) => {
     proj.syncEnabled = true;
   }
 
-  return res.json({ project: proj });
+  return res.json({ project: hydrateServerProjectPhotos(proj) });
 });
 
 // POST /api/sync/push - Push project from ChecklistView sync button
@@ -5167,7 +5284,7 @@ app.get('/api/field/student-work', (req, res) => {
     allProjects.length > 0 ? Math.round(totalPercentSum / allProjects.length) : 0;
 
   return res.json({
-    projects: filtered,
+    projects: filtered.map((p: any) => hydrateServerProjectPhotos(p)),
     stats: {
       totalStudents: uniqueStudents,
       activeInField: allProjects.length,

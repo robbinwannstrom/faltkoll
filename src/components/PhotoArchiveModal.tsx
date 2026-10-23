@@ -292,10 +292,15 @@ export const PhotoArchiveModal: React.FC<PhotoArchiveModalProps> = ({
                     className="relative aspect-4/3 bg-black cursor-pointer overflow-hidden"
                   >
                     <img
-                      src={normalizePhotoUrl(photo.dataUrl, photo.momentTitle)}
+                      src={normalizePhotoUrl(photo.dataUrl, photo.momentTitle, photo.id)}
                       alt={photo.caption || photo.momentTitle}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                       onError={(e) => {
+                        const currentSrc = e.currentTarget.src;
+                        if (photo.id && !currentSrc.includes(`/api/photos/${photo.id}`)) {
+                          e.currentTarget.src = `/api/photos/${photo.id}`;
+                          return;
+                        }
                         e.currentTarget.src = createPhotoPlaceholderSvg(
                           photo.momentTitle,
                           'Arkiverat kontrollfoto',

@@ -23,19 +23,23 @@ export function createPhotoPlaceholderSvg(
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
     <defs>
       <linearGradient id="g_f97316" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#1c1917"/>
-        <stop offset="100%" stop-color="#0c0a09"/>
+        <stop offset="0%" stop-color="#1e293b"/>
+        <stop offset="100%" stop-color="#0f172a"/>
       </linearGradient>
+      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#334155" stroke-width="1" opacity="0.4"/>
+      </pattern>
     </defs>
     <rect width="640" height="480" fill="url(#g_f97316)"/>
-    <rect x="24" y="24" width="592" height="432" rx="14" fill="none" stroke="#f97316" stroke-width="2.5" stroke-dasharray="6 4" opacity="0.8"/>
-    <circle cx="320" cy="180" r="54" fill="#f97316" opacity="0.12"/>
-    <text x="320" y="172" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="900" fill="#f97316" text-anchor="middle">📷 FÄLTDOKUMENTATION</text>
+    <rect width="640" height="480" fill="url(#grid)"/>
+    <rect x="24" y="24" width="592" height="432" rx="16" fill="none" stroke="#f97316" stroke-width="2" stroke-dasharray="8 6" opacity="0.9"/>
+    <circle cx="320" cy="180" r="54" fill="#f97316" opacity="0.18"/>
+    <text x="320" y="172" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="900" fill="#f97316" text-anchor="middle">📷 FÄLTDOKUMENTATION</text>
     <text x="320" y="210" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="800" fill="#ffffff" text-anchor="middle">${cleanTitle}</text>
-    <text x="320" y="245" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="500" fill="#94a3b8" text-anchor="middle">${cleanSub}</text>
-    <rect x="35" y="395" width="570" height="50" rx="10" fill="#000000" opacity="0.85"/>
+    <text x="320" y="245" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="500" fill="#cbd5e1" text-anchor="middle">${cleanSub}</text>
+    <rect x="35" y="395" width="570" height="50" rx="12" fill="#020617" opacity="0.92" stroke="#334155" stroke-width="1"/>
     <text x="55" y="426" font-family="ui-monospace, monospace" font-size="13" font-weight="900" fill="#f97316">FÄLTKOLL • ${cleanCat.toUpperCase()}</text>
-    <text x="585" y="426" font-family="ui-monospace, monospace" font-size="12" fill="#ffffff" text-anchor="end">${timeStr}</text>
+    <text x="585" y="426" font-family="ui-monospace, monospace" font-size="12" fill="#e2e8f0" text-anchor="end">${timeStr}</text>
   </svg>`;
 
   try {
@@ -55,15 +59,18 @@ export function isTruncatedPhoto(url?: string | null): boolean {
   );
 }
 
-export function normalizePhotoUrl(dataUrl?: string | null, fallbackTitle?: string): string {
-  if (!dataUrl || typeof dataUrl !== 'string' || dataUrl.trim() === '') {
-    return '';
-  }
+export function normalizePhotoUrl(
+  dataUrl?: string | null,
+  fallbackTitle?: string,
+  photoId?: string
+): string {
+  const trimmed = dataUrl && typeof dataUrl === 'string' ? dataUrl.trim() : '';
 
-  const trimmed = dataUrl.trim();
-
-  // 1. Truncated or placeholder references
-  if (isTruncatedPhoto(trimmed)) {
+  // 1. If empty or truncated but photoId is provided, point to direct raw image stream
+  if (!trimmed || isTruncatedPhoto(trimmed)) {
+    if (photoId) {
+      return `/api/photos/${photoId}`;
+    }
     return fallbackTitle
       ? createPhotoPlaceholderSvg(
           fallbackTitle,
@@ -72,7 +79,15 @@ export function normalizePhotoUrl(dataUrl?: string | null, fallbackTitle?: strin
       : '';
   }
 
-  // 2. Fix invalid `data:image/svg+xml;utf8,...` MIME type
+  // 2. If pointing to JSON endpoint, convert to binary raw image endpoint
+  if (trimmed.startsWith('/api/sync/photos/')) {
+    const extractedId = trimmed.replace('/api/sync/photos/', '').split('?')[0];
+    if (extractedId) {
+      return `/api/photos/${extractedId}`;
+    }
+  }
+
+  // 3. Fix invalid `data:image/svg+xml;utf8,...` MIME type
   if (trimmed.startsWith('data:image/svg+xml;utf8,')) {
     try {
       const rawSvg = decodeURIComponent(trimmed.substring('data:image/svg+xml;utf8,'.length));
@@ -85,7 +100,7 @@ export function normalizePhotoUrl(dataUrl?: string | null, fallbackTitle?: strin
     }
   }
 
-  // 3. Fix unencoded or non-base64 svg with charset
+  // 4. Fix unencoded or non-base64 svg with charset
   if (trimmed.startsWith('data:image/svg+xml;charset=utf-8,')) {
     try {
       const rawSvg = decodeURIComponent(trimmed.substring('data:image/svg+xml;charset=utf-8,'.length));
@@ -96,7 +111,7 @@ export function normalizePhotoUrl(dataUrl?: string | null, fallbackTitle?: strin
     return trimmed;
   }
 
-  // 4. Regular image dataUrl or HTTP URL
+  // 5. Regular image dataUrl or HTTP URL
   return trimmed;
 }
 
@@ -112,14 +127,15 @@ export function isGoodPhotoData(url?: string | null): boolean {
   if (clean.startsWith('data:image/svg+xml')) return false;
   // Broken or truncated JPEG data URLs
   if (clean.startsWith('data:image/jpeg') && clean.length < 500) return false;
-  // Valid real photos are long JPEG/PNG/WebP data URLs, standard web URLs, or local photo API endpoints
+  // Valid real photos are long JPEG/PNG/WebP data URLs, standard web URLs, or photo API endpoints
   if (
     clean.startsWith('data:image/jpeg') ||
     clean.startsWith('data:image/png') ||
     clean.startsWith('data:image/webp') ||
     clean.startsWith('http://') ||
     clean.startsWith('https://') ||
-    clean.startsWith('/api/sync/photos') ||
+    clean.startsWith('/api/photos/') ||
+    clean.startsWith('/api/sync/photos/') ||
     clean.startsWith('/')
   ) {
     return true;

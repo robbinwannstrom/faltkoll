@@ -85,7 +85,9 @@ function sanitizeForFirestore(obj: any): any {
   return clean;
 }
 
-import { enqueuePhotoForSync, dequeuePhotoFromSync } from './offlineQueueService';
+import { enqueuePhotoForSync, dequeuePhotoFromSync, getCachedPhoto, cachePhotoLocally } from './offlineQueueService';
+import { savePhotoToVault } from './photoVaultService';
+import { isGoodPhotoData } from '../utils/photoUtils';
 
 /**
  * Dedicated helper to immediately upload a single high-resolution photo to both
@@ -232,7 +234,7 @@ export async function saveProjectToFirestore(project: Project): Promise<boolean>
               caption: p.caption,
               momentId: mId,
               // If photo is already safely backed up to dedicated endpoints, reference it rather than blanking it
-              dataUrl: p.dataUrl && p.dataUrl.length < 50000 ? p.dataUrl : `/api/sync/photos/${p.id}`,
+              dataUrl: p.dataUrl && p.dataUrl.length < 50000 ? p.dataUrl : `/api/photos/${p.id}`,
             })),
           };
         }
@@ -311,6 +313,120 @@ export function subscribeToFirestoreProjects(
 /**
  * Fetch all projects stored in Google Cloud Firestore (/projects)
  */
+/**
+ * Universal project photo hydrator:
+ * Checks local IndexedDB cache, Express server photo store (/api/sync/photos/:photoId),
+ * and Firestore subcollection (/projects/:projectId/photos/:photoId).
+ * Ensures photos are never blank or pitch-black when loaded on remote devices.
+ */
+export async function hydrateProjectPhotos(proj: Project): Promise<Project> {
+  if (!proj || !proj.id) return proj;
+  try {
+    let changed = false;
+    const updatedMoments: Record<string, any> = { ...(proj.moments || {}) };
+
+    const missingPhotos: Array<{ mId: string; photo: any }> = [];
+    for (const [mId, m] of Object.entries(updatedMoments)) {
+      if (m && Array.isArray(m.photos)) {
+        for (const ph of m.photos) {
+          if (ph && ph.id && (!ph.dataUrl || ph.dataUrl.length < 500 || !isGoodPhotoData(ph.dataUrl))) {
+            missingPhotos.push({ mId, photo: ph });
+          }
+        }
+      }
+    }
+
+    // 1. Check local IndexedDB photo cache
+    for (const item of missingPhotos) {
+      try {
+        const cached = await getCachedPhoto(item.photo.id);
+        if (cached && typeof cached === 'string' && isGoodPhotoData(cached)) {
+          item.photo.dataUrl = cached;
+          changed = true;
+        }
+      } catch {}
+    }
+
+    // 2. Fetch missing from Express server dedicated photo API (/api/sync/photos/:photoId)
+    const stillMissing = missingPhotos.filter((item) => !item.photo.dataUrl || item.photo.dataUrl.length < 500);
+    if (stillMissing.length > 0) {
+      const serverFetchPromises = stillMissing.map(async (item) => {
+        try {
+          const res = await safeFetchJson<{ ok: boolean; photo: { dataUrl: string; hash?: string } }>(
+            `/api/sync/photos/${encodeURIComponent(item.photo.id)}`,
+            { timeoutMs: 3500 }
+          );
+          if (res.ok && res.data?.photo?.dataUrl && isGoodPhotoData(res.data.photo.dataUrl)) {
+            item.photo.dataUrl = res.data.photo.dataUrl;
+            if (res.data.photo.hash) item.photo.hash = res.data.photo.hash;
+            changed = true;
+            cachePhotoLocally(item.photo).catch(() => {});
+            savePhotoToVault({
+              id: item.photo.id,
+              projectId: proj.id,
+              momentId: item.mId,
+              dataUrl: item.photo.dataUrl,
+              category: item.photo.category,
+              capturedAt: item.photo.capturedAt,
+              hash: item.photo.hash,
+            }).catch(() => {});
+          }
+        } catch {}
+      });
+      await Promise.allSettled(serverFetchPromises);
+    }
+
+    // 3. Fallback to Firestore subcollection if still missing and Firestore is accessible
+    const stillMissingFirestore = stillMissing.filter((item) => !item.photo.dataUrl || item.photo.dataUrl.length < 500);
+    if (stillMissingFirestore.length > 0 && db && canWriteToFirestore()) {
+      try {
+        const photosCol = collection(db, 'projects', proj.id, 'photos');
+        const photoSnaps = await withTimeout(getDocs(photosCol), 3000, null);
+        if (photoSnaps && !photoSnaps.empty) {
+          const subPhotosMap = new Map<string, any>();
+          photoSnaps.forEach((s) => {
+            const data = s.data();
+            if (data && data.id && data.dataUrl) {
+              subPhotosMap.set(data.id, data);
+            }
+          });
+          for (const item of stillMissingFirestore) {
+            const sub = subPhotosMap.get(item.photo.id);
+            if (sub && sub.dataUrl && isGoodPhotoData(sub.dataUrl)) {
+              item.photo.dataUrl = sub.dataUrl;
+              changed = true;
+              cachePhotoLocally(item.photo).catch(() => {});
+            }
+          }
+        }
+      } catch {}
+    }
+
+    // 4. Guarantee that every photo record has a working image URL, defaulting to /api/photos/:id
+    for (const [mId, m] of Object.entries(updatedMoments)) {
+      if (m && Array.isArray(m.photos)) {
+        m.photos = m.photos.map((ph: any) => {
+          if (!ph || !ph.id) return ph;
+          if (!ph.dataUrl || ph.dataUrl.trim() === '' || ph.dataUrl.startsWith('/api/sync/photos/')) {
+            changed = true;
+            return { ...ph, dataUrl: `/api/photos/${ph.id}` };
+          }
+          return ph;
+        });
+        const goodP = m.photos.find((p: any) => isGoodPhotoData(p.dataUrl) && p.dataUrl.length > 500);
+        m.photoBase64 = goodP ? goodP.dataUrl : (m.photos[0]?.dataUrl || m.photoBase64);
+      }
+    }
+
+    return changed ? { ...proj, moments: updatedMoments } : proj;
+  } catch {
+    return proj;
+  }
+}
+
+/**
+ * Fetch all projects stored in Google Cloud Firestore (/projects)
+ */
 export async function fetchProjectsFromFirestore(): Promise<Project[]> {
   try {
     const colRef = collection(db, 'projects');
@@ -323,7 +439,7 @@ export async function fetchProjectsFromFirestore(): Promise<Project[]> {
         list.push(data);
       }
     });
-    return list;
+    return await Promise.all(list.map((p) => hydrateProjectPhotos(p)));
   } catch (err) {
     handleFirestoreError(err, OperationType.LIST, 'projects', false);
     return [];
@@ -341,42 +457,6 @@ export async function findProjectByCodeInFirestore(code: string): Promise<Projec
   const stripped = normalized.replace(/[\s-_]/g, '');
 
   try {
-    // Helper to hydrate photos from subcollection if needed
-    const hydrateProjectPhotos = async (proj: Project): Promise<Project> => {
-      try {
-        const photosCol = collection(db, 'projects', proj.id, 'photos');
-        const photoSnaps = await withTimeout(getDocs(photosCol), 3000, null);
-        if (photoSnaps && !photoSnaps.empty) {
-          const subPhotosMap = new Map<string, any>();
-          photoSnaps.forEach((s) => {
-            const data = s.data();
-            if (data && data.id && data.dataUrl) {
-              subPhotosMap.set(data.id, data);
-            }
-          });
-
-          if (proj.moments) {
-            const updatedMoments: Record<string, any> = { ...proj.moments };
-            for (const [mId, m] of Object.entries(updatedMoments)) {
-              if (m.photos && Array.isArray(m.photos)) {
-                updatedMoments[mId] = {
-                  ...m,
-                  photos: m.photos.map((ph: any) => {
-                    const sub = subPhotosMap.get(ph.id);
-                    if (sub && sub.dataUrl && (!ph.dataUrl || ph.dataUrl.length < 500)) {
-                      return { ...ph, dataUrl: sub.dataUrl };
-                    }
-                    return ph;
-                  }),
-                };
-              }
-            }
-            proj.moments = updatedMoments;
-          }
-        }
-      } catch {}
-      return proj;
-    };
 
     // 1. Direct O(1) document lookup by exact group code
     try {
@@ -612,6 +692,8 @@ export async function syncProjectBidirectional(
       return { success: false, message: 'Kunde inte hitta projektet i molnet eller lokalt.' };
     }
 
+    merged = await hydrateProjectPhotos(merged);
+
     // Step 3: Persist merged project to IndexedDB
     await saveProject(merged);
 
@@ -772,7 +854,9 @@ export async function fetchStudentFieldWorks(
     }
   }
 
-  let mergedProjects = Array.from(projectMap.values());
+  let mergedProjects = await Promise.all(
+    Array.from(projectMap.values()).map((p) => hydrateProjectPhotos(p))
+  );
 
   // TEACHER PRIVACY SCOPING: Teachers only see their own connected projects or unassigned projects
   if (callerUser?.role === 'TEACHER') {

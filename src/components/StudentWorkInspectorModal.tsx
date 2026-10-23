@@ -550,10 +550,15 @@ export const StudentWorkInspectorModal: React.FC<StudentWorkInspectorModalProps>
                     >
                       <div className="relative aspect-4/3 overflow-hidden bg-black">
                         <img
-                          src={normalizePhotoUrl(item.photo.dataUrl, item.momentTitle)}
+                          src={normalizePhotoUrl(item.photo.dataUrl, item.momentTitle, item.photo.id)}
                           alt={item.photo.caption || 'Foto'}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
+                            const currentSrc = e.currentTarget.src;
+                            if (item.photo.id && !currentSrc.includes(`/api/photos/${item.photo.id}`)) {
+                              e.currentTarget.src = `/api/photos/${item.photo.id}`;
+                              return;
+                            }
                             e.currentTarget.src = createPhotoPlaceholderSvg(
                               item.momentTitle,
                               'Kontrollbevis',
