@@ -1,0 +1,6 @@
+{
+  "quotaExceeded": true,
+  "until": 1792944000000,
+  "date": "2026-10-24",
+  "reason": "RESOURCE_EXHAUSTED: Free daily write units per project (free tier database) limit reached"
+}

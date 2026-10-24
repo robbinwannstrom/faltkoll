@@ -678,6 +678,14 @@ export async function fetchAllUsersFromCloud(): Promise<UserAccount[]> {
  * Removes a user from Google Cloud Firestore.
  */
 export async function deleteUserFromCloud(userId: string, email?: string): Promise<boolean> {
+  if (!canWriteToFirestore()) {
+    try {
+      await fetch(`/api/users/${encodeURIComponent(userId)}`, { method: 'DELETE' });
+      return true;
+    } catch {
+      return false;
+    }
+  }
   try {
     await deleteDoc(doc(db, USERS_COLLECTION, userId));
     if (email) {
@@ -774,6 +782,14 @@ export async function fetchAllExercisesFromCloud(): Promise<TeacherExercise[]> {
  * Deletes an exercise from Google Cloud Firestore.
  */
 export async function deleteExerciseFromCloud(exerciseId: string, code?: string): Promise<boolean> {
+  if (!canWriteToFirestore()) {
+    try {
+      await fetch(`/api/exercises/${encodeURIComponent(exerciseId)}`, { method: 'DELETE' });
+      return true;
+    } catch {
+      return false;
+    }
+  }
   try {
     await deleteDoc(doc(db, EXERCISES_COLLECTION, exerciseId));
     if (code) {
@@ -1274,12 +1290,14 @@ export async function createAdminInviteCodes(params: {
     };
     localGenerated.push(item);
 
-    // Save directly to Google Cloud Firestore
-    try {
-      const docRef = doc(db, INVITE_CODES_COLLECTION, code);
-      await setDoc(docRef, item, { merge: true });
-    } catch (err) {
-      handleFirestoreError(err, OperationType.WRITE, `${INVITE_CODES_COLLECTION}/${code}`);
+    // Save directly to Google Cloud Firestore only if quota permits
+    if (canWriteToFirestore()) {
+      try {
+        const docRef = doc(db, INVITE_CODES_COLLECTION, code);
+        await setDoc(docRef, item, { merge: true });
+      } catch (err) {
+        handleFirestoreError(err, OperationType.WRITE, `${INVITE_CODES_COLLECTION}/${code}`);
+      }
     }
   }
 
@@ -1306,9 +1324,11 @@ export async function createAdminInviteCodes(params: {
  */
 export async function deleteAdminInviteCode(code: string): Promise<boolean> {
   const cleanCode = code.trim().toUpperCase();
-  try {
-    await deleteDoc(doc(db, INVITE_CODES_COLLECTION, cleanCode));
-  } catch {}
+  if (canWriteToFirestore()) {
+    try {
+      await deleteDoc(doc(db, INVITE_CODES_COLLECTION, cleanCode));
+    } catch {}
+  }
   try {
     const res = await fetch(`/api/admin/security/invite-codes/${encodeURIComponent(cleanCode)}`, {
       method: 'DELETE',
