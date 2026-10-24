@@ -12,6 +12,7 @@ import {
 import { ALL_MOMENTS, PROJECT_TYPE_LABELS } from '../data/momentsData';
 import { PhotoQuickMenuModal } from './PhotoQuickMenuModal';
 import { PhotoArchiveModal } from './PhotoArchiveModal';
+import { MovePhotoModal } from './MovePhotoModal';
 import { CrossMeasureCalculatorModal } from './CrossMeasureCalculatorModal';
 import { MaterialCalculatorModal } from './MaterialCalculatorModal';
 import { AtaModal } from './AtaModal';
@@ -19,7 +20,7 @@ import { QuickNotesModal } from './QuickNotesModal';
 import { FieldHelperModal } from './FieldHelperModal';
 import { MomentAiHelperModal } from './MomentAiHelperModal';
 import { fileToBase64Optimized, getFormattedCurrentTime } from '../db/indexedDb';
-import { getDefaultCategoryForMoment, savePhotoToDeviceGallery } from '../utils/photoStorage';
+import { getDefaultCategoryForMoment, savePhotoToDeviceGallery, savePhotoToDevice } from '../utils/photoStorage';
 import { normalizePhotoUrl, createPhotoPlaceholderSvg, isTruncatedPhoto, isGoodPhotoData, logPhotoDiagnostic } from '../utils/photoUtils';
 import { getSuggestionsForMoment } from '../data/momentCheckSuggestions';
 import {
@@ -80,6 +81,8 @@ import {
   GraduationCap,
   Calculator,
   Copy,
+  Download,
+  ArrowRightLeft,
 } from 'lucide-react';
 
 interface ChecklistViewProps {
@@ -198,8 +201,141 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
 
   const [helperMoment, setHelperMoment] = useState<{ title: string; ama: string } | null>(null);
   const [activeMomentForAi, setActiveMomentForAi] = useState<MomentDefinition | null>(null);
-  const [lightboxPhoto, setLightboxPhoto] = useState<{ url: string; title: string; hash?: string; capturedAt?: string } | null>(null);
+  const [lightboxPhoto, setLightboxPhoto] = useState<{
+    url: string;
+    title: string;
+    hash?: string;
+    capturedAt?: string;
+    photo?: MomentPhoto;
+    momentId?: string;
+    momentTitle?: string;
+  } | null>(null);
   const [copiedHash, setCopiedHash] = useState<boolean>(false);
+
+  // Photo move and device save states
+  const [photoToMove, setPhotoToMove] = useState<{
+    photo: MomentPhoto;
+    sourceMomentId: string;
+    sourceMomentTitle: string;
+  } | null>(null);
+  const [photoActionToast, setPhotoActionToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showPhotoToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setPhotoActionToast({ message, type });
+    setTimeout(() => {
+      setPhotoActionToast((cur) => (cur?.message === message ? null : cur));
+    }, 4500);
+  };
+
+  const handleSavePhotoToMobile = async (photo: MomentPhoto, titlePrefix?: string) => {
+    try {
+      const filename = `${(project.name || 'Projekt').replace(/[^a-zA-Z0-9_\u00C0-\u017F-]/g, '_')}_${photo.category || 'Foto'}_${(photo.capturedAt || 'tid').replace(/[: ]/g, '_')}.jpg`;
+      const res = await savePhotoToDevice(
+        photo.dataUrl,
+        filename,
+        titlePrefix || `${project.name} - Kontrollfoto`
+      );
+      if (res.success) {
+        showPhotoToast(res.message, 'success');
+      } else {
+        showPhotoToast(res.message, 'error');
+      }
+    } catch (err: any) {
+      showPhotoToast(`Kunde inte spara bilden: ${err?.message || 'Okänt fel'}`, 'error');
+    }
+  };
+
+  const handleMovePhoto = (photoId: string, fromMomentId: string, toMomentId: string): boolean => {
+    try {
+      if (!photoId || !fromMomentId || !toMomentId || fromMomentId === toMomentId) {
+        return false;
+      }
+
+      const updatedMoments: Record<string, MomentRecord> = { ...project.moments };
+      let movedPhoto: MomentPhoto | null = null;
+      let toTitle = toMomentId === 'Försyn' ? 'Försyn & Förbesiktning' : `Moment ${toMomentId}`;
+      const defTo = ALL_MOMENTS.find((m) => m.id === toMomentId);
+      if (defTo) toTitle = `${toMomentId} (${defTo.title})`;
+
+      // 1. Locate and extract from source
+      let updatedPre: MomentPhoto[] = [...(project.preInspectionPhotos || [])];
+      if (fromMomentId === 'Försyn') {
+        const idx = updatedPre.findIndex((p) => p.id === photoId);
+        if (idx !== -1) {
+          movedPhoto = { ...updatedPre[idx] };
+          updatedPre.splice(idx, 1);
+        }
+      } else if (updatedMoments[fromMomentId]) {
+        const srcMom = { ...updatedMoments[fromMomentId] };
+        const photos = [...(srcMom.photos || [])];
+        const idx = photos.findIndex((p) => p.id === photoId);
+        if (idx !== -1) {
+          movedPhoto = { ...photos[idx] };
+          photos.splice(idx, 1);
+          srcMom.photos = photos;
+          if (srcMom.photoBase64 === movedPhoto.dataUrl) {
+            srcMom.photoBase64 = photos[0]?.dataUrl;
+          }
+          updatedMoments[fromMomentId] = srcMom;
+        }
+      }
+
+      if (!movedPhoto) {
+        showPhotoToast('Kunde inte hitta bilden på dess ursprungliga plats.', 'error');
+        return false;
+      }
+
+      // 2. Prepare moved photo metadata (DO NOT touch photo.id or photo.dataUrl or hash!)
+      const nowIso = new Date().toISOString();
+      movedPhoto = {
+        ...movedPhoto,
+        movedAt: nowIso,
+        movedFromMomentId: fromMomentId,
+        movedToMomentId: toMomentId,
+      };
+
+      // 3. Insert into target moment (DO NOT add to deletedPhotoIds!)
+      if (toMomentId === 'Försyn') {
+        updatedPre.push(movedPhoto);
+      } else {
+        const targetMom: MomentRecord = updatedMoments[toMomentId]
+          ? { ...updatedMoments[toMomentId] }
+          : {
+              momentId: toMomentId,
+              status: 'YELLOW',
+              comment: '',
+              signature: '',
+              photos: [],
+            };
+        const photos = [...(targetMom.photos || [])];
+        photos.push(movedPhoto);
+        targetMom.photos = photos;
+        if (!targetMom.photoBase64 || targetMom.photoBase64.length < 500) {
+          targetMom.photoBase64 = movedPhoto.dataUrl;
+        }
+        updatedMoments[toMomentId] = targetMom;
+      }
+
+      const updatedProject: Project = {
+        ...project,
+        moments: updatedMoments,
+        preInspectionPhotos: updatedPre,
+        updatedAt: nowIso,
+      };
+
+      onUpdateProject(updatedProject);
+      saveProjectToCloud(updatedProject).catch((err) => {
+        console.warn('Bakgrundssynk av flyttat foto väntar på nätverk:', err);
+      });
+
+      showPhotoToast(`✓ Bilden har flyttats till ${toTitle}!`);
+      return true;
+    } catch (err: any) {
+      console.error('Fel vid flytt av foto:', err);
+      showPhotoToast(`Kunde inte flytta bilden: ${err?.message || 'Okänt fel'}`, 'error');
+      return false;
+    }
+  };
 
   const handleOpenMomentAiHelper = (moment: MomentDefinition) => {
     setActiveMomentForAi(moment);
@@ -1345,6 +1481,9 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                         title: `${moment.id} ${moment.title} (${photo.category || 'Kontroll'})`,
                         hash: photo.hash,
                         capturedAt: photo.capturedAt,
+                        photo: photo,
+                        momentId: moment.id,
+                        momentTitle: moment.title,
                       })
                     }
                   />
@@ -1391,6 +1530,32 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
+                          handleSavePhotoToMobile(photo, `${moment.id} ${moment.title}`);
+                        }}
+                        className="p-1 rounded-lg bg-emerald-600/80 hover:bg-emerald-600 text-white cursor-pointer transition-colors"
+                        title="Spara bilden till mobilen"
+                      >
+                        <Download className="w-3.5 h-3.5 stroke-[2.2]" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPhotoToMove({
+                            photo,
+                            sourceMomentId: moment.id,
+                            sourceMomentTitle: moment.title,
+                          });
+                        }}
+                        className="p-1 rounded-lg bg-amber-500/80 hover:bg-amber-500 text-slate-950 cursor-pointer transition-colors"
+                        title="Flytta bild till annan fas eller övning"
+                      >
+                        <ArrowRightLeft className="w-3.5 h-3.5 stroke-[2.2]" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
                           handleTriggerReplacePhoto(moment.id, photo.id);
                         }}
                         className="p-1 rounded-lg bg-orange-500/80 hover:bg-orange-500 text-black cursor-pointer transition-colors"
@@ -1426,6 +1591,33 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto px-2.5 sm:px-6 py-4 sm:py-6 pb-32 space-y-4 sm:space-y-6 font-sans w-full max-w-full overflow-x-clip min-w-0">
+      {/* Toast feedback for Photo Actions */}
+      {photoActionToast && (
+        <div
+          className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-md w-[92%] px-4 py-3 rounded-2xl shadow-2xl border text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200 ${
+            photoActionToast.type === 'error'
+              ? 'bg-rose-950/95 border-rose-500/60 text-rose-200'
+              : 'bg-slate-900/95 border-emerald-500/60 text-emerald-300'
+          }`}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            {photoActionToast.type === 'error' ? (
+              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+            ) : (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            )}
+            <span className="truncate">{photoActionToast.message}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setPhotoActionToast(null)}
+            className="text-slate-400 hover:text-white text-xs font-bold p-1 cursor-pointer shrink-0"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Hidden file input for mobile direct camera capture */}
       <input
         type="file"
@@ -3024,6 +3216,21 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
           onClose={() => setIsArchiveOpen(false)}
           onDeletePhoto={(momentId, photoId) => handleDeletePhotoFromMoment(momentId, photoId)}
           onOpenLightbox={(url, title) => setLightboxPhoto({ url, title })}
+          onMovePhoto={(photo, sourceMomentId, sourceMomentTitle) => {
+            setPhotoToMove({ photo, sourceMomentId, sourceMomentTitle });
+          }}
+        />
+      )}
+
+      {/* 2b. Flytta Foto Modal */}
+      {photoToMove && (
+        <MovePhotoModal
+          photo={photoToMove.photo}
+          sourceMomentId={photoToMove.sourceMomentId}
+          sourceMomentTitle={photoToMove.sourceMomentTitle}
+          project={project}
+          onClose={() => setPhotoToMove(null)}
+          onConfirmMove={handleMovePhoto}
         />
       )}
 
@@ -3316,12 +3523,56 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                 </div>
               )}
             </div>
-            <button
-              onClick={() => setLightboxPhoto(null)}
-              className="p-2 bg-[#222222] hover:bg-[#333] rounded-xl text-white cursor-pointer font-bold text-xs"
-            >
-              ✕ Stäng
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (lightboxPhoto) {
+                    handleSavePhotoToMobile(
+                      lightboxPhoto.photo || {
+                        id: 'lightbox',
+                        dataUrl: lightboxPhoto.url,
+                        capturedAt: lightboxPhoto.capturedAt || '',
+                        category: 'Kontroll',
+                      },
+                      lightboxPhoto.title
+                    );
+                  }
+                }}
+                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all shadow"
+                title="Ladda ner fotot till mobilens kamerarulle/filer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Spara till mobilen</span>
+              </button>
+
+              {lightboxPhoto.photo && lightboxPhoto.momentId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhotoToMove({
+                      photo: lightboxPhoto.photo!,
+                      sourceMomentId: lightboxPhoto.momentId!,
+                      sourceMomentTitle: lightboxPhoto.momentTitle || lightboxPhoto.title,
+                    });
+                    setLightboxPhoto(null);
+                  }}
+                  className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 rounded-xl font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all shadow"
+                  title="Flytta bild till annan fas eller övning"
+                >
+                  <ArrowRightLeft className="w-3.5 h-3.5" />
+                  <span>Flytta bild</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setLightboxPhoto(null)}
+                className="p-2 bg-[#222222] hover:bg-[#333] rounded-xl text-white cursor-pointer font-bold text-xs"
+              >
+                ✕ Stäng
+              </button>
+            </div>
           </div>
           <img
             src={normalizePhotoUrl(lightboxPhoto.url, lightboxPhoto.title)}

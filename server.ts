@@ -4695,6 +4695,58 @@ function mergeServerProjectSafely(existing: any, incoming: any): any {
   }
   const mergedMembers = Array.from(membersMap.values());
 
+  // Prune duplicate moved photos across moments so moved photos don't duplicate on server
+  const photoOccurrences = new Map<string, Array<{ photo: any; locationType: 'moment' | 'pre'; momentId?: string }>>();
+  for (const [mId, mom] of Object.entries(mergedMoments)) {
+    if (!mom || !Array.isArray(mom.photos)) continue;
+    mom.photos.forEach((p: any) => {
+      if (!p || !p.id) return;
+      const list = photoOccurrences.get(p.id) || [];
+      list.push({ photo: p, locationType: 'moment', momentId: mId });
+      photoOccurrences.set(p.id, list);
+    });
+  }
+  mergedPrePhotos.forEach((p: any) => {
+    if (!p || !p.id) return;
+    const list = photoOccurrences.get(p.id) || [];
+    list.push({ photo: p, locationType: 'pre' });
+    photoOccurrences.set(p.id, list);
+  });
+
+  photoOccurrences.forEach((occurrences, photoId) => {
+    if (occurrences.length <= 1) return;
+    let winner = occurrences[0];
+    for (let i = 1; i < occurrences.length; i++) {
+      const candidate = occurrences[i];
+      const winMovedAt = winner.photo.movedAt ? new Date(winner.photo.movedAt).getTime() : 0;
+      const candMovedAt = candidate.photo.movedAt ? new Date(candidate.photo.movedAt).getTime() : 0;
+      if (candMovedAt > winMovedAt) {
+        winner = candidate;
+      } else if (candMovedAt === winMovedAt) {
+        if (candidate.locationType === 'moment' && candidate.photo.movedToMomentId === candidate.momentId) {
+          winner = candidate;
+        } else if ((candidate.photo.dataUrl?.length || 0) > (winner.photo.dataUrl?.length || 0)) {
+          winner = candidate;
+        }
+      }
+    }
+    occurrences.forEach((occ) => {
+      if (occ === winner) return;
+      if (occ.locationType === 'moment' && occ.momentId && mergedMoments[occ.momentId]) {
+        const mom = mergedMoments[occ.momentId];
+        const updated = (mom.photos || []).filter((p: any) => p.id !== photoId);
+        mergedMoments[occ.momentId] = {
+          ...mom,
+          photos: updated,
+          photoBase64: mom.photoBase64 === occ.photo.dataUrl ? updated[0]?.dataUrl : mom.photoBase64,
+        };
+      } else if (occ.locationType === 'pre') {
+        const pIdx = mergedPrePhotos.findIndex((p: any) => p.id === photoId);
+        if (pIdx !== -1) mergedPrePhotos.splice(pIdx, 1);
+      }
+    });
+  });
+
   return {
     ...existing,
     ...incoming,

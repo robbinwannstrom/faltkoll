@@ -159,3 +159,47 @@ En fullständig arkitektur- och genomförandeplan för att införa automatisk kr
 4. **Serververifiering i `server.ts`:** Lägg till server-side hash-validering vid bildmottagning och backup-generering.
 5. **Visuella integritetsindikatorer:** Lägg till en diskret verifieringsstämpel i `ChecklistView` (fotodetalj) och i `BackupModal`.
 6. **Kompilering och verifiering:** Kör `compile_applet` och testa hash-generering på befintliga och nya projekt.
+
+---
+
+## 6. Vidareutvecklad Bildhantering: Spara till mobilen & Flytta bild mellan faser
+
+### DEL 1 – Undersökning & Arkitekturkartläggning
+- **Bildlagring & Identifiering:**
+  - Varje bild representeras som ett `MomentPhoto`-objekt med ett stabilt och unikt ID (`photo.id`, t.ex. `ph_1791..._...` eller SHA-256 hash).
+  - Bilder kopplas till moment genom att ingå i `project.moments[momentId].photos`-arrayen (eller `project.preInspectionPhotos` för försyn).
+  - På servern lagras fotot i `cloudState.photos[photoId]` och skrivs beständigt till disk under `/data/photos/${photoId}.json` + bildfil.
+- **Serverhämtning & Reservserver:**
+  - När Firestore har nått sin dagsgräns kopplas synkningen om till Express-reservservern (`/api/sync/projects` och `/api/sync/photos`).
+  - Klienter hämtar och hydrerar bildfiler via `/api/photos/${photoId}`.
+- **Påverkade filer:**
+  1. `src/types.ts`: Utökad med `movedAt`, `movedFromMomentId`, `movedToMomentId`.
+  2. `src/utils/photoStorage.ts`: Ny `savePhotoToDevice`-funktion som hanterar Web Share API och Blob Object URL utan att röra projektdata eller synkkö.
+  3. `src/utils/photoUtils.ts`: Tillagd `pruneMovedPhotoDuplicatesAcrossMoments` så att gamla synkkopior inte återskapar bilden i ursprungsmomentet.
+  4. `server.ts`: Integrerad korsmomentsdeduplicering i `mergeServerProjectSafely` baserad på `movedAt`.
+  5. `src/components/MovePhotoModal.tsx`: Ny modal för val av målfaser och målövningar med sökfiltrering och felhantering.
+  6. `src/components/ChecklistView.tsx`: Nya knappar för "Spara till mobilen" och "Flytta bild", flytande bekräftelse-toast, integration i momentkort och lightbox.
+  7. `src/components/PhotoArchiveModal.tsx`: "Spara" uppgraderad till `savePhotoToDevice` och "Flytta"-knapp tillagd.
+
+### DEL 2 – Spara bild till mobilen
+- Använder `savePhotoToDevice`:
+  - Hämtar rådata från dataURL eller via HTTP fetch från `/api/photos/${photo.id}` vid behov.
+  - På mobila enheter (iOS Safari/Android Chrome) används Web Share API med fil när det stöds (vilket ger användaren systemets "Spara bild"-val).
+  - Webbläsarnedladdning som säker fallback med automatisk `URL.revokeObjectURL`.
+  - Sparar en ren lokal kopia och rör varken projektets `deletedPhotoIds`, synkkö eller befintliga bildreferenser.
+  - Tydliga bekräftelse- och felmeddelanden via toast.
+
+### DEL 3 – Flytta bild mellan faser och övningar
+- Hanteras med `MovePhotoModal` och `handleMovePhoto`:
+  - Visar alla tillgängliga faser och övningar för projektet (plus Försyn).
+  - Samma stabila `photo.id`, SHA-256 hash, bilddata och metadata bevaras intakt (ingen ny kopia och ingen radering).
+  - Stämplas med `movedAt: ISO-tid`, `movedFromMomentId`, `movedToMomentId`.
+  - Registreras ALDRIG i `deletedPhotoIds` (så bilden förblir fullständigt aktiv och skyddad mot felaktig radering).
+  - Både klientsidans `mergeProjectSafely` och serverns `mergeServerProjectSafely` deduplicerar mot `movedAt`, vilket garanterar att gamla synkversioner inte flyttar tillbaka eller dubblerar bilden.
+  - Sparas direkt i projektet och synkas tryggt till moln och andra enheter.
+
+### DEL 4 – Skydd av befintlig lagring och synkning
+- Ingen ändring i kryptering eller diskstrukturer.
+- `deletedPhotoIds` förblir reserverat uteslutande för genuina borttagningar.
+- Offline-stöd: om enheten är offline sparas flytten lokalt i IndexedDB och synkas automatiskt när anslutning återfås.
+

@@ -35,6 +35,9 @@ export interface MomentPhoto {
   weather?: string;
   hash?: string; // SHA-256 kryptografisk kontrollsumma (64 tecken)
   hashVerified?: boolean; // Validerad integritet mot rådata
+  movedAt?: string; // ISO-tidsstämpel när fotot flyttades mellan faser/övningar
+  movedFromMomentId?: string; // Ursprungligt moment-ID före flytt
+  movedToMomentId?: string; // Mål moment-ID efter flytt
 }
 
 export interface MomentRecord {

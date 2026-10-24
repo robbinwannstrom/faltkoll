@@ -48,6 +48,121 @@ export function downloadPhotoDirect(dataUrl: string, filename: string) {
 }
 
 /**
+ * Universal safe helper to save or download a photo directly to the device (mobile camera roll or downloads folder).
+ * Supports:
+ * - Direct base64 data URLs
+ * - Remote and relative URLs (e.g. /api/photos/:id)
+ * - Mobile Web Share API with files (iOS "Spara bild", Android gallery integration)
+ * - Browser download fallback with proper blob revocation
+ * - Zero impact on project state, sync queues, or deletedPhotoIds
+ */
+export async function savePhotoToDevice(
+  photoUrlOrDataUrl: string,
+  filename: string,
+  photoTitle?: string
+): Promise<{ success: boolean; message: string; method?: 'share' | 'download' }> {
+  try {
+    if (!photoUrlOrDataUrl || typeof photoUrlOrDataUrl !== 'string' || photoUrlOrDataUrl.trim() === '') {
+      return {
+        success: false,
+        message: 'Ingen giltig bildfil hittades att spara.',
+      };
+    }
+
+    let finalName = filename || `Faltfoto_${Date.now()}.jpg`;
+    const isSvg = photoUrlOrDataUrl.includes('image/svg');
+    if (isSvg && finalName.toLowerCase().endsWith('.jpg')) {
+      finalName = finalName.replace(/\.jpg$/i, '.svg');
+    }
+
+    // Convert dataUrl or remote URL to Blob
+    let blob: Blob;
+    try {
+      if (photoUrlOrDataUrl.startsWith('data:')) {
+        const res = await fetch(photoUrlOrDataUrl);
+        blob = await res.blob();
+      } else {
+        // Fetch from server / URL
+        const res = await fetch(photoUrlOrDataUrl, { credentials: 'same-origin' });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+        blob = await res.blob();
+      }
+    } catch (fetchErr: any) {
+      console.error('Kunde inte hämta bildfil för nedladdning:', fetchErr);
+      return {
+        success: false,
+        message: `Kunde inte hämta bildfilen från servern: ${fetchErr?.message || 'Nätverksfel'}. Kontrollera anslutningen.`,
+      };
+    }
+
+    const mimeType = blob.type || (isSvg ? 'image/svg+xml' : 'image/jpeg');
+
+    // 1. Try mobile Web Share API if supported and user can share files (native "Spara bild" on iOS/Android)
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.canShare &&
+      typeof navigator.share === 'function' &&
+      typeof File !== 'undefined'
+    ) {
+      try {
+        const file = new File([blob], finalName, { type: mimeType });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: photoTitle || 'FältKoll Kontrollfoto',
+            text: photoTitle ? `Kontrollfoto från FältKoll: ${photoTitle}` : 'Kontrollfoto från FältKoll',
+          });
+          return {
+            success: true,
+            message: 'Bilden öppnades för sparande/delning till enheten!',
+            method: 'share',
+          };
+        }
+      } catch (shareErr: any) {
+        if (shareErr?.name === 'AbortError') {
+          // User closed share dialog, which is normal
+          return {
+            success: false,
+            message: 'Sparande avbröts av användaren.',
+          };
+        }
+        console.info('Web Share inte tillgängligt eller nekades, fallback till direkt nedladdning:', shareErr);
+      }
+    }
+
+    // 2. Direct browser download fallback via Blob Object URL
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = finalName;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+
+    setTimeout(() => {
+      try {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(objectUrl);
+      } catch {}
+    }, 1000);
+
+    return {
+      success: true,
+      message: `Bilden "${finalName}" har laddats ner till enheten!`,
+      method: 'download',
+    };
+  } catch (err: any) {
+    console.error('Oväntat fel vid sparande av bild till mobilen:', err);
+    return {
+      success: false,
+      message: `Kunde inte spara bilden: ${err?.message || 'Okänt fel'}`,
+    };
+  }
+}
+
+/**
  * Automatically saves a captured photo directly to the device's camera roll / downloads folder.
  * Standard for student field work so photos never disappear even if browser cache or offline state changes.
  */

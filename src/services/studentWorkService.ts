@@ -646,7 +646,7 @@ export async function syncProjectBidirectional(
     if (currentLocal) {
       currentLocal.lastSyncedAt = now;
       currentLocal.syncEnabled = true;
-      const initialPushPromises = [
+      const initialPushPromises: Promise<any>[] = [
         safeFetchJson('/api/sync/projects', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -707,7 +707,7 @@ export async function syncProjectBidirectional(
     await saveProject(merged);
 
     // Step 4: Re-save merged project to server (and Firestore only if quota not exceeded)
-    const finalSyncPromises = [
+    const finalSyncPromises: Promise<any>[] = [
       safeFetchJson('/api/sync/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

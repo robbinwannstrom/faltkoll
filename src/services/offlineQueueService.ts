@@ -362,14 +362,18 @@ export async function processSyncQueue(): Promise<{
         item.errorMessage = failureReason || 'Uppladdningen misslyckades';
         await updateQueuedItem(item);
         failed++;
-        errors.push(item.errorMessage);
-        currentSyncStatus.lastError = item.errorMessage;
+        if (item.errorMessage) {
+          errors.push(item.errorMessage);
+          currentSyncStatus.lastError = item.errorMessage;
+        }
       }
     }
   } catch (err: any) {
     console.warn('Queue processing error:', err);
     currentSyncStatus.lastError = err?.message || 'Fel i synkkö';
-    errors.push(currentSyncStatus.lastError);
+    if (currentSyncStatus.lastError) {
+      errors.push(currentSyncStatus.lastError);
+    }
   } finally {
     isProcessingQueue = false;
     currentSyncStatus.isSyncing = false;

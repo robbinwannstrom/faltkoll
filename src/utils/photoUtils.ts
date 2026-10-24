@@ -283,6 +283,94 @@ export function mergePhotoListsSafely(
 }
 
 /**
+ * Ensures that if a photo was moved between phases/exercises, old snapshots do not
+ * re-introduce duplicate instances in the previous moment. The most recent location
+ * (evaluated by movedAt, movedToMomentId, or data fidelity) retains the photo.
+ */
+export function pruneMovedPhotoDuplicatesAcrossMoments(
+  moments: Record<string, MomentRecord>,
+  preInspectionPhotos?: MomentPhoto[]
+): {
+  moments: Record<string, MomentRecord>;
+  preInspectionPhotos: MomentPhoto[];
+} {
+  const resultMoments: Record<string, MomentRecord> = { ...moments };
+  let resultPre: MomentPhoto[] = [...(preInspectionPhotos || [])];
+
+  interface PhotoOccurrence {
+    photo: MomentPhoto;
+    locationType: 'moment' | 'pre';
+    momentId?: string;
+  }
+  const photoOccurrences = new Map<string, PhotoOccurrence[]>();
+
+  for (const [mId, mom] of Object.entries(resultMoments)) {
+    if (!mom || !Array.isArray(mom.photos)) continue;
+    mom.photos.forEach((p) => {
+      if (!p || !p.id) return;
+      const list = photoOccurrences.get(p.id) || [];
+      list.push({ photo: p, locationType: 'moment', momentId: mId });
+      photoOccurrences.set(p.id, list);
+    });
+  }
+
+  resultPre.forEach((p) => {
+    if (!p || !p.id) return;
+    const list = photoOccurrences.get(p.id) || [];
+    list.push({ photo: p, locationType: 'pre' });
+    photoOccurrences.set(p.id, list);
+  });
+
+  photoOccurrences.forEach((occurrences, photoId) => {
+    if (occurrences.length <= 1) return;
+
+    // Pick winner
+    let winner = occurrences[0];
+    for (let i = 1; i < occurrences.length; i++) {
+      const candidate = occurrences[i];
+      const winMovedAt = winner.photo.movedAt ? new Date(winner.photo.movedAt).getTime() : 0;
+      const candMovedAt = candidate.photo.movedAt ? new Date(candidate.photo.movedAt).getTime() : 0;
+
+      if (candMovedAt > winMovedAt) {
+        winner = candidate;
+      } else if (candMovedAt === winMovedAt) {
+        if (candidate.locationType === 'moment' && candidate.photo.movedToMomentId === candidate.momentId) {
+          winner = candidate;
+        } else if ((candidate.photo.dataUrl?.length || 0) > (winner.photo.dataUrl?.length || 0)) {
+          winner = candidate;
+        }
+      }
+    }
+
+    // Prune losing occurrences
+    occurrences.forEach((occ) => {
+      if (occ === winner) return;
+
+      if (occ.locationType === 'moment' && occ.momentId && resultMoments[occ.momentId]) {
+        const mom = resultMoments[occ.momentId];
+        const updatedPhotos = (mom.photos || []).filter((p) => p.id !== photoId);
+        let updatedB64 = mom.photoBase64;
+        if (updatedB64 && (mom.photoBase64 === occ.photo.dataUrl || !updatedPhotos.some((p) => p.dataUrl === updatedB64))) {
+          updatedB64 = updatedPhotos[0]?.dataUrl;
+        }
+        resultMoments[occ.momentId] = {
+          ...mom,
+          photos: updatedPhotos,
+          photoBase64: updatedB64,
+        };
+      } else if (occ.locationType === 'pre') {
+        resultPre = resultPre.filter((p) => p.id !== photoId);
+      }
+    });
+  });
+
+  return {
+    moments: resultMoments,
+    preInspectionPhotos: resultPre,
+  };
+}
+
+/**
  * Merge an incoming project with a local project, protecting photos and sync settings against data loss
  */
 export function mergeProjectSafely(
@@ -365,11 +453,13 @@ export function mergeProjectSafely(
         dataUrl: normalizePhotoUrl(p.dataUrl, p.caption),
       }));
 
+    const prunedIncoming = pruneMovedPhotoDuplicatesAcrossMoments(normalizedMoments, normalizedPre);
+
     const enrichedIncoming = {
       ...incomingProj,
       deletedPhotoIds: Array.from(combinedDeletedSet),
-      moments: normalizedMoments,
-      preInspectionPhotos: normalizedPre,
+      moments: prunedIncoming.moments,
+      preInspectionPhotos: prunedIncoming.preInspectionPhotos,
     };
 
     if (enrichedIncoming.groupCode?.trim()) {
@@ -513,6 +603,8 @@ export function mergeProjectSafely(
   }
   const mergedMembers = Array.from(membersMap.values());
 
+  const prunedMerged = pruneMovedPhotoDuplicatesAcrossMoments(mergedMoments, mergedPrePhotos);
+
   return {
     ...localProj,
     ...incomingProj,
@@ -523,8 +615,8 @@ export function mergeProjectSafely(
     memberIds: mergedMemberIds,
     members: mergedMembers,
     lastSyncedAt: incomingProj.lastSyncedAt || localProj.lastSyncedAt || new Date().toISOString().replace('T', ' ').substring(0, 16),
-    moments: mergedMoments,
-    preInspectionPhotos: mergedPrePhotos,
+    moments: prunedMerged.moments,
+    preInspectionPhotos: prunedMerged.preInspectionPhotos,
     studentId: incomingProj.studentId || localProj.studentId,
     studentName: incomingProj.studentName || localProj.studentName,
     studentEmail: incomingProj.studentEmail || localProj.studentEmail,

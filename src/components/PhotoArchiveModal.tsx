@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Project, MomentPhoto, UserSettings } from '../types';
-import { PHOTO_CATEGORIES, exportProjectPhotosZip, downloadPhotoDirect } from '../utils/photoStorage';
+import { PHOTO_CATEGORIES, exportProjectPhotosZip, downloadPhotoDirect, savePhotoToDevice } from '../utils/photoStorage';
 import { ALL_MOMENTS } from '../data/momentsData';
 import { normalizePhotoUrl, createPhotoPlaceholderSvg, isTruncatedPhoto, isGoodPhotoData } from '../utils/photoUtils';
 import {
@@ -19,6 +19,8 @@ import {
   ChevronDown,
   ChevronUp,
   Camera,
+  ArrowRightLeft,
+  Check,
 } from 'lucide-react';
 
 interface PhotoArchiveModalProps {
@@ -28,6 +30,7 @@ interface PhotoArchiveModalProps {
   onClose: () => void;
   onOpenLightbox: (url: string, title: string) => void;
   onDeletePhoto?: (momentId: string, photoId: string) => void;
+  onMovePhoto?: (photo: MomentPhoto, sourceMomentId: string, sourceMomentTitle: string) => void;
 }
 
 export const PhotoArchiveModal: React.FC<PhotoArchiveModalProps> = ({
@@ -37,10 +40,12 @@ export const PhotoArchiveModal: React.FC<PhotoArchiveModalProps> = ({
   onClose,
   onOpenLightbox,
   onDeletePhoto,
+  onMovePhoto,
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [isExporting, setIsExporting] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [photoToDelete, setPhotoToDelete] = useState<{
     momentId: string;
     photoId: string;
@@ -249,6 +254,20 @@ export const PhotoArchiveModal: React.FC<PhotoArchiveModalProps> = ({
           </div>
         </div>
 
+        {/* Toast notification */}
+        {toastMessage && (
+          <div className="mx-4 mt-3 p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between animate-in fade-in">
+            <span>{toastMessage}</span>
+            <button
+              type="button"
+              onClick={() => setToastMessage(null)}
+              className="text-amber-400 hover:text-white text-xs font-bold ml-2 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Photos Grid - Rymlig och enkel */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
           <div className="flex items-center justify-between text-xs text-slate-400">
@@ -339,21 +358,41 @@ export const PhotoArchiveModal: React.FC<PhotoArchiveModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-1.5 border-t border-slate-800/80 text-[11px] gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          downloadPhotoDirect(
-                            photo.dataUrl,
-                            `${project.name}_${photo.category}_${photo.momentId}_${photo.capturedAt.replace(/[: ]/g, '_')}.jpg`
-                          )
-                        }
-                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
-                        title="Ladda ner fotot till telefonen"
-                      >
-                        <Download className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        <span>Spara</span>
-                      </button>
+                    <div className="flex items-center justify-between pt-1.5 border-t border-slate-800/80 text-[11px] gap-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const filename = `${project.name.replace(/\s+/g, '_')}_${photo.category}_${photo.momentId}_${(photo.capturedAt || 'tid').replace(/[: ]/g, '_')}.jpg`;
+                            const res = await savePhotoToDevice(
+                              photo.dataUrl,
+                              filename,
+                              `${photo.momentTitle} - ${photo.category}`
+                            );
+                            setToastMessage(res.message);
+                            setTimeout(() => setToastMessage(null), 4000);
+                          }}
+                          className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold flex items-center gap-1 cursor-pointer transition-colors text-[10px]"
+                          title="Ladda ner fotot till telefonens minne"
+                        >
+                          <Download className="w-3 h-3 text-amber-400 shrink-0" />
+                          <span>Spara</span>
+                        </button>
+
+                        {onMovePhoto && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onMovePhoto(photo, photo.momentId, photo.momentTitle);
+                            }}
+                            className="px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-semibold flex items-center gap-1 cursor-pointer transition-colors text-[10px]"
+                            title="Flytta bild till ett annat moment eller fas"
+                          >
+                            <ArrowRightLeft className="w-3 h-3 text-amber-400 shrink-0" />
+                            <span>Flytta</span>
+                          </button>
+                        )}
+                      </div>
 
                       {onDeletePhoto && photo.momentId !== 'Försyn' && (
                         <button
@@ -365,7 +404,7 @@ export const PhotoArchiveModal: React.FC<PhotoArchiveModalProps> = ({
                               momentTitle: photo.momentTitle,
                             })
                           }
-                          className="p-1.5 rounded-lg bg-slate-900 hover:bg-rose-950/70 text-slate-400 hover:text-rose-400 cursor-pointer border border-slate-800 hover:border-rose-800/60 transition-colors"
+                          className="p-1 rounded-lg bg-slate-900 hover:bg-rose-950/70 text-slate-400 hover:text-rose-400 cursor-pointer border border-slate-800 hover:border-rose-800/60 transition-colors"
                           title="Ta bort foto (kräver bekräftelse)"
                         >
                           <Trash2 className="w-3.5 h-3.5 shrink-0" />
