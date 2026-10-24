@@ -1,6 +1,6 @@
 import { MomentPhoto, Project, MomentRecord } from '../types';
 import { safeFetchJson } from './apiHelper';
-import { db, canWriteToFirestore, markFirestoreQuotaExceeded } from '../firebase';
+import { db, canWriteToFirestore } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
 export interface QueuedPhotoItem {
@@ -346,15 +346,6 @@ export async function processSyncQueue(): Promise<{
           uploadSucceeded = true;
         } catch (fErr: any) {
           console.debug('Firestore subcollection sync notice:', fErr);
-          const fMsg = fErr instanceof Error ? fErr.message : String(fErr);
-          if (
-            fErr?.code === 'resource-exhausted' ||
-            fMsg.includes('RESOURCE_EXHAUSTED') ||
-            fMsg.includes('Quota limit exceeded') ||
-            fMsg.includes('Free daily write units')
-          ) {
-            markFirestoreQuotaExceeded(1440);
-          }
         }
       }
 

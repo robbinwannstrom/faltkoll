@@ -16,7 +16,6 @@ import {
   findInviteCodeInCloud,
   saveInviteCodeToCloud,
 } from './src/services/userService';
-import { canWriteToFirestore } from './src/firebase';
 
 dotenv.config();
 
@@ -4011,58 +4010,6 @@ app.get('/api/system/settings', (_req, res) => {
   });
 });
 
-// GET /api/system/firestore-status - Checks if Firestore write quota is active or exhausted
-app.get('/api/system/firestore-status', (_req, res) => {
-  const quotaFile = path.resolve(__dirname, 'data', 'firestore_quota.json');
-  let quotaExceeded = false;
-  let until = 0;
-  if (fs.existsSync(quotaFile)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(quotaFile, 'utf-8'));
-      if (data?.until && Date.now() < data.until) {
-        quotaExceeded = true;
-        until = data.until;
-      } else if (data?.date === new Date().toISOString().slice(0, 10)) {
-        quotaExceeded = true;
-        until = data?.until || (Date.now() + 12 * 3600 * 1000);
-      }
-    } catch {}
-  }
-  return res.json({
-    quotaExceeded,
-    until,
-    backendMode: quotaExceeded ? 'EXPRESS_BACKUP' : 'FIRESTORE_ACTIVE',
-  });
-});
-
-// POST /api/system/firestore-status - Updates Firestore quota status across all instances
-app.post('/api/system/firestore-status', (req, res) => {
-  const { quotaExceeded, until, durationMinutes = 1440 } = req.body || {};
-  const quotaFile = path.resolve(__dirname, 'data', 'firestore_quota.json');
-  const effectiveUntil = until || (Date.now() + durationMinutes * 60 * 1000);
-  try {
-    const dataDir = path.resolve(__dirname, 'data');
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
-    }
-    fs.writeFileSync(
-      quotaFile,
-      JSON.stringify(
-        {
-          quotaExceeded: !!quotaExceeded,
-          until: effectiveUntil,
-          date: new Date().toISOString().slice(0, 10),
-          updatedAt: new Date().toISOString(),
-        },
-        null,
-        2
-      ),
-      'utf-8'
-    );
-  } catch {}
-  return res.json({ ok: true, quotaExceeded: !!quotaExceeded, until: effectiveUntil });
-});
-
 // GET /api/system/version - Returns project metadata and detected/custom version
 app.get('/api/system/version', (_req, res) => {
   try {
@@ -5869,18 +5816,18 @@ async function startServer() {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server listening on http://0.0.0.0:${PORT}`);
 
-    // Only sync to Google Cloud Firestore if daily write quota is not exceeded
+    // Seed/sync all existing users into Google Cloud Firestore
     try {
-      if (canWriteToFirestore()) {
-        for (const u of cloudState.users) {
-          saveUserToCloud(u as any).catch(() => {});
-        }
-        deleteAdminInviteCode('FK-INV-7832').catch(() => {});
-        deleteAdminInviteCode('FK-INV-9140').catch(() => {});
-        deleteAdminInviteCode('FK-APL-5520').catch(() => {});
-      } else {
-        console.log('Firestore write quota circuit breaker is active; server using local persistent storage.');
+      for (const u of cloudState.users) {
+        saveUserToCloud(u as any).catch(() => {});
       }
+    } catch {}
+
+    // Ensure any old demo codes are completely removed from Firestore
+    try {
+      deleteAdminInviteCode('FK-INV-7832').catch(() => {});
+      deleteAdminInviteCode('FK-INV-9140').catch(() => {});
+      deleteAdminInviteCode('FK-APL-5520').catch(() => {});
     } catch {}
   });
 }

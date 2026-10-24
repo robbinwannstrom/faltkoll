@@ -197,8 +197,24 @@ export async function saveProjectToFirestore(project: Project): Promise<boolean>
       enriched.syncEnabled = true;
     }
 
-    // Photos are safely enqueued and uploaded on capture/move via offlineQueueService.
-    // We avoid bulk re-uploading all existing photos on every project save to conserve write quota.
+    // 1. Dedicated Photo Subcollection Backup in Firestore (/projects/{projectId}/photos/{photoId})
+    // and server dedicated photo store in parallel with a safe timeout
+    const photoPromises: Promise<any>[] = [];
+    if (project.moments) {
+      for (const [mId, mom] of Object.entries(project.moments)) {
+        if (mom.photos && mom.photos.length > 0) {
+          for (const ph of mom.photos) {
+            if (ph.dataUrl && ph.dataUrl.length > 500 && !ph.dataUrl.includes('CLOUDSYNC')) {
+              photoPromises.push(uploadPhotoToDedicatedCloud(ph, project.id, mId));
+            }
+          }
+        }
+      }
+    }
+    if (photoPromises.length > 0) {
+      withTimeout(Promise.allSettled(photoPromises), 3500, []).catch(() => {});
+    }
+
     const cleanProject = sanitizeForFirestore(enriched);
     const approxSize = JSON.stringify(cleanProject).length;
     let projectDocPayload = cleanProject;
@@ -256,17 +272,7 @@ export async function saveProjectToFirestore(project: Project): Promise<boolean>
     }
 
     return true;
-  } catch (err: any) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (
-      err?.code === 'resource-exhausted' ||
-      msg.includes('RESOURCE_EXHAUSTED') ||
-      msg.includes('Quota limit exceeded') ||
-      msg.includes('Free daily write units')
-    ) {
-      markFirestoreQuotaExceeded(1440);
-      return true; // Gracefully continue; Express server & IndexedDB have saved the project
-    }
+  } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, `projects/${project.id}`, false);
     return false;
   }

@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db, canWriteToFirestore } from '../firebase';
+import { db } from '../firebase';
 
 /**
  * STANDARDADRESS FÖR QR-KODEN:
@@ -113,8 +113,8 @@ export async function saveCustomAppUrl(rawUrl: string): Promise<string> {
     // Offline fallback
   }
 
-  // Sync to Firestore (/system/app_config) only if quota permits
-  if (db && canWriteToFirestore()) {
+  // Sync to Firestore (/system/app_config)
+  if (db) {
     try {
       await setDoc(
         doc(db, 'system', 'app_config'),
