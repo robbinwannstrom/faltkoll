@@ -396,8 +396,8 @@
       "exerciseCode": "GRUND-1",
       "isTeacherExercise": true,
       "createdAt": "2026-10-02 08:30",
-      "updatedAt": "2026-10-10 22:43",
-      "lastSyncedAt": "2026-10-10 22:43",
+      "updatedAt": "2026-10-24 08:53",
+      "lastSyncedAt": "2026-10-24 08:53",
       "syncEnabled": true,
       "notes": "Arbetar med schaktning och kapillärbrytande makadambädd. Alla mått kontrolleras med rotationslaser.",
       "fieldMeasurements": {
@@ -429,6 +429,15 @@
               "caption": "Profilsnören uppspända och kryssmått verifierat",
               "dataUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNjQwIDQ4MCI+CiAgICAgICAgPGRlZnM+CiAgICAgICAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdfMzhiZGY4IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzE4MjIzNCIvPgogICAgICAgICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwYjExMjAiLz4KICAgICAgICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICAgICAgPC9kZWZzPgogICAgICAgIDxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiBmaWxsPSJ1cmwoI2dfMzhiZGY4KSIvPgogICAgICAgIDxyZWN0IHg9IjI0IiB5PSIyNCIgd2lkdGg9IjU5MiIgaGVpZ2h0PSI0MzIiIHJ4PSIxNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzhiZGY4IiBzdHJva2Utd2lkdGg9IjIuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNiA0IiBvcGFjaXR5PSIwLjYiLz4KICAgICAgICA8Y2lyY2xlIGN4PSIzMjAiIGN5PSIxODAiIHI9IjUwIiBmaWxsPSIjMzhiZGY4IiBvcGFjaXR5PSIwLjEyIi8+CiAgICAgICAgPHRleHQgeD0iMzIwIiB5PSIxNzUiIGZvbnQtZmFtaWx5PSJzeXN0ZW0tdWksIC1hcHBsZS1zeXN0ZW0sIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IiMzOGJkZjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfk7cgRsOETFRET0tVTUVOVEFUSU9OPC90ZXh0PgogICAgICAgIDx0ZXh0IHg9IjMyMCIgeT0iMjEwIiBmb250LWZhbWlseT0ic3lzdGVtLXVpLCAtYXBwbGUtc3lzdGVtLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Nb21lbnQgMS4xOiBVdHPDpHR0bmluZyAmIEtyeXNzbcOldHQ8L3RleHQ+CiAgICAgICAgPHRleHQgeD0iMzIwIiB5PSIyNDUiIGZvbnQtZmFtaWx5PSJzeXN0ZW0tdWksIC1hcHBsZS1zeXN0ZW0sIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI1MDAiIGZpbGw9IiM5NGEzYjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPktyeXNzbcOldHQgMTIuODEgbSB2ZXJpZmllcmF0IG1lZCBzdMOlbGJhbmRtw6V0dDwvdGV4dD4KICAgICAgICA8cmVjdCB4PSIzNSIgeT0iMzk1IiB3aWR0aD0iNTcwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiMwMDAwMDAiIG9wYWNpdHk9IjAuODUiLz4KICAgICAgICA8dGV4dCB4PSI1NSIgeT0iNDI2IiBmb250LWZhbWlseT0idWktbW9ub3NwYWNlLCBtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IiNmOTczMTYiPkbDhExUS09MTCBLT05UUk9MTEJFVklTPC90ZXh0PgogICAgICAgIDx0ZXh0IHg9IjU4NSIgeT0iNDI2IiBmb250LWZhbWlseT0idWktbW9ub3NwYWNlLCBtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJlbmQiPjIwMjYtMTAtMDMgMDk6MTI8L3RleHQ+CiAgICAgIDwvc3ZnPg=="
             }
+          ],
+          "photoBase64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFElEQVR42mNk+M9QzwAEjDAGBiAAAP//BQcBEA7xW8YAAAAASUVORK5CYII=",
+          "deletedPhotoIds": [
+            "ph_test_sync_photo_verified_100",
+            "1.1:ph_test_sync_photo_verified_100",
+            "ph_test_sync_photo_99",
+            "1.1:ph_test_sync_photo_99",
+            "ph_verify_interclient_01",
+            "1.1:ph_verify_interclient_01"
           ]
         },
         "1.2": {
@@ -515,7 +524,15 @@
       "teacherId": "usr_angfar_teacher",
       "teacherName": "Angfar",
       "assignedTeacherId": "usr_angfar_teacher",
-      "assignedTeacherName": "Angfar"
+      "assignedTeacherName": "Angfar",
+      "deletedPhotoIds": [
+        "ph_test_sync_photo_verified_100",
+        "1.1:ph_test_sync_photo_verified_100",
+        "ph_test_sync_photo_99",
+        "1.1:ph_test_sync_photo_99",
+        "ph_verify_interclient_01",
+        "1.1:ph_verify_interclient_01"
+      ]
     },
     "proj_johan_husgrund": {
       "id": "proj_johan_husgrund",
@@ -2539,6 +2556,16 @@
       "hash": "181de0ffa654245462476413ba054e0b3ef3e4ec279e2e8de7ecd800f91032ed",
       "hashVerified": true,
       "savedAt": "2026-10-23T07:34:11.083Z"
+    },
+    "test_photo_1": {
+      "id": "test_photo_1",
+      "projectId": "proj_test_1",
+      "momentId": "",
+      "caption": "",
+      "category": "Kontroll",
+      "capturedAt": "2026-10-23 13:04",
+      "dataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      "updatedAt": "2026-10-23T13:04:15.056Z"
     }
   }
 }

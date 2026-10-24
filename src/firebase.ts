@@ -46,6 +46,14 @@ export function markFirestoreQuotaExceeded(durationMinutes = 240) {
   } catch {}
 }
 
+export function clearFirestoreQuotaExceeded() {
+  firestoreQuotaExceededUntil = 0;
+  try {
+    sessionStorage.removeItem('firestore_quota_exceeded_until');
+    localStorage.removeItem('firestore_quota_exceeded_date');
+  } catch {}
+}
+
 export function isFirestoreQuotaExceeded(): boolean {
   if (firestoreQuotaExceededUntil && Date.now() < firestoreQuotaExceededUntil) {
     return true;

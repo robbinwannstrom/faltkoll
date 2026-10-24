@@ -1,0 +1,12 @@
+{
+  "id": "test_photo_1",
+  "projectId": "proj_test_1",
+  "momentId": "",
+  "caption": "",
+  "category": "Kontroll",
+  "capturedAt": "2026-10-23 13:04",
+  "dataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "savedAt": "2026-10-23T13:04:15.056Z",
+  "hash": "10a7227ade22bb007518dbb14d064d2f3b0d5a282264d6d94a8682d68866650a",
+  "hashVerified": true
+}

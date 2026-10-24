@@ -1,5 +1,7 @@
 import { MomentPhoto, Project, MomentRecord } from '../types';
 import { safeFetchJson } from './apiHelper';
+import { db, canWriteToFirestore } from '../firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 export interface QueuedPhotoItem {
   id: string; // Queue ID: e.g. "q_ph_123"
@@ -260,12 +262,17 @@ async function updateQueuedItem(item: QueuedPhotoItem): Promise<void> {
 /**
  * Process all pending items in the sync queue with auto-retry
  */
-export async function processSyncQueue(): Promise<{ succeeded: number; failed: number }> {
-  if (isProcessingQueue) return { succeeded: 0, failed: 0 };
+export async function processSyncQueue(): Promise<{
+  succeeded: number;
+  failed: number;
+  errors: string[];
+}> {
+  if (isProcessingQueue) return { succeeded: 0, failed: 0, errors: [] };
   if (!navigator.onLine) {
     currentSyncStatus.isOnline = false;
+    currentSyncStatus.lastError = 'Enheten är offline (saknar internetanslutning).';
     notifyListeners();
-    return { succeeded: 0, failed: 0 };
+    return { succeeded: 0, failed: 0, errors: ['Enheten är offline'] };
   }
 
   isProcessingQueue = true;
@@ -275,6 +282,7 @@ export async function processSyncQueue(): Promise<{ succeeded: number; failed: n
 
   let succeeded = 0;
   let failed = 0;
+  const errors: string[] = [];
 
   try {
     const queue = await getAllQueuedItems();
@@ -283,16 +291,19 @@ export async function processSyncQueue(): Promise<{ succeeded: number; failed: n
       currentSyncStatus.isSyncing = false;
       notifyListeners();
       isProcessingQueue = false;
-      return { succeeded: 0, failed: 0 };
+      return { succeeded: 0, failed: 0, errors: [] };
     }
 
     for (const item of queue) {
-      // Don't overwhelm network with too many consecutive retries if rapidly failing
       item.status = 'SYNCING';
       item.attempts = (item.attempts || 0) + 1;
       item.lastAttemptAt = new Date().toISOString();
       await updateQueuedItem(item);
 
+      let uploadSucceeded = false;
+      let failureReason = '';
+
+      // 1. Try upload to Express server storage (/api/sync/photos)
       try {
         const res = await safeFetchJson<{ ok: boolean; error?: string }>('/api/sync/photos', {
           method: 'POST',
@@ -302,39 +313,70 @@ export async function processSyncQueue(): Promise<{ succeeded: number; failed: n
             projectId: item.projectId,
             momentId: item.momentId,
           }),
-          timeoutMs: 6000,
+          timeoutMs: 30000,
         });
 
         if (res && res.ok) {
-          await removeQueuedItem(item.id);
-          succeeded++;
-          currentSyncStatus.syncedCount++;
-          currentSyncStatus.lastSyncedAt = new Date().toISOString().replace('T', ' ').substring(0, 16);
-          currentSyncStatus.lastError = null;
+          uploadSucceeded = true;
         } else {
-          item.status = 'FAILED';
-          item.errorMessage = res?.error || 'Serverfel vid fotouppladdning';
-          await updateQueuedItem(item);
-          failed++;
+          failureReason = res?.error || 'Serverfel vid fotouppladdning';
         }
       } catch (err: any) {
+        failureReason = err?.message || 'Nätverksfel vid kontakt med Express-servern';
+      }
+
+      // 2. Also try Firestore subcollection if Firestore is available and write quota is not exceeded
+      if (canWriteToFirestore() && db && item.projectId) {
+        try {
+          const photoDocRef = doc(db, 'projects', item.projectId, 'photos', item.photo.id);
+          await setDoc(
+            photoDocRef,
+            {
+              id: item.photo.id,
+              projectId: item.projectId,
+              momentId: item.momentId || '',
+              dataUrl: item.photo.dataUrl,
+              capturedAt: item.photo.capturedAt || '',
+              category: item.photo.category || 'Kontroll',
+              caption: item.photo.caption || '',
+              updatedAt: new Date().toISOString(),
+            },
+            { merge: true }
+          );
+          uploadSucceeded = true;
+        } catch (fErr: any) {
+          console.debug('Firestore subcollection sync notice:', fErr);
+        }
+      }
+
+      if (uploadSucceeded) {
+        // Success: safely remove from upload queue (original is still in local photo_cache & photo_vault)
+        await removeQueuedItem(item.id);
+        succeeded++;
+        currentSyncStatus.syncedCount++;
+        currentSyncStatus.lastSyncedAt = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        currentSyncStatus.lastError = null;
+      } else {
+        // Failure: KEEP the photo safely in queue and IndexedDB cache
         item.status = 'FAILED';
-        item.errorMessage = err?.message || 'Nätverksfel vid fotouppladdning';
+        item.errorMessage = failureReason || 'Uppladdningen misslyckades';
         await updateQueuedItem(item);
         failed++;
-        currentSyncStatus.lastError = item.errorMessage || null;
+        errors.push(item.errorMessage);
+        currentSyncStatus.lastError = item.errorMessage;
       }
     }
   } catch (err: any) {
     console.warn('Queue processing error:', err);
     currentSyncStatus.lastError = err?.message || 'Fel i synkkö';
+    errors.push(currentSyncStatus.lastError);
   } finally {
     isProcessingQueue = false;
     currentSyncStatus.isSyncing = false;
     await refreshQueueCount();
   }
 
-  return { succeeded, failed };
+  return { succeeded, failed, errors };
 }
 
 /**

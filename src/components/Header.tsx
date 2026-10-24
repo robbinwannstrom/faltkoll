@@ -71,11 +71,53 @@ export const Header: React.FC<HeaderProps> = ({
   const appVersion = useAppVersion(userSettings);
 
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
+  const [syncFeedback, setSyncFeedback] = useState<{
+    type: 'success' | 'error' | 'info';
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     const unsub = subscribeSyncStatus((s) => setSyncStatus(s));
     return unsub;
   }, []);
+
+  const handleManualSyncClick = async () => {
+    const count = syncStatus?.pendingCount || 0;
+    setSyncFeedback({
+      type: 'info',
+      message: count > 0 ? `Synkar ${count} köade fältfoton...` : 'Kontrollerar molnanslutning...',
+    });
+
+    try {
+      const res = await processSyncQueue();
+      if (res.succeeded > 0 && res.failed === 0) {
+        setSyncFeedback({
+          type: 'success',
+          message: `✓ ${res.succeeded} foto${res.succeeded > 1 ? 'n' : ''} synkades säkert till molnet!`,
+        });
+        setTimeout(() => setSyncFeedback(null), 5000);
+      } else if (res.failed > 0) {
+        const detail = res.errors?.[0] || syncStatus?.lastError || 'Serverfel vid överföring';
+        setSyncFeedback({
+          type: 'error',
+          message: `Kunde inte synka ${res.failed} foto${res.failed > 1 ? 'n' : ''}: ${detail}. Fotona sparas säkert i enhetens offline-minne och försöks igen automatiskt.`,
+        });
+        setTimeout(() => setSyncFeedback(null), 8000);
+      } else {
+        setSyncFeedback({
+          type: 'success',
+          message: '✓ Alla foton och moment är synkade till molnet.',
+        });
+        setTimeout(() => setSyncFeedback(null), 4000);
+      }
+    } catch (err: any) {
+      setSyncFeedback({
+        type: 'error',
+        message: `Synkfel: ${err?.message || 'Nätverksfel'}. Fotona ligger tryggt kvar i kön.`,
+      });
+      setTimeout(() => setSyncFeedback(null), 8000);
+    }
+  };
 
   const handleInstallClick = async () => {
     if (isInstallable) {
@@ -90,6 +132,33 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-[#121212] border-b border-[#242424] font-sans w-full max-w-full overflow-x-clip">
+      {/* Sync Banner Feedback */}
+      {syncFeedback && (
+        <div
+          className={`px-3 py-2 text-xs flex items-center justify-between border-b transition-all ${
+            syncFeedback.type === 'error'
+              ? 'bg-rose-950/95 border-rose-700 text-rose-200'
+              : syncFeedback.type === 'success'
+              ? 'bg-emerald-950/95 border-emerald-700 text-emerald-200'
+              : 'bg-sky-950/95 border-sky-700 text-sky-200'
+          }`}
+        >
+          <div className="flex items-center gap-2 max-w-6xl mx-auto w-full">
+            {syncFeedback.type === 'info' && <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0 text-sky-400" />}
+            {syncFeedback.type === 'success' && <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-400" />}
+            {syncFeedback.type === 'error' && <CloudOff className="w-3.5 h-3.5 shrink-0 text-rose-400" />}
+            <span className="font-medium leading-tight flex-1">{syncFeedback.message}</span>
+            <button
+              type="button"
+              onClick={() => setSyncFeedback(null)}
+              className="text-xs font-bold opacity-75 hover:opacity-100 px-2 py-0.5 rounded cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top Header Row */}
       <div className="max-w-6xl mx-auto px-2.5 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-3 w-full min-w-0">
         {/* Left: Menu trigger & App/Project Title */}
@@ -209,7 +278,7 @@ export const Header: React.FC<HeaderProps> = ({
           {syncStatus && (
             <button
               type="button"
-              onClick={() => processSyncQueue().catch(() => {})}
+              onClick={handleManualSyncClick}
               className={`min-h-[34px] sm:min-h-[38px] px-2 sm:px-2.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all ${
                 syncStatus.isSyncing
                   ? 'bg-sky-950/70 border-sky-500/50 text-sky-300'

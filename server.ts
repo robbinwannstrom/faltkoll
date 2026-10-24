@@ -4334,47 +4334,174 @@ function isGoodServerPhoto(url?: string | null): boolean {
   const clean = url.trim();
   if (clean.includes('[CLOUDSYNC')) return false;
   if (clean.includes('[BILD_SPARAD')) return false;
-  if (clean.startsWith('data:image/svg+xml')) return false;
-  if (clean.startsWith('data:image/jpeg') && clean.length < 500) return false;
+  if (clean.length < 50) return false;
+  if (clean.startsWith('data:image/jpeg') && clean.length < 300) return false;
   if (clean.startsWith('/api/photos/') || clean.startsWith('/api/sync/photos/')) return true;
   return clean.startsWith('data:image/') || clean.startsWith('http://') || clean.startsWith('https://');
+}
+
+function attachPhotoToProjectState(photo: {
+  id: string;
+  projectId?: string;
+  momentId?: string;
+  dataUrl: string;
+  caption?: string;
+  category?: string;
+  capturedAt?: string;
+  hash?: string;
+}): boolean {
+  if (!photo.projectId || !cloudState.projects || !cloudState.projects[photo.projectId]) return false;
+  const proj = cloudState.projects[photo.projectId];
+  const mId = photo.momentId || '';
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+  proj.updatedAt = now;
+  proj.lastSyncedAt = now;
+
+  const deletedSet = new Set<string>((proj.deletedPhotoIds || []).filter(Boolean));
+  if (deletedSet.has(photo.id) || (mId && deletedSet.has(`${mId}:${photo.id}`))) {
+    return false; // Respect deletions: do not resurrect
+  }
+
+  const photoObj = {
+    id: photo.id,
+    capturedAt: photo.capturedAt || now,
+    category: photo.category || (mId === 'pre_inspection' ? 'Förbesiktning' : 'Kontroll'),
+    caption: photo.caption || '',
+    dataUrl: photo.dataUrl,
+    hash: photo.hash || '',
+    hashVerified: !!photo.hash,
+  };
+
+  if (mId === 'pre_inspection') {
+    proj.preInspectionPhotos = proj.preInspectionPhotos || [];
+    const idx = proj.preInspectionPhotos.findIndex((p: any) => p.id === photo.id);
+    if (idx !== -1) {
+      proj.preInspectionPhotos[idx] = { ...proj.preInspectionPhotos[idx], ...photoObj };
+    } else {
+      proj.preInspectionPhotos.push(photoObj);
+    }
+    return true;
+  } else if (mId) {
+    proj.moments = proj.moments || {};
+    if (!proj.moments[mId]) {
+      proj.moments[mId] = {
+        momentId: mId,
+        status: 'GREEN',
+        comment: '',
+        signature: '',
+        photos: [],
+        completedAt: now,
+      };
+    }
+    const mom = proj.moments[mId];
+    mom.photos = mom.photos || [];
+    const idx = mom.photos.findIndex((p: any) => p.id === photo.id);
+    if (idx !== -1) {
+      mom.photos[idx] = { ...mom.photos[idx], ...photoObj };
+    } else {
+      mom.photos.push(photoObj);
+    }
+    if (!mom.photoBase64 || mom.photoBase64.length < 500) {
+      mom.photoBase64 = photo.dataUrl;
+    }
+    return true;
+  }
+  return false;
 }
 
 function hydrateServerProjectPhotos(proj: any): any {
   if (!proj || !proj.moments || typeof proj.moments !== 'object') return proj;
   let changed = false;
   const momentsCopy: Record<string, any> = { ...proj.moments };
+  const deletedSet = new Set<string>((proj.deletedPhotoIds || []).filter(Boolean));
+
+  // Find all server-stored photos belonging to this project
+  const projectPhotos = Object.values(cloudState.photos || {}).filter(
+    (p: any) => p && p.projectId === proj.id && !deletedSet.has(p.id)
+  );
+
   for (const [mId, mom] of Object.entries(momentsCopy)) {
-    if (mom && Array.isArray(mom.photos)) {
-      let momPhotosChanged = false;
-      const hydratedPhotos = mom.photos.map((ph: any) => {
-        if (!ph || !ph.id) return ph;
-        if (isGoodServerPhoto(ph.dataUrl) && ph.dataUrl.length > 500) {
-          return ph;
-        }
-        const backedUp = cloudState.photos?.[ph.id] || getPhotoFromDisk(ph.id);
-        if (backedUp && isGoodServerPhoto(backedUp.dataUrl)) {
-          momPhotosChanged = true;
-          return { ...ph, dataUrl: backedUp.dataUrl, hash: backedUp.hash || ph.hash };
-        }
-        if (!ph.dataUrl || ph.dataUrl.trim() === '') {
-          momPhotosChanged = true;
-          return { ...ph, dataUrl: `/api/photos/${ph.id}` };
-        }
+    if (!mom) continue;
+    const momDeletedSet = new Set<string>([
+      ...Array.from(deletedSet),
+      ...(Array.isArray(mom?.deletedPhotoIds) ? mom.deletedPhotoIds : []),
+      ...Array.from(deletedSet)
+        .filter((id) => !id.includes(':') || id.startsWith(`${mId}:`))
+        .map((id) => (id.includes(':') ? id.split(':')[1] : id)),
+    ].filter(Boolean));
+
+    const existingPhotos: any[] = Array.isArray(mom.photos) ? [...mom.photos] : [];
+    const existingIds = new Set(existingPhotos.map((p: any) => p?.id).filter(Boolean));
+
+    // 1. Hydrate existing photos with full image dataUrl if blank or placeholder
+    const hydratedPhotos = existingPhotos.map((ph: any) => {
+      if (!ph || !ph.id) return ph;
+      if (isGoodServerPhoto(ph.dataUrl) && ph.dataUrl.length > 500) {
         return ph;
-      });
-      if (momPhotosChanged) {
+      }
+      const backedUp = cloudState.photos?.[ph.id] || getPhotoFromDisk(ph.id);
+      if (backedUp && isGoodServerPhoto(backedUp.dataUrl)) {
         changed = true;
-        const goodP = hydratedPhotos.find((p: any) => isGoodServerPhoto(p.dataUrl) && p.dataUrl.length > 500);
-        momentsCopy[mId] = {
-          ...mom,
-          photos: hydratedPhotos,
-          photoBase64: goodP ? goodP.dataUrl : (hydratedPhotos[0]?.dataUrl || mom.photoBase64),
-        };
+        return { ...ph, dataUrl: backedUp.dataUrl, hash: backedUp.hash || ph.hash };
+      }
+      if (!ph.dataUrl || ph.dataUrl.trim() === '') {
+        changed = true;
+        return { ...ph, dataUrl: `/api/photos/${ph.id}` };
+      }
+      return ph;
+    });
+
+    // 2. Also inject any photos from cloudState.photos that belong to this moment but weren't in mom.photos
+    const matchingPhotos = projectPhotos.filter(
+      (p: any) => p.momentId === mId && !momDeletedSet.has(p.id) && !momDeletedSet.has(`${mId}:${p.id}`)
+    );
+    for (const mp of matchingPhotos) {
+      if (!existingIds.has(mp.id)) {
+        hydratedPhotos.push({
+          id: mp.id,
+          caption: mp.caption || '',
+          category: mp.category || 'Kontroll',
+          capturedAt: mp.capturedAt || '',
+          dataUrl: mp.dataUrl,
+          hash: mp.hash || '',
+          hashVerified: !!mp.hash,
+        });
+        existingIds.add(mp.id);
+        changed = true;
       }
     }
+
+    const goodP = hydratedPhotos.find((p: any) => isGoodServerPhoto(p.dataUrl) && p.dataUrl.length > 500);
+    momentsCopy[mId] = {
+      ...mom,
+      photos: hydratedPhotos,
+      photoBase64: goodP ? goodP.dataUrl : (hydratedPhotos[0]?.dataUrl || mom.photoBase64),
+    };
   }
-  return changed ? { ...proj, moments: momentsCopy } : proj;
+
+  // Pre-inspection photos
+  let prePhotos: any[] = Array.isArray(proj.preInspectionPhotos) ? [...proj.preInspectionPhotos] : [];
+  const preIds = new Set(prePhotos.map((p: any) => p?.id).filter(Boolean));
+  const matchingPrePhotos = projectPhotos.filter(
+    (p: any) => p.momentId === 'pre_inspection' && !deletedSet.has(p.id)
+  );
+  for (const mp of matchingPrePhotos) {
+    if (!preIds.has(mp.id)) {
+      prePhotos.push({
+        id: mp.id,
+        caption: mp.caption || '',
+        category: mp.category || 'Förbesiktning',
+        capturedAt: mp.capturedAt || '',
+        dataUrl: mp.dataUrl,
+        hash: mp.hash || '',
+        hashVerified: !!mp.hash,
+      });
+      preIds.add(mp.id);
+      changed = true;
+    }
+  }
+
+  return { ...proj, moments: momentsCopy, preInspectionPhotos: prePhotos };
 }
 
 function mergeServerProjectSafely(existing: any, incoming: any): any {
@@ -4643,6 +4770,9 @@ app.post('/api/sync/photos', (req, res) => {
   // Persist immediately to separate disk file in data/photos/ with cryptographic verification
   const diskResult = savePhotoToDisk(record);
   record.hash = diskResult.hash;
+
+  // Immediately link photo into the active project so all users and devices receive it
+  attachPhotoToProjectState(record);
   saveStorage(cloudState);
 
   return res.json({
@@ -4681,6 +4811,7 @@ app.post('/api/sync/photos/batch', (req, res) => {
       cloudState.photos[record.id] = record;
       const resDisk = savePhotoToDisk(record);
       record.hash = resDisk.hash;
+      attachPhotoToProjectState(record);
       syncedIds.push(record.id);
       verifiedList.push({ id: record.id, hash: resDisk.hash });
     }

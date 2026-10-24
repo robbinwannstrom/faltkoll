@@ -646,37 +646,46 @@ export async function syncProjectBidirectional(
     if (currentLocal) {
       currentLocal.lastSyncedAt = now;
       currentLocal.syncEnabled = true;
-      await Promise.allSettled([
-        saveProjectToFirestore(currentLocal),
+      const initialPushPromises = [
         safeFetchJson('/api/sync/projects', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ project: currentLocal }),
-          timeoutMs: 4000,
+          timeoutMs: 5000,
         }),
-      ]);
+      ];
+      if (canWriteToFirestore()) {
+        initialPushPromises.push(saveProjectToFirestore(currentLocal));
+      }
+      await Promise.allSettled(initialPushPromises);
     }
 
     // Step 2: Fetch latest cloud versions from server and Firestore in parallel
-    const [serverRes, firestoreProj] = await Promise.allSettled([
-      safeFetchJson<{ project: Project }>(`/api/sync/projects/${projectId}?full=true`, { timeoutMs: 4000 }),
-      withTimeout(
-        (async () => {
-          try {
-            const pDoc = await getDoc(doc(db, 'projects', projectId));
-            if (pDoc.exists()) {
-              return pDoc.data() as Project;
-            }
-          } catch {}
-          return null;
-        })(),
-        3500,
-        null
-      ),
-    ]);
+    const cloudFetchPromises: Promise<any>[] = [
+      safeFetchJson<{ project: Project }>(`/api/sync/projects/${projectId}?full=true`, { timeoutMs: 5000 }),
+    ];
+    if (canWriteToFirestore()) {
+      cloudFetchPromises.push(
+        withTimeout(
+          (async () => {
+            try {
+              const pDoc = await getDoc(doc(db, 'projects', projectId));
+              if (pDoc.exists()) {
+                return pDoc.data() as Project;
+              }
+            } catch {}
+            return null;
+          })(),
+          3500,
+          null
+        )
+      );
+    }
+
+    const [serverRes, firestoreProj] = await Promise.allSettled(cloudFetchPromises);
 
     const remoteServerProj = serverRes.status === 'fulfilled' && serverRes.value.ok ? serverRes.value.data?.project : null;
-    const remoteFirestoreProj = firestoreProj.status === 'fulfilled' ? firestoreProj.value : null;
+    const remoteFirestoreProj = firestoreProj && firestoreProj.status === 'fulfilled' ? firestoreProj.value : null;
 
     // Merge candidates: local, remoteServer, remoteFirestore
     let merged = currentLocal;
@@ -697,22 +706,26 @@ export async function syncProjectBidirectional(
     // Step 3: Persist merged project to IndexedDB
     await saveProject(merged);
 
-    // Step 4: Re-save merged project to server and Firestore in background
-    Promise.allSettled([
+    // Step 4: Re-save merged project to server (and Firestore only if quota not exceeded)
+    const finalSyncPromises = [
       safeFetchJson('/api/sync/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ project: merged }),
-        timeoutMs: 3000,
+        timeoutMs: 4000,
       }),
-      saveProjectToFirestore(merged),
-    ]).catch(() => {});
+    ];
+    if (canWriteToFirestore()) {
+      finalSyncPromises.push(saveProjectToFirestore(merged));
+    }
+    Promise.allSettled(finalSyncPromises).catch(() => {});
 
     const photoCount = countProjectPhotos(merged);
+    const backendLabel = canWriteToFirestore() ? 'Google Cloud' : 'Reservserver (Express)';
     return {
       success: true,
       project: merged,
-      message: `✓ Synkning klar! Allt uppdaterat (${photoCount} foton säkrade).`,
+      message: `✓ Synkning klar via ${backendLabel}! Allt uppdaterat (${photoCount} foton säkrade).`,
     };
   } catch (err: any) {
     console.warn('Bidirectional sync notice:', err);

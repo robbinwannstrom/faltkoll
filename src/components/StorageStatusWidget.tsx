@@ -10,7 +10,7 @@ import {
   Info
 } from 'lucide-react';
 import { safeFetchJson } from '../services/apiHelper';
-import { isFirestoreQuotaExceeded } from '../firebase';
+import { isFirestoreQuotaExceeded, clearFirestoreQuotaExceeded } from '../firebase';
 
 export interface StorageStats {
   usedBytes: number;
@@ -265,11 +265,21 @@ export const StorageStatusWidget: React.FC<{
       {isFirestoreQuotaExceeded() && (
         <div className="bg-amber-950/40 border border-amber-800/60 rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-200">
           <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <div className="space-y-0.5">
+          <div className="space-y-1.5 flex-1">
             <span className="font-bold text-amber-300 block">Reservserver aktiv för molnsynk</span>
             <p className="text-[11px] text-amber-200/90 leading-relaxed">
               Google Cloud Firestore dagsgräns för gratis skrivningar (20 000 st) har uppnåtts för idag. Systemet har automatiskt kopplat om till Express-serverns lagring – alla projekt och foton fortsätter att sparas säkert och utan avbrott.
             </p>
+            <button
+              type="button"
+              onClick={() => {
+                clearFirestoreQuotaExceeded();
+                window.location.reload();
+              }}
+              className="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-[11px] font-bold cursor-pointer transition-colors"
+            >
+              🔄 Testa om Google Cloud-kvoten har återställts
+            </button>
           </div>
         </div>
       )}
